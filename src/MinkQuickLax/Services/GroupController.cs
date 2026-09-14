@@ -189,9 +189,9 @@ public sealed partial class GroupController
         var settings = _store.Current.Settings;
         _ghost = new IconWindow("group-drag");
         new WindowInteropHelper(_ghost).EnsureHandle();
-        _ghost.SetAppearance(settings.IconSize, false, item.Link.Name, _theme.Current.Dark);
+        _ghost.SetAppearance(settings.IconSize, false, item.Link.Name, _theme.Current);
         _ghost.SetImage(item.Icon);
-        _ghost.SetProximity(1, 1);
+        _ghost.SetProximity(1, 1, 1);
         _ghost.SetLifted(true);
         item.Opacity = 0.35;
         MoveGhost(MouseProximityTracker.CursorPosition());

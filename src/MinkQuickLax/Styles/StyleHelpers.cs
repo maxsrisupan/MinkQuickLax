@@ -64,6 +64,51 @@ public sealed class LabelText : TextBlock
     }
 }
 
+/// <summary>A 1 px divider in the edge color; a row of 2 px dots in Dot Matrix (SPEC 5.9).</summary>
+public sealed class StyledSeparator : FrameworkElement
+{
+    public static readonly DependencyProperty KindProperty = Skin.KindProperty.AddOwner(
+        typeof(StyledSeparator), new FrameworkPropertyMetadata(StyleSetting.Glass, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public static readonly DependencyProperty BrushProperty = DependencyProperty.Register(
+        nameof(Brush), typeof(Brush), typeof(StyledSeparator), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    private const double DotSize = 2;
+    private const double DotPitch = 5;
+
+    public StyledSeparator()
+    {
+        Height = DotSize;
+        IsHitTestVisible = false;
+        SetResourceReference(BrushProperty, "Skin.Edge");
+    }
+
+    public Brush? Brush
+    {
+        get => (Brush?)GetValue(BrushProperty);
+        set => SetValue(BrushProperty, value);
+    }
+
+    protected override void OnRender(DrawingContext drawingContext)
+    {
+        if (Brush is not { } brush)
+        {
+            return;
+        }
+        var width = RenderSize.Width;
+        if ((StyleSetting)GetValue(KindProperty) != StyleSetting.Dot)
+        {
+            drawingContext.DrawRectangle(brush, null, new Rect(0, Math.Floor((RenderSize.Height - 1) / 2), width, 1));
+            return;
+        }
+        var y = RenderSize.Height / 2;
+        for (var x = DotSize / 2; x <= width - DotSize / 2; x += DotPitch)
+        {
+            drawingContext.DrawEllipse(brush, null, new Point(x, y), DotSize / 2, DotSize / 2);
+        }
+    }
+}
+
 /// <summary>
 /// A normal window (taskbar, Alt+Tab, can take focus) drawn as a plate in the current style: the scanner and the
 /// settings window (SPEC 4.8, 5.5). Glass gets the system acrylic and rounded corners; HUD and Dot Matrix draw their own

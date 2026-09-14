@@ -21,7 +21,6 @@ public sealed class ProximityAnimator : IDisposable
     private readonly Func<IReadOnlyCollection<IconWindow>> _windows;
     private readonly DispatcherTimer _tick;
     private readonly HashSet<IconWindow> _moving = [];
-    private PixelPoint _lastCursor;
 
     public ProximityAnimator(MouseProximityTracker tracker, Func<IReadOnlyCollection<IconWindow>> windows)
     {
@@ -40,8 +39,8 @@ public sealed class ProximityAnimator : IDisposable
 
     public bool ReduceMotion { get; set; }
 
-    /// <summary>Re-evaluates every icon for the last known cursor position (after settings or layout changes).</summary>
-    public void Refresh() => OnMoved(_lastCursor);
+    /// <summary>Re-evaluates every icon for the current cursor position (after settings or layout changes).</summary>
+    public void Refresh() => OnMoved(MouseProximityTracker.CursorPosition());
 
     public void Dispose()
     {
@@ -51,7 +50,6 @@ public sealed class ProximityAnimator : IDisposable
 
     private void OnMoved(PixelPoint cursor)
     {
-        _lastCursor = cursor;
         foreach (var window in _windows())
         {
             if (!window.IsVisible)
@@ -65,17 +63,19 @@ public sealed class ProximityAnimator : IDisposable
             var opacity = IdleOpacity + (1 - IdleOpacity) * t;
             var size = Magnify ? 1 + (IconDesign.MaxMagnify - 1) * t * t : 1;
 
-            if (Math.Abs(opacity - window.TargetOpacity) < 0.01 && Math.Abs(size - window.TargetScale) < 0.005)
+            if (Math.Abs(opacity - window.TargetOpacity) < 0.01 && Math.Abs(size - window.TargetScale) < 0.005 && Math.Abs(t - window.TargetNearness) < 0.01)
             {
                 continue;
             }
             window.TargetOpacity = opacity;
             window.TargetScale = size;
+            window.TargetNearness = t;
             if (ReduceMotion)
             {
                 window.CurrentOpacity = opacity;
                 window.CurrentScale = size;
-                window.SetProximity(opacity, size);
+                window.CurrentNearness = t;
+                window.SetProximity(opacity, size, t);
                 continue;
             }
             _moving.Add(window);
@@ -92,14 +92,16 @@ public sealed class ProximityAnimator : IDisposable
         {
             var opacity = window.CurrentOpacity + (window.TargetOpacity - window.CurrentOpacity) * Step;
             var size = window.CurrentScale + (window.TargetScale - window.CurrentScale) * Step;
-            if (Math.Abs(window.TargetOpacity - opacity) < OpacityEpsilon && Math.Abs(window.TargetScale - size) < ScaleEpsilon)
+            var nearness = window.CurrentNearness + (window.TargetNearness - window.CurrentNearness) * Step;
+            if (Math.Abs(window.TargetOpacity - opacity) < OpacityEpsilon && Math.Abs(window.TargetScale - size) < ScaleEpsilon && Math.Abs(window.TargetNearness - nearness) < OpacityEpsilon)
             {
-                (opacity, size) = (window.TargetOpacity, window.TargetScale);
+                (opacity, size, nearness) = (window.TargetOpacity, window.TargetScale, window.TargetNearness);
                 _moving.Remove(window);
             }
             window.CurrentOpacity = opacity;
             window.CurrentScale = size;
-            window.SetProximity(opacity, size);
+            window.CurrentNearness = nearness;
+            window.SetProximity(opacity, size, nearness);
         }
         if (_moving.Count == 0)
         {

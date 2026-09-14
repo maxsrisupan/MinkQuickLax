@@ -19,6 +19,7 @@ public abstract class SurfaceWindow : Window
 {
     private readonly ThemeService _theme;
     private readonly SurfaceFrame _frame;
+    private readonly Grid _root;
     private readonly ScaleTransform _scale = new(1, 1);
 
     protected SurfaceWindow(ThemeService theme, string fillResourceKey)
@@ -43,7 +44,8 @@ public abstract class SurfaceWindow : Window
 
         _frame = new SurfaceFrame { RenderTransform = _scale };
         _frame.SetResourceReference(SurfaceFrame.FillProperty, fillResourceKey);
-        base.Content = _frame;
+        _root = new Grid { Children = { _frame } };
+        base.Content = _root;
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
 
         _theme.Changed += OnLookChanged;
@@ -64,6 +66,18 @@ public abstract class SurfaceWindow : Window
         get => _frame.Padding;
         set => _frame.Padding = value;
     }
+
+    /// <summary>Transparent space around the plate, for decorations drawn outside it (see <see cref="Root"/>).</summary>
+    protected Thickness FrameMargin
+    {
+        get => _frame.Margin;
+        set => _frame.Margin = value;
+    }
+
+    /// <summary>The grid holding the plate; extra children are drawn over the window, outside or on the plate.</summary>
+    protected Grid Root => _root;
+
+    protected Look CurrentLook => _theme.Current;
 
     protected SurfaceShape Shape
     {
@@ -113,7 +127,8 @@ public abstract class SurfaceWindow : Window
         _scale.BeginAnimation(ScaleTransform.ScaleYProperty, grow);
     }
 
-    private void OnLookChanged(Look look)
+    /// <summary>The style or theme changed while the window is open.</summary>
+    protected virtual void OnLookChanged(Look look)
     {
         if (Handle != 0)
         {
@@ -140,40 +155,5 @@ public abstract class SurfaceWindow : Window
         var y = anchor.Y + size.Height <= area.Bottom ? anchor.Y : anchor.Y - size.Height;
         var rect = new PixelRect(x, y, x + size.Width, y + size.Height).MoveInside(area);
         return new PixelPoint(rect.Left, rect.Top);
-    }
-}
-
-/// <summary>The icon name shown after hovering (SPEC 4.2, 5.2). Mouse clicks pass through it.</summary>
-public sealed class TooltipWindow : SurfaceWindow
-{
-    private readonly TextBlock _text;
-
-    public TooltipWindow(ThemeService theme)
-        : base(theme, "Skin.Fill.Tooltip")
-    {
-        _text = new TextBlock { Style = (Style)FindResource("Skin.Text"), FontSize = IconDesign.TooltipFontSize, MaxWidth = 360, TextTrimming = TextTrimming.CharacterEllipsis };
-        Body = _text;
-        Shape = SurfaceShape.Tooltip;
-        BodyPadding = new Thickness(10, 4, 10, 5);
-    }
-
-    protected override SurfaceBehavior Behavior => SurfaceBehavior.NoActivate | SurfaceBehavior.ClickThrough;
-
-    /// <summary>Shows above the icon, or below when there is no room above.</summary>
-    public void ShowFor(string text, PixelRect iconRect, PixelRect workArea, double scale)
-    {
-        _text.Text = text;
-        var gap = (int)Math.Round(IconDesign.TooltipGap * scale);
-        ShowPlaced(size =>
-        {
-            var x = iconRect.Center.X - size.Width / 2;
-            var y = iconRect.Top - gap - size.Height;
-            if (y < workArea.Top)
-            {
-                y = iconRect.Bottom + gap;
-            }
-            var rect = new PixelRect(x, y, x + size.Width, y + size.Height).MoveInside(workArea);
-            return new PixelPoint(rect.Left, rect.Top);
-        }, animate: false);
     }
 }

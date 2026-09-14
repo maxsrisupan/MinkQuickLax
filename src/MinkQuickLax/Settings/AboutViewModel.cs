@@ -27,7 +27,6 @@ public sealed partial class AboutViewModel(IMonitorProvider monitors, ConfigStor
     public IReadOnlyList<Component> Components { get; } =
     [
         new(".NET, WPF", "MIT"),
-        new("WPF-UI", "MIT"),
         new("CommunityToolkit.Mvvm", "MIT"),
         new("H.NotifyIcon", "MIT"),
         new("Microsoft.Windows.CsWin32", "MIT"),

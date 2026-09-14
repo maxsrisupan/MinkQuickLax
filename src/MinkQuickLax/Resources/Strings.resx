@@ -728,4 +728,36 @@
   <data name="Settings_SearchNothing" xml:space="preserve">
     <value>No setting matches.</value>
   </data>
+  <data name="Meta_Unknown" xml:space="preserve">
+    <value>LINK</value>
+    <comment>Kind code on the meta line of the HUD and Dot Matrix side label; shown in capitals</comment>
+  </data>
+  <data name="Meta_App" xml:space="preserve">
+    <value>APP</value>
+  </data>
+  <data name="Meta_ShellApp" xml:space="preserve">
+    <value>APP</value>
+  </data>
+  <data name="Meta_File" xml:space="preserve">
+    <value>FILE</value>
+  </data>
+  <data name="Meta_Folder" xml:space="preserve">
+    <value>DIR</value>
+  </data>
+  <data name="Meta_Url" xml:space="preserve">
+    <value>URL</value>
+  </data>
+  <data name="Meta_Command" xml:space="preserve">
+    <value>CMD</value>
+  </data>
+  <data name="Meta_MsSettings" xml:space="preserve">
+    <value>SYS</value>
+  </data>
+  <data name="Meta_Group" xml:space="preserve">
+    <value>GROUP · {0} LINKS</value>
+    <comment>{0} is the number of links in the group</comment>
+  </data>
+  <data name="Meta_Missing" xml:space="preserve">
+    <value>NOT FOUND</value>
+  </data>
 </root>

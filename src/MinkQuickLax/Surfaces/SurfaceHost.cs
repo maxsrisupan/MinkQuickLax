@@ -31,11 +31,11 @@ public sealed class SurfaceHost : IDisposable
 
     public bool HasOpenPopup => _popup is { IsVisible: true };
 
-    public void ShowTooltip(string text, PixelRect iconRect)
+    public void ShowTooltip(TooltipContent content, PixelRect iconRect)
     {
         var monitor = PositionMapper.MonitorAt(iconRect.Center, _monitors.GetMonitors());
         _tooltip ??= new TooltipWindow(_theme);
-        _tooltip.ShowFor(text, iconRect, monitor.WorkArea, monitor.Scale);
+        _tooltip.ShowFor(content, iconRect, monitor.WorkArea, monitor.Scale);
     }
 
     public void HideTooltip() => _tooltip?.Hide();

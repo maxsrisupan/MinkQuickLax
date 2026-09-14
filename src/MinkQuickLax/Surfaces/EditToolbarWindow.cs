@@ -3,8 +3,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Shapes;
+using System.Windows.Media.Effects;
 using MinkQuickLax.Core.Layout;
+using MinkQuickLax.Core.Model;
 using MinkQuickLax.Platform.Windowing;
 using MinkQuickLax.Services;
 using MinkQuickLax.Styles;
@@ -18,19 +19,21 @@ namespace MinkQuickLax.Surfaces;
 public sealed class EditToolbarWindow : SurfaceWindow
 {
     private readonly TranslateTransform _slide = new();
+    private readonly Border _marker;
+    private readonly LabelText _title;
 
     public EditToolbarWindow(ThemeService theme, Localizer text, Action add, bool canAdd, Action tidy, Action cancel, Action done)
         : base(theme, "Skin.Fill.Panel")
     {
         ShowActivated = true;
         Focusable = true;
-        var dot = new Ellipse { Width = 7, Height = 7, Margin = new Thickness(6, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
-        dot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Guide");
-        var title = new TextBlock { Style = (Style)FindResource("Skin.Text"), Text = text["Arrange_Title"], FontSize = 13, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0) };
+        _marker = new Border { Width = 7, Height = 7, Margin = new Thickness(6, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+        _title = new LabelText { Style = (Style)FindResource("Skin.Text"), Source = text["Arrange_Title"], VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0) };
+        ApplyStatusStyle(CurrentLook);
 
         var row = new StackPanel { Orientation = Orientation.Horizontal, RenderTransform = _slide };
-        row.Children.Add(dot);
-        row.Children.Add(title);
+        row.Children.Add(_marker);
+        row.Children.Add(_title);
         row.Children.Add(MakeButton("Skin.Button", text["Arrange_Add"], add, canAdd));
         row.Children.Add(MakeButton("Skin.Button", text["Arrange_Tidy"], tidy, true));
         row.Children.Add(MakeButton("Skin.Button", text["Arrange_Cancel"], cancel, true));
@@ -66,6 +69,44 @@ public sealed class EditToolbarWindow : SurfaceWindow
         base.OnActivated(e);
         // None of the buttons take focus, so hold it on the window itself or key presses go nowhere.
         Keyboard.Focus(this);
+    }
+
+    protected override void OnLookChanged(Look look)
+    {
+        base.OnLookChanged(look);
+        ApplyStatusStyle(look);
+    }
+
+    /// <summary>
+    /// The status at the left (SPEC 5.2, 5.8, 5.9). Glass: a guide-colored dot and plain text. HUD: a glowing amber
+    /// square that blinks and amber mono text. Dot Matrix: a blinking red dot and mono text.
+    /// </summary>
+    private void ApplyStatusStyle(Look look)
+    {
+        var style = look.Style;
+        _marker.CornerRadius = new CornerRadius(style == StyleSetting.Hud ? 0 : 3.5);
+        _marker.SetResourceReference(Border.BackgroundProperty, style switch { StyleSetting.Hud => "Skin.Amber", StyleSetting.Dot => "Danger", _ => "Guide" });
+        _marker.Effect = style == StyleSetting.Hud ? new DropShadowEffect { ShadowDepth = 0, BlurRadius = 8, Opacity = 0.9, Color = HudDesign.Amber } : null;
+        _marker.BeginAnimation(OpacityProperty, null);
+        if (style != StyleSetting.Glass && !look.ReduceMotion)
+        {
+            var blink = new DoubleAnimationUsingKeyFrames { Duration = IconStyleDesign.HudBlink, RepeatBehavior = RepeatBehavior.Forever };
+            Timeline.SetDesiredFrameRate(blink, IconStyleDesign.BlinkFrameRate);
+            blink.KeyFrames.Add(new DiscreteDoubleKeyFrame(1, KeyTime.FromPercent(0)));
+            blink.KeyFrames.Add(new DiscreteDoubleKeyFrame(0.2, KeyTime.FromPercent(0.5)));
+            _marker.BeginAnimation(OpacityProperty, blink);
+        }
+
+        _title.FontSize = style == StyleSetting.Glass ? 13 : 11;
+        if (style == StyleSetting.Glass)
+        {
+            _title.SetResourceReference(TextBlock.FontFamilyProperty, "Font.Ui");
+        }
+        else
+        {
+            _title.SetResourceReference(TextBlock.FontFamilyProperty, "Font.Mono");
+        }
+        _title.SetResourceReference(TextBlock.ForegroundProperty, style == StyleSetting.Hud ? "Skin.Amber" : "Skin.Ink");
     }
 
     protected override void AnimateIn()

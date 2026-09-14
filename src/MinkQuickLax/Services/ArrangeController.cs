@@ -301,10 +301,11 @@ public sealed partial class ArrangeController : IDisposable
         window.MoveTo(PixelRect.FromCenter(snap.Center, size), monitor.Dpi);
         TrackDropTarget(window, cursor);
 
-        ShowGuide(_verticalGuide, snap.Guides.FirstOrDefault(g => g.Vertical), monitor.Scale);
-        ShowGuide(_horizontalGuide, snap.Guides.FirstOrDefault(g => !g.Vertical), monitor.Scale);
+        var style = _theme.Current.Style;
+        ShowGuide(_verticalGuide, snap.Guides.FirstOrDefault(g => g.Vertical), monitor.Scale, style);
+        ShowGuide(_horizontalGuide, snap.Guides.FirstOrDefault(g => !g.Vertical), monitor.Scale, style);
         var text = string.Format(CultureInfo.InvariantCulture, _text["Readout_Position"], snap.Center.X - area.Left, snap.Center.Y - area.Top);
-        _readout.ShowAt(text, cursor, monitor.Bounds, monitor.Scale);
+        _readout.ShowAt(text, cursor, monitor.Bounds, monitor.Scale, style);
     }
 
     private void TrackDropTarget(IconWindow dragged, PixelPoint cursor)
@@ -423,7 +424,7 @@ public sealed partial class ArrangeController : IDisposable
             .Select(w => w.SquareRect)
             .ToList();
 
-    private static void ShowGuide(GuideWindow window, GuideLine? line, double scale)
+    private static void ShowGuide(GuideWindow window, GuideLine? line, double scale, Core.Model.StyleSetting style)
     {
         if (line is null)
         {
@@ -431,7 +432,7 @@ public sealed partial class ArrangeController : IDisposable
         }
         else
         {
-            window.ShowLine(line, scale);
+            window.ShowLine(line, scale, style);
         }
     }
 

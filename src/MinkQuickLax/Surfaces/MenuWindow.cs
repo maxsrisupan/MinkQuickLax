@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Controls;
+using MinkQuickLax.Core.Model;
 using MinkQuickLax.Services;
+using MinkQuickLax.Styles;
 
 namespace MinkQuickLax.Surfaces;
 
@@ -13,26 +15,17 @@ public sealed record MenuSeparator : MenuEntry
     public static MenuSeparator Instance { get; } = new();
 }
 
-/// <summary>Right-click menu for icons and the tray (SPEC 4.2, 4.7, 5.2).</summary>
+/// <summary>Right-click menu for icons and the tray (SPEC 4.2, 4.7, 5.2, 5.8, 5.9).</summary>
 public sealed class MenuWindow : SurfaceWindow
 {
     public MenuWindow(ThemeService theme, string? header, IReadOnlyList<MenuEntry> entries)
         : base(theme, "Skin.Fill.Menu")
     {
-        var panel = new StackPanel { MinWidth = 210 };
+        var style = CurrentLook.Style;
+        var panel = new StackPanel { MinWidth = style == StyleSetting.Hud ? 232 : 210 };
         if (!string.IsNullOrEmpty(header))
         {
-            var title = new TextBlock
-            {
-                Style = (Style)FindResource("Skin.Text"),
-                Text = header,
-                FontSize = 11.5,
-                Margin = new Thickness(10, 4, 10, 7),
-                TextTrimming = TextTrimming.CharacterEllipsis,
-                MaxWidth = 260,
-            };
-            title.SetResourceReference(TextBlock.ForegroundProperty, "Skin.Ink2");
-            panel.Children.Add(title);
+            panel.Children.Add(Header(header, style));
             panel.Children.Add(Separator());
         }
 
@@ -67,11 +60,44 @@ public sealed class MenuWindow : SurfaceWindow
         BodyPadding = new Thickness(6);
     }
 
-    private static Border Separator()
+    /// <summary>Glass: small secondary text. HUD: cyan mono capitals. Dot Matrix: mono capitals after a red dot.</summary>
+    private StackPanel Header(string header, StyleSetting style)
     {
-        var line = new Border { Height = 1, Margin = new Thickness(8, 4, 8, 4), IsHitTestVisible = false };
-        line.SetResourceReference(Border.BackgroundProperty, "Skin.Edge");
-        return line;
+        var title = new LabelText
+        {
+            Style = (Style)FindResource("Skin.Text"),
+            Source = header,
+            FontSize = style == StyleSetting.Glass ? 11.5 : 10.5,
+            TextTrimming = TextTrimming.CharacterEllipsis,
+            MaxWidth = 260,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        Skin.SetKind(title, style);
+        title.SetResourceReference(TextBlock.ForegroundProperty, style switch { StyleSetting.Hud => "Accent", StyleSetting.Dot => "Skin.Ink", _ => "Skin.Ink2" });
+        if (style != StyleSetting.Glass)
+        {
+            title.SetResourceReference(TextBlock.FontFamilyProperty, "Font.Mono");
+        }
+        var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(10, 4, 10, 7) };
+        if (style == StyleSetting.Dot)
+        {
+            var dot = new System.Windows.Shapes.Ellipse { Width = 6, Height = 6, Margin = new Thickness(0, 0, 7, 0), VerticalAlignment = VerticalAlignment.Center };
+            dot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Danger");
+            row.Children.Add(dot);
+        }
+        row.Children.Add(title);
+        return row;
+    }
+
+    private StyledSeparator Separator()
+    {
+        var separator = new StyledSeparator { Margin = new Thickness(8, 3, 8, 3) };
+        if (CurrentLook.Style == StyleSetting.Hud && !CurrentLook.HighContrast)
+        {
+            // SPEC 5.8: menu dividers are fainter than plate edges.
+            separator.Brush = new System.Windows.Media.SolidColorBrush(ThemeService.WithAlpha(HudDesign.Cyan, 0.18));
+        }
+        return separator;
     }
 }
 

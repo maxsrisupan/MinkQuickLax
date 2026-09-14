@@ -33,6 +33,7 @@ public sealed partial class PlacementController : IDisposable
     private readonly DispatcherTimer _tooltipTimer;
     private IReadOnlyList<MonitorInfo> _monitors = [];
     private IconWindow? _hovered;
+    private StyleSetting _style;
 
     public PlacementController(
         ConfigStore store,
@@ -88,6 +89,7 @@ public sealed partial class PlacementController : IDisposable
         _store.Changed += OnConfigChanged;
         _systemEvents.DisplaysChanged += OnDisplaysChanged;
         _theme.Changed += OnLookChanged;
+        _style = _theme.Current.Style;
         Sync(_store.Current);
     }
 
@@ -224,7 +226,28 @@ public sealed partial class PlacementController : IDisposable
         _displayDebounce.Start();
     }
 
-    private void OnLookChanged(Look look) => Sync(_store.Current, forceAppearance: true);
+    private void OnLookChanged(Look look)
+    {
+        var styleChanged = look.Style != _style;
+        _style = look.Style;
+        if (styleChanged)
+        {
+            // The label is laid out per style (above the icon in Glass, beside it otherwise); the next hover shows it again.
+            _surfaces.HideTooltip();
+        }
+        Sync(_store.Current, forceAppearance: true);
+        if (!styleChanged || look.ReduceMotion || IsHidden)
+        {
+            return;
+        }
+        // SPEC 5.4, 5.8, 5.9: the new style runs through the icons one after another.
+        var stagger = look.Style == StyleSetting.Dot ? IconStyleDesign.DotBootStagger : IconStyleDesign.HudBootStagger;
+        var i = 0;
+        foreach (var window in OrderedWindows())
+        {
+            window.PlayStyleIntro(stagger * i++);
+        }
+    }
 
     private void Sync(AppConfig config, AppConfig? previous = null, bool forceAppearance = false)
     {
@@ -297,7 +320,7 @@ public sealed partial class PlacementController : IDisposable
 
             if (contentChanged || settingsChanged)
             {
-                window!.SetAppearance(settings.IconSize, settings.ShowLabels, name, _theme.Current.Dark);
+                window!.SetAppearance(settings.IconSize, settings.ShowLabels, name, _theme.Current);
                 if (IsArranging)
                 {
                     window.SetArranging(true, 0, _theme.Current.ReduceMotion);
@@ -312,7 +335,8 @@ public sealed partial class PlacementController : IDisposable
             {
                 window!.CurrentOpacity = window.TargetOpacity = settings.IdleOpacity;
                 window.CurrentScale = window.TargetScale = 1;
-                window.SetProximity(settings.IdleOpacity, 1);
+                window.CurrentNearness = window.TargetNearness = 0;
+                window.SetProximity(settings.IdleOpacity, 1, 0);
                 var popIndex = _popIn.IndexOf(placement.Id);
                 if (!IsHidden)
                 {
@@ -468,8 +492,40 @@ public sealed partial class PlacementController : IDisposable
         _tooltipTimer.Stop();
         if (_hovered is { IsVisible: true } window && !_surfaces.HasOpenPopup && Resolve(window) is { } target)
         {
-            _surfaces.ShowTooltip(target.Link?.Name ?? target.Group?.Name ?? "", window.IconRect);
+            _surfaces.ShowTooltip(TooltipFor(window, target.Placement, target.Link, target.Group), window.IconRect);
         }
+    }
+
+    /// <summary>Name, slot and meta line for the side label of HUD and Dot Matrix (SPEC 5.8, 5.9).</summary>
+    private TooltipContent TooltipFor(IconWindow window, Placement placement, Link? link, Group? group)
+    {
+        var text = Localizer.Instance;
+        var placements = _store.Current.Placements;
+        var slot = 1;
+        for (var i = 0; i < placements.Count; i++)
+        {
+            if (ReferenceEquals(placements[i], placement) || placements[i].Id == placement.Id)
+            {
+                slot = i + 1;
+                break;
+            }
+        }
+        if (link is null)
+        {
+            return new TooltipContent(group?.Name ?? "", slot, text.Format("Meta_Group", group?.LinkIds.Count ?? 0));
+        }
+        var kind = Enum.IsDefined(link.Kind) ? link.Kind : LinkKind.Unknown;
+        var parts = new List<string> { text["Meta_" + kind] };
+        var subject = LinkSummary.Subject(link);
+        if (subject.Length > 0)
+        {
+            parts.Add(subject);
+        }
+        if (window.IsTargetMissing)
+        {
+            parts.Add(text["Meta_Missing"]);
+        }
+        return new TooltipContent(link.Name, slot, string.Join(" · ", parts));
     }
 
     private IEnumerable<IconWindow> OrderedWindows() =>

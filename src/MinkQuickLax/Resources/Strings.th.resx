@@ -711,4 +711,34 @@
   <data name="Settings_SearchNothing" xml:space="preserve">
     <value>ไม่พบค่าตั้งที่ตรงกัน</value>
   </data>
+  <data name="Meta_Unknown" xml:space="preserve">
+    <value>link</value>
+  </data>
+  <data name="Meta_App" xml:space="preserve">
+    <value>แอป</value>
+  </data>
+  <data name="Meta_ShellApp" xml:space="preserve">
+    <value>แอป</value>
+  </data>
+  <data name="Meta_File" xml:space="preserve">
+    <value>ไฟล์</value>
+  </data>
+  <data name="Meta_Folder" xml:space="preserve">
+    <value>โฟลเดอร์</value>
+  </data>
+  <data name="Meta_Url" xml:space="preserve">
+    <value>เว็บ</value>
+  </data>
+  <data name="Meta_Command" xml:space="preserve">
+    <value>คำสั่ง</value>
+  </data>
+  <data name="Meta_MsSettings" xml:space="preserve">
+    <value>ตั้งค่า</value>
+  </data>
+  <data name="Meta_Group" xml:space="preserve">
+    <value>กลุ่ม · {0} link</value>
+  </data>
+  <data name="Meta_Missing" xml:space="preserve">
+    <value>ไม่พบปลายทาง</value>
+  </data>
 </root>
