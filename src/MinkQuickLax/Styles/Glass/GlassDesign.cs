@@ -35,6 +35,17 @@ public static class IconDesign
     public const double MissingOpacity = 0.4;
     public const double MaxMagnify = 1.16;
 
+    // Folder previews: each 36% wide, 8% apart, so 10% padding on each side.
+    public const double FolderPaddingRatio = 0.10;
+    public const double FolderGapRatio = 0.08;
+
+    /// <summary>How long a dragged icon rests on another before they would become a group (SPEC 4.4).</summary>
+    public static readonly TimeSpan GroupHold = TimeSpan.FromMilliseconds(600);
+
+    /// <summary>Group panel grid cell: icon size plus this much (SPEC 5.2).</summary>
+    public const double PanelCellExtra = 24;
+    public const double PanelLabelHeight = 18;
+
     /// <summary>The eight letter-icon gradients, 150° from light to dark.</summary>
     public static readonly (Color From, Color To)[] LetterPalette =
     [

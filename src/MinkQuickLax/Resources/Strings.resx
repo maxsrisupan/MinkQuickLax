@@ -41,6 +41,28 @@
   <data name="Common_Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
+  <data name="Group_DefaultName" xml:space="preserve">
+    <value>New group</value>
+  </data>
+  <data name="Menu_DeleteGroup" xml:space="preserve">
+    <value>Delete group…</value>
+    <comment>The links inside are kept.</comment>
+  </data>
+  <data name="Menu_EditGroup" xml:space="preserve">
+    <value>Edit group…</value>
+  </data>
+  <data name="Menu_NewGroup" xml:space="preserve">
+    <value>New group</value>
+  </data>
+  <data name="Menu_RemoveFromGroup" xml:space="preserve">
+    <value>Remove from group</value>
+  </data>
+  <data name="Notice_ConfirmDeleteGroup" xml:space="preserve">
+    <value>Delete the group “{0}”? The links inside stay in your list.</value>
+  </data>
+  <data name="Panel_Empty" xml:space="preserve">
+    <value>This group is empty. In edit mode, drag icons onto the folder to add them.</value>
+  </data>
   <data name="Menu_AddToGroup" xml:space="preserve">
     <value>Add to group…</value>
   </data>

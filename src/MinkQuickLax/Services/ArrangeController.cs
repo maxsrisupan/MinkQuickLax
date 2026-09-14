@@ -45,6 +45,11 @@ public sealed partial class ArrangeController : IDisposable
     private MonitorInfo? _dragMonitor;
     private PixelPoint _dragCenter;
 
+    // Dropping on another item: a folder takes the link in; resting on a single icon for 0.6 s makes a new group.
+    private readonly System.Windows.Threading.DispatcherTimer _holdTimer = new() { Interval = IconDesign.GroupHold };
+    private IconWindow? _dropTarget;
+    private bool _dropReady;
+
     public ArrangeController(ConfigStore store, PlacementController placements, SurfaceHost surfaces, ThemeService theme, Localizer text, ILogger<ArrangeController> logger)
     {
         _store = store;
@@ -55,6 +60,15 @@ public sealed partial class ArrangeController : IDisposable
         _logger = logger;
         _placements.WindowCreated += Hook;
         _placements.WindowRemoved += OnWindowRemoved;
+        _holdTimer.Tick += (_, _) =>
+        {
+            _holdTimer.Stop();
+            if (_dragging && _dropTarget is { } target)
+            {
+                _dropReady = true;
+                target.SetDropTarget(true);
+            }
+        };
         _placements.HiddenChanged += hidden =>
         {
             if (hidden && IsArranging)
@@ -119,6 +133,8 @@ public sealed partial class ArrangeController : IDisposable
         {
             return;
         }
+        // Enter pressed mid-drag: settle the icon first so no guide or readout is left behind.
+        FinishPress();
         if (restore && _entrySnapshot is { } snapshot)
         {
             _store.Update(_ => snapshot);
@@ -144,6 +160,10 @@ public sealed partial class ArrangeController : IDisposable
 
     private void OnWindowRemoved(IconWindow window)
     {
+        if (ReferenceEquals(_dropTarget, window))
+        {
+            ClearDropTarget();
+        }
         if (ReferenceEquals(_pressed, window))
         {
             EndDragVisuals(window);
@@ -158,6 +178,8 @@ public sealed partial class ArrangeController : IDisposable
 
     private void OnPressed(IconWindow window, int clickCount)
     {
+        // A press can arrive before the last one was released (pen, touch, injected input).
+        FinishPress();
         _pressed = window;
         _pressPoint = MouseProximityTracker.CursorPosition();
         _grabOffset = new PixelPoint(_pressPoint.X - window.SquareRect.Center.X, _pressPoint.Y - window.SquareRect.Center.Y);
@@ -206,6 +228,11 @@ public sealed partial class ArrangeController : IDisposable
         }
         if (IsArranging)
         {
+            // Folders still open in edit mode, so links can be reordered or dragged out of the panel.
+            if (window.IsFolder && window.SquareRect.Contains(MouseProximityTracker.CursorPosition()))
+            {
+                _placements.RequestLaunch(window);
+            }
             _toolbar?.TakeKeyboardFocus();
             return;
         }
@@ -220,6 +247,21 @@ public sealed partial class ArrangeController : IDisposable
         if (!onDoubleClick || _doubleClick)
         {
             _placements.RequestLaunch(window);
+        }
+    }
+
+    /// <summary>Ends a press that is still open; a drag in progress is dropped where it is.</summary>
+    private void FinishPress()
+    {
+        if (_pressed is not { } window)
+        {
+            return;
+        }
+        _pressed = null;
+        window.EndCapture();
+        if (_dragging)
+        {
+            Drop(window);
         }
     }
 
@@ -257,6 +299,7 @@ public sealed partial class ArrangeController : IDisposable
         _dragMonitor = monitor;
         _dragCenter = snap.Center;
         window.MoveTo(PixelRect.FromCenter(snap.Center, size), monitor.Dpi);
+        TrackDropTarget(window, cursor);
 
         ShowGuide(_verticalGuide, snap.Guides.FirstOrDefault(g => g.Vertical), monitor.Scale);
         ShowGuide(_horizontalGuide, snap.Guides.FirstOrDefault(g => !g.Vertical), monitor.Scale);
@@ -264,10 +307,84 @@ public sealed partial class ArrangeController : IDisposable
         _readout.ShowAt(text, cursor, monitor.Bounds, monitor.Scale);
     }
 
+    private void TrackDropTarget(IconWindow dragged, PixelPoint cursor)
+    {
+        // Only single icons join or form groups; a dragged folder just moves.
+        var target = dragged.IsFolder
+            ? null
+            : _placements.Windows.FirstOrDefault(w => !ReferenceEquals(w, dragged) && w.IsVisible && w.SquareRect.Contains(cursor));
+        if (ReferenceEquals(target, _dropTarget))
+        {
+            return;
+        }
+        ClearDropTarget();
+        _dropTarget = target;
+        if (target is null)
+        {
+            return;
+        }
+        if (target.IsFolder)
+        {
+            _dropReady = true;
+            target.SetDropTarget(true);
+        }
+        else
+        {
+            _holdTimer.Start();
+        }
+    }
+
+    private void ClearDropTarget()
+    {
+        _holdTimer.Stop();
+        _dropTarget?.SetDropTarget(false);
+        _dropTarget = null;
+        _dropReady = false;
+    }
+
+    /// <summary>Returns true when the drop went into a group (or made one) instead of moving the icon.</summary>
+    private bool DropOnTarget(IconWindow dragged)
+    {
+        var target = _dropTarget;
+        var ready = _dropReady;
+        ClearDropTarget();
+        var config = _store.Current;
+        if (target is null || !ready || config.FindPlacement(dragged.PlacementId) is not { Type: PlacementType.Link } draggedPlacement
+            || config.FindPlacement(target.PlacementId) is not { } targetPlacement)
+        {
+            return false;
+        }
+
+        Record();
+        if (targetPlacement.Type == PlacementType.Group)
+        {
+            // SPEC 4.4: into the group; the single icon goes away.
+            _store.Update(c => c.AddLinkToGroup(targetPlacement.RefId, draggedPlacement.RefId).RemovePlacement(draggedPlacement.Id));
+            LogJoinedGroup(_logger, draggedPlacement.RefId, targetPlacement.RefId);
+        }
+        else
+        {
+            // SPEC 4.4: rested on another icon: both become a new group where the target was.
+            var group = new Group { Name = _text["Group_DefaultName"], LinkIds = [targetPlacement.RefId, draggedPlacement.RefId] };
+            var groupPlacement = targetPlacement with { Id = Ids.New(), Type = PlacementType.Group, RefId = group.Id };
+            _store.Update(c => c.RemovePlacement(targetPlacement.Id).RemovePlacement(draggedPlacement.Id).CreateGroup(group, groupPlacement));
+            LogGroupCreated(_logger, group.Id);
+        }
+        _selectedId = null;
+        return true;
+    }
+
     private void Drop(IconWindow window)
     {
         _dragging = false;
         EndDragVisuals(window);
+        // The config does not change while dragging, so recording now still captures the state before the drag.
+        if (DropOnTarget(window))
+        {
+            _beforeDrag = null;
+            _dragMonitor = null;
+            return;
+        }
         if (_dragMonitor is not { } monitor || _store.Current.FindPlacement(window.PlacementId) is not { } placement)
         {
             return;
@@ -417,6 +534,12 @@ public sealed partial class ArrangeController : IDisposable
 
     [LoggerMessage(Level = LogLevel.Debug, Message = "Edit mode key {Key} {Modifiers} (selected: {Selected})")]
     private static partial void LogKey(ILogger logger, Key key, ModifierKeys modifiers, string? selected);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Link {LinkId} joined group {GroupId}")]
+    private static partial void LogJoinedGroup(ILogger logger, string linkId, string groupId);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Group {Id} created by dropping one icon on another")]
+    private static partial void LogGroupCreated(ILogger logger, string id);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Dropped {Id} at {X},{Y}")]
     private static partial void LogDropped(ILogger logger, string id, int x, int y);

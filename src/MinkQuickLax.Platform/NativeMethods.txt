@@ -17,6 +17,9 @@ SetTimer
 KillTimer
 GetCursorPos
 GetKeyState
+RegisterHotKey
+UnregisterHotKey
+WM_HOTKEY
 WINDOW_EX_STYLE
 WINDOW_STYLE
 WM_INPUT

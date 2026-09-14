@@ -1,6 +1,6 @@
 # MinkQuickLax — แผนลงมือ (Plan)
 
-> **ความคืบหน้า:** M0–M5 เสร็จ (มีข้อตรวจของ M5 ที่ยกไป M7) · งานถัดไปคือ **M6 กลุ่ม** (หัวข้อ 6)
+> **ความคืบหน้า:** M0–M6 เสร็จ (มีข้อตรวจของ M5 ที่ยกไป M7) · งานถัดไปคือ **M7 หน้าตั้งค่า** (หัวข้อ 6)
 > อัปเดตล่าสุด: 2026-09-15
 > **ข้อกำหนดอยู่ที่ [SPEC.md](SPEC.md)** เอกสารนี้บอกแค่ว่าทำอย่างไรและทำอะไรก่อน
 
@@ -78,12 +78,12 @@ MinkQuickLax/
 │     ├─ AppServices.cs / AppShell.cs  DI + Serilog / ลำดับตอนเปิด-ปิด
 │     ├─ App.xaml(.cs)
 │     ├─ Styles/Glass/            ResourceDictionary ของ Glass (สี, brush, template)
-│     ├─ Surfaces/                IconWindow, FolderWindow, GroupPanelWindow, GlassSurfaceWindow (Tooltip, GlassMenu, Notice), SurfaceHost, EditToolbarWindow, DragReadoutWindow
+│     ├─ Surfaces/                IconWindow (รวมแบบโฟลเดอร์), GroupPanelWindow, GlassSurfaceWindow (Tooltip, GlassMenu, Notice), SurfaceHost, EditToolbarWindow, DragReadoutWindow
 │     ├─ Settings/                SettingsWindow + Pages + ViewModels
 │     ├─ Scanner/                 ScannerWindow + ViewModel
 │     ├─ Manual/                  ManualWindow (WebView2)
 │     ├─ Tray/                    TrayController
-│     ├─ Services/                PlacementController, LinkActions, ProximityAnimator, ThemeService, EditModeController, UndoHistory, IconCache, Localizer
+│     ├─ Services/                PlacementController, LinkActions, ProximityAnimator, ThemeService, ArrangeController, GroupController, IconCache, Localizer
 │     ├─ Resources/Strings.resx   อังกฤษ (ค่าหลัก)
 │     ├─ Resources/Strings.th.resx
 │     ├─ Assets/Fonts/            IBM Plex Sans Thai, Chakra Petch, JetBrains Mono + ไฟล์ OFL
@@ -126,8 +126,8 @@ MinkQuickLax/
 | หน้าต่าง | โปร่งใสแบบ layered | เบลอข้างหลัง | บนสุด | `WS_EX_TOOLWINDOW` | `WS_EX_NOACTIVATE` | หมายเหตุ |
 |---|---|---|---|---|---|---|
 | IconWindow | ✔ (วาดด้วย CPU) | | ✔ | ✔ | ✔ | 1 ชิ้นต่อ 1 ไอคอนเดี่ยว |
-| FolderWindow | ✔ (วาดด้วย CPU) | | ✔ | ✔ | ✔ | 1 ชิ้นต่อ 1 กลุ่ม |
-| GroupPanelWindow | | accent acrylic (Win11 22H2+) | ✔ | ✔ | ✔ | สร้างตอนกาง ทำลายตอนหุบ |
+| IconWindow แบบโฟลเดอร์ | ✔ (วาดด้วย CPU) | | ✔ | ✔ | ✔ | 1 ชิ้นต่อ 1 กลุ่ม (หัวข้อ 12) |
+| GroupPanelWindow | | accent acrylic (Win11 22H2+) | ✔ | ✔ | ✔ | สร้างตอนกาง ทำลายตอนหุบ · Esc ปิดได้ (`EscapeKeyWatcher`) |
 | TooltipWindow | | accent acrylic | ✔ | ✔ | ✔ | มีตัวเดียวใช้ร่วมกัน · คลิกทะลุ (`WS_EX_TRANSPARENT`) |
 | GlassMenuWindow | | accent acrylic | ✔ | ✔ | ✔ | เมนูคลิกขวาทั้งที่ไอคอนและที่ tray · ปิดเมื่อคลิกนอกเมนู (ดักด้วย Raw Input) |
 | EditToolbarWindow | | accent acrylic | ✔ | ✔ | | รับแป้นพิมพ์ในโหมดแก้ไข |
@@ -366,12 +366,14 @@ MinkQuickLax/
 - **ยังต้องตรวจต่อ:** เพิ่มไฟล์/โฟลเดอร์/URL ผ่านหน้าสแกนบนเครื่องจริง (ตรรกะแยกประเภทมี test แล้ว) · "แก้ชื่อแล้วเปลี่ยนทั้งสองที่" ต้องมีหน้าแก้ link ก่อน จึงย้ายไปตรวจใน M7 (การอัปเดตหน้าต่างทุกบานเมื่อ link เปลี่ยนมีอยู่แล้วใน `PlacementController.Sync`)
 
 ### M6 · กลุ่ม
-- [ ] `FolderWindow` (แผ่นกระจกไม่เบลอ + ไอคอนย่อ 2×2)
-- [ ] `GroupPanelWindow`: กางตามทิศที่มีที่ว่าง, หุบเมื่อกด link/Esc/คลิกที่อื่น, ไม่แย่ง focus
-- [ ] ลากไอคอนเดี่ยวเข้ากลุ่ม, ลาก link ออกจากแผง, จัดลำดับในแผง, ย้ายทั้งกลุ่ม
-- [ ] ลากค้าง 0.6 วินาทีบนไอคอนอื่นเพื่อสร้างกลุ่ม
-- [ ] เมนู "เพิ่มเข้ากลุ่ม…" และเมนูคลิกขวาที่กลุ่ม
+- [x] โฟลเดอร์ (แผ่นกระจกไม่เบลอ + ไอคอนย่อ 2×2) ทำเป็นแบบหนึ่งของ `IconWindow` แทน `FolderWindow` แยก (หัวข้อ 12)
+- [x] `GroupPanelWindow`: กางตามทิศที่มีที่ว่าง, หุบเมื่อกด link/Esc/คลิกที่อื่น, ไม่แย่ง focus · กางแบบขยายจากโฟลเดอร์ 420ms
+- [x] ลากไอคอนเดี่ยวเข้ากลุ่ม, ลาก link ออกจากแผง, จัดลำดับในแผง, ย้ายทั้งกลุ่ม (`GroupController` ดูแลการลากในแผง)
+- [x] ลากค้าง 0.6 วินาทีบนไอคอนอื่นเพื่อสร้างกลุ่ม (เป้าหมายขยายและมีวงสี Accent เมื่อพร้อม)
+- [x] เมนู "เพิ่มเข้ากลุ่ม…" (กลุ่มที่มีอยู่ หรือกลุ่มใหม่ข้างไอคอน), เมนูคลิกขวาที่กลุ่ม, เมนูคลิกขวาที่ link ในแผง ("เอาออกจากกลุ่ม") · "แก้ไขกลุ่ม…" กับ "แก้ไข…" ยังกดไม่ได้จนกว่าจะมีหน้าตั้งค่า (M7)
 - **ตรวจ:** SPEC 4.3 และแถวเรื่องกลุ่มในตารางการลากของ SPEC 4.4 ครบ
+- **ผลตรวจ (2026-09-15):** config ทดสอบมีกลุ่ม "งาน" (Calculator, Windows) · โฟลเดอร์แสดงไอคอนย่อของ link ข้างใน · คลิกแล้วแผงกางไปทางซ้ายเพราะโฟลเดอร์ชิดขอบขวา มีชื่อกลุ่มและชื่อ link · คลิก Calculator ในแผงแล้ว app เปิดและแผงหุบ · Esc ปิดแผงได้ และปล่อยปุ่ม Esc คืนให้ app อื่นทันทีหลังปิด · เมนูคลิกขวาที่กลุ่มครบตาม SPEC · ลาก GitHub ไปวางบนโฟลเดอร์แล้วเข้ากลุ่มและไอคอนเดี่ยวหาย · ลาก Home ไปค้างบน Notepad แล้วได้กลุ่มใหม่ตรงตำแหน่งของ Notepad · ลาก GitHub ในแผงไปช่องแรกแล้วลำดับเปลี่ยน · ลาก Windows ออกนอกแผงแล้วเป็นไอคอนเดี่ยวตรงที่ปล่อย (ชิดกริด) · ลากโฟลเดอร์ไปที่ใหม่ได้ · ลบกลุ่มแล้ว link ข้างในยังอยู่ · "เพิ่มเข้ากลุ่ม…" → "งาน" ใช้ได้
+- **บั๊กที่เจอและแก้ระหว่างตรวจ:** มีการกดซ้ำเข้ามาระหว่างลาก (เมาส์ของผู้ใช้กับสคริปต์ทดสอบชนกัน) แล้วออกจากโหมดแก้ไข ทำให้เส้นช่วยจัดแนวและป้ายพิกัดค้างบนจอ · ตอนนี้กดซ้ำหรือออกจากโหมดแก้ไขระหว่างลากจะวางไอคอนลงตรงนั้นก่อนเสมอ · แผงที่ปิดระหว่างลาก link จะเก็บไอคอนที่ลากอยู่ด้วย
 
 ### M7 · หน้าตั้งค่า
 - [ ] `SettingsWindow` (WPF-UI, Mica) + NavigationView หมวดที่เป็น F1 ใน SPEC 4.8
@@ -539,3 +541,7 @@ MinkQuickLax/
 | 2026-09-15 | ย้อนกลับ | เก็บ `AppConfig` ทั้งก้อนเป็น snapshot (`UndoHistory<T>`, สูงสุด 200 ขั้น) | model เป็นค่าคงที่อยู่แล้ว snapshot จึงถูกและถูกต้องกว่าการเก็บคำสั่งย้อน |
 | 2026-09-15 | log แบบละเอียด | ตัวแปร `MINKQUICKLAX_DEBUG=1` เปิดระดับ Debug | ใช้หาปัญหาในเครื่องผู้ใช้โดยไม่ต้อง build ใหม่ |
 | 2026-09-15 | ทดสอบ UI บนเครื่องผู้ใช้ | ขยับเมาส์/คลิกเฉพาะบนหน้าต่างของ app · ไม่ส่งปุ่มลัดไปหน้าต่างอื่น | สคริปต์ที่ส่ง Ctrl+W/Esc และคลิกลงหน้าต่างอื่นรบกวนงานของผู้ใช้ (ผู้ใช้กดยกเลิก) |
+| 2026-09-15 | หน้าต่างโฟลเดอร์ | ใช้ `IconWindow` แบบโฟลเดอร์ (`SetFolder`) ไม่แยก `FolderWindow` | ขนาด เงา การเข้าใกล้ การลาก การสั่น และการเลือกเหมือนไอคอนเดี่ยวทุกอย่าง ต่างกันแค่สิ่งที่วาดข้างใน |
+| 2026-09-15 | Esc ปิดแผงและเมนู | ลงทะเบียน Esc เป็น hotkey (`RegisterHotKey`) เฉพาะตอนมีแผง เมนู หรือกล่องแจ้งเตือนเปิดอยู่ แล้วคืนทันทีเมื่อปิด (`EscapeKeyWatcher`) | หน้าต่างของ app ไม่รับ focus จึงไม่ได้รับปุ่มเอง · ไม่ใช้ keyboard hook หรือ Raw Input ของคีย์บอร์ดที่เห็นทุกปุ่มที่ผู้ใช้พิมพ์ · Esc ที่กดตอนแผงเปิดจึงไม่หลุดไปถึง app ที่ผู้ใช้กำลังใช้ |
+| 2026-09-15 | คลิกโฟลเดอร์ในโหมดแก้ไข | ยังกางแผง | ต้องกางแผงเพื่อจัดลำดับหรือลาก link ออกจากกลุ่ม |
+| 2026-09-15 | สร้างกลุ่มใหม่จาก "เพิ่มเข้ากลุ่ม…" | วางโฟลเดอร์ในช่องว่างข้างไอคอนนั้น และไอคอนเดี่ยวยังอยู่ | เมนูนี้เป็นการเพิ่ม link เข้ากลุ่ม ไม่ใช่ย้าย (ต่างจากการลากไปวางบนกลุ่มที่ SPEC ให้ไอคอนเดี่ยวหาย) |

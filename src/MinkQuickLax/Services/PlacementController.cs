@@ -70,6 +70,12 @@ public sealed partial class PlacementController : IDisposable
     /// <summary>A link icon was right-clicked.</summary>
     public event Action<IconWindow, Link, Placement>? MenuRequested;
 
+    /// <summary>A group's folder was clicked: open its panel.</summary>
+    public event Action<IconWindow, Group>? GroupOpenRequested;
+
+    /// <summary>A group's folder was right-clicked.</summary>
+    public event Action<IconWindow, Group, Placement>? GroupMenuRequested;
+
     /// <summary>Raised after hiding or showing everything.</summary>
     public event Action<bool>? HiddenChanged;
 
@@ -121,7 +127,23 @@ public sealed partial class PlacementController : IDisposable
     }
 
     /// <summary>A click that should open the link (decided by the arrange controller).</summary>
-    public void RequestLaunch(IconWindow window) => WithLink(window, (link, _) => LaunchRequested?.Invoke(window, link));
+    public void RequestLaunch(IconWindow window)
+    {
+        if (Resolve(window) is not { } target)
+        {
+            return;
+        }
+        _surfaces.HideTooltip();
+        _tooltipTimer.Stop();
+        if (target.Link is { } link)
+        {
+            LaunchRequested?.Invoke(window, link);
+        }
+        else if (target.Group is { } group)
+        {
+            GroupOpenRequested?.Invoke(window, group);
+        }
+    }
 
     public void ToggleHidden() => SetHidden(!IsHidden);
 
@@ -214,7 +236,10 @@ public sealed partial class PlacementController : IDisposable
         _animator.ReduceMotion = _theme.Current.ReduceMotion;
 
         var links = config.Links.ToDictionary(l => l.Id, StringComparer.Ordinal);
-        var wanted = config.Placements.Where(p => p.Type == PlacementType.Link && links.ContainsKey(p.RefId)).ToList();
+        var groups = config.Groups.ToDictionary(g => g.Id, StringComparer.Ordinal);
+        var wanted = config.Placements
+            .Where(p => p.Type == PlacementType.Link ? links.ContainsKey(p.RefId) : groups.ContainsKey(p.RefId))
+            .ToList();
         var wantedIds = wanted.Select(p => p.Id).ToHashSet(StringComparer.Ordinal);
 
         foreach (var gone in _windows.Keys.Where(id => !wantedIds.Contains(id)).ToList())
@@ -232,28 +257,51 @@ public sealed partial class PlacementController : IDisposable
         }
 
         var previousLinks = previous?.Links.ToDictionary(l => l.Id, StringComparer.Ordinal);
+        var previousGroups = previous?.Groups.ToDictionary(g => g.Id, StringComparer.Ordinal);
         var previousPlacements = previous?.Placements.ToDictionary(p => p.Id, StringComparer.Ordinal);
+        bool LinkChanged(Link link) => previousLinks is null || !previousLinks.TryGetValue(link.Id, out var old) || !Equals(old, link);
+
         foreach (var placement in wanted)
         {
-            var link = links[placement.RefId];
             var isNew = !_windows.TryGetValue(placement.Id, out var window);
             if (isNew)
             {
                 window = CreateWindow(placement.Id);
             }
-            var linkChanged = isNew || previousLinks is null || !previousLinks.TryGetValue(link.Id, out var oldLink) || !Equals(oldLink, link);
-            if (isNew || linkChanged || settingsChanged)
+
+            string name;
+            bool contentChanged;
+            if (placement.Type == PlacementType.Link)
             {
-                window!.SetAppearance(settings.IconSize, settings.ShowLabels, link.Name, _theme.Current.Dark);
+                var link = links[placement.RefId];
+                name = link.Name;
+                contentChanged = isNew || LinkChanged(link);
+                if (contentChanged)
+                {
+                    _ = LoadImageAsync(window!, link);
+                    _ = CheckTargetAsync(window!, link);
+                }
+            }
+            else
+            {
+                var group = groups[placement.RefId];
+                var members = group.LinkIds.Select(links.GetValueOrDefault).OfType<Link>().Take(4).ToList();
+                name = group.Name;
+                contentChanged = isNew || previousGroups is null || !previousGroups.TryGetValue(group.Id, out var oldGroup)
+                    || !oldGroup.LinkIds.SequenceEqual(group.LinkIds) || oldGroup.Name != group.Name || members.Any(LinkChanged);
+                if (contentChanged)
+                {
+                    _ = LoadFolderAsync(window!, members);
+                }
+            }
+
+            if (contentChanged || settingsChanged)
+            {
+                window!.SetAppearance(settings.IconSize, settings.ShowLabels, name, _theme.Current.Dark);
                 if (IsArranging)
                 {
                     window.SetArranging(true, 0, _theme.Current.ReduceMotion);
                 }
-            }
-            if (isNew || linkChanged)
-            {
-                _ = LoadImageAsync(window!, link);
-                _ = CheckTargetAsync(window!, link);
             }
             var moved = isNew || settingsChanged || previousPlacements is null || !previousPlacements.TryGetValue(placement.Id, out var oldPlacement) || !Equals(oldPlacement, placement);
             if (moved)
@@ -287,21 +335,47 @@ public sealed partial class PlacementController : IDisposable
         _windows[placementId] = window;
         // Creates the HWND so styles are applied before the first Show.
         new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
-        window.MenuRequested += w => WithLink(w, (link, placement) => MenuRequested?.Invoke(w, link, placement));
+        window.MenuRequested += OnMenuRequested;
         window.HoverChanged += OnHoverChanged;
         WindowCreated?.Invoke(window);
         return window;
     }
 
-    private void WithLink(IconWindow window, Action<Link, Placement> action)
+    /// <summary>What a window shows: its placement plus either a link or a group.</summary>
+    public (Placement Placement, Link? Link, Group? Group)? Resolve(IconWindow window)
     {
         var config = _store.Current;
-        if (config.FindPlacement(window.PlacementId) is { } placement && config.FindLink(placement.RefId) is { } link)
+        if (config.FindPlacement(window.PlacementId) is not { } placement)
         {
-            _surfaces.HideTooltip();
-            _tooltipTimer.Stop();
-            action(link, placement);
+            return null;
         }
+        return placement.Type == PlacementType.Link
+            ? config.FindLink(placement.RefId) is { } link ? (placement, link, null) : null
+            : config.FindGroup(placement.RefId) is { } group ? (placement, null, group) : null;
+    }
+
+    private void OnMenuRequested(IconWindow window)
+    {
+        if (Resolve(window) is not { } target)
+        {
+            return;
+        }
+        _surfaces.HideTooltip();
+        _tooltipTimer.Stop();
+        if (target.Link is { } link)
+        {
+            MenuRequested?.Invoke(window, link, target.Placement);
+        }
+        else if (target.Group is { } group)
+        {
+            GroupMenuRequested?.Invoke(window, group, target.Placement);
+        }
+    }
+
+    private async Task LoadFolderAsync(IconWindow window, IReadOnlyList<Link> members)
+    {
+        var images = await Task.WhenAll(members.Select(async m => await _icons.GetAsync(m) ?? IconCache.LetterImage(m.Name)));
+        window.SetFolder(images);
     }
 
     private void Position(IconWindow window, Placement placement, AppSettings settings)
@@ -392,10 +466,9 @@ public sealed partial class PlacementController : IDisposable
     private void ShowTooltipForHovered()
     {
         _tooltipTimer.Stop();
-        if (_hovered is { IsVisible: true } window && !_surfaces.HasOpenPopup && _store.Current.FindPlacement(window.PlacementId) is { } placement
-            && _store.Current.FindLink(placement.RefId) is { } link)
+        if (_hovered is { IsVisible: true } window && !_surfaces.HasOpenPopup && Resolve(window) is { } target)
         {
-            _surfaces.ShowTooltip(link.Name, window.IconRect);
+            _surfaces.ShowTooltip(target.Link?.Name ?? target.Group?.Name ?? "", window.IconRect);
         }
     }
 

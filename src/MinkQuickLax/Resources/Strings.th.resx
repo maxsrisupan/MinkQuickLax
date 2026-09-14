@@ -39,6 +39,27 @@
   <data name="Common_Delete" xml:space="preserve">
     <value>ลบ</value>
   </data>
+  <data name="Group_DefaultName" xml:space="preserve">
+    <value>กลุ่มใหม่</value>
+  </data>
+  <data name="Menu_DeleteGroup" xml:space="preserve">
+    <value>ลบกลุ่ม…</value>
+  </data>
+  <data name="Menu_EditGroup" xml:space="preserve">
+    <value>แก้ไขกลุ่ม…</value>
+  </data>
+  <data name="Menu_NewGroup" xml:space="preserve">
+    <value>กลุ่มใหม่</value>
+  </data>
+  <data name="Menu_RemoveFromGroup" xml:space="preserve">
+    <value>เอาออกจากกลุ่ม</value>
+  </data>
+  <data name="Notice_ConfirmDeleteGroup" xml:space="preserve">
+    <value>ลบกลุ่ม “{0}” ไหม? link ข้างในยังอยู่ในรายการ</value>
+  </data>
+  <data name="Panel_Empty" xml:space="preserve">
+    <value>กลุ่มนี้ยังว่าง เข้าโหมดจัดวางแล้วลากไอคอนมาวางบนโฟลเดอร์เพื่อเพิ่ม</value>
+  </data>
   <data name="Menu_AddToGroup" xml:space="preserve">
     <value>เพิ่มเข้ากลุ่ม…</value>
   </data>

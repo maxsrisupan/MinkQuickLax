@@ -6,23 +6,27 @@ using MinkQuickLax.Services;
 namespace MinkQuickLax.Surfaces;
 
 /// <summary>
-/// Owns the shared tooltip and the one open menu or notice. Our windows never get focus, so a click
-/// anywhere outside the open surface (seen through Raw Input) closes it.
+/// Owns the shared tooltip and the one open menu, notice or group panel. Our windows never get focus, so a click
+/// anywhere outside the open surface (seen through Raw Input) or Esc closes it.
 /// </summary>
 public sealed class SurfaceHost : IDisposable
 {
     private readonly ThemeService _theme;
     private readonly IMonitorProvider _monitors;
     private readonly MouseProximityTracker _tracker;
+    private readonly EscapeKeyWatcher _escape;
     private TooltipWindow? _tooltip;
     private GlassSurfaceWindow? _popup;
+    private PixelRect _keepOpenArea;
 
-    public SurfaceHost(ThemeService theme, IMonitorProvider monitors, MouseProximityTracker tracker)
+    public SurfaceHost(ThemeService theme, IMonitorProvider monitors, MouseProximityTracker tracker, EscapeKeyWatcher escape)
     {
         _theme = theme;
         _monitors = monitors;
         _tracker = tracker;
+        _escape = escape;
         _tracker.ButtonDown += OnButtonDown;
+        _escape.Pressed += ClosePopup;
     }
 
     public bool HasOpenPopup => _popup is { IsVisible: true };
@@ -59,15 +63,34 @@ public sealed class SurfaceHost : IDisposable
         });
     }
 
+    /// <summary>The open popup (menu, notice or group panel), if any.</summary>
+    public GlassSurfaceWindow? Popup => _popup is { IsVisible: true } popup ? popup : null;
+
+    /// <summary>Opens a group panel beside its folder. Clicks inside the folder or panel do not close it.</summary>
+    public void ShowPanel(GroupPanelWindow panel, PixelRect folder)
+    {
+        HideTooltip();
+        var monitor = PositionMapper.MonitorAt(folder.Center, _monitors.GetMonitors());
+        _keepOpenArea = folder;
+        Open(panel, size =>
+        {
+            var topLeft = GroupPanelWindow.PlaceBeside(folder, size, monitor.WorkArea, monitor.ToPixels(8), out var origin);
+            panel.SetUnfoldOrigin(origin);
+            return topLeft;
+        });
+    }
+
     public void ClosePopup()
     {
         _popup?.Close();
         _popup = null;
+        _escape.Stop();
     }
 
     public void Dispose()
     {
         _tracker.ButtonDown -= OnButtonDown;
+        _escape.Pressed -= ClosePopup;
         ClosePopup();
         _tooltip?.Close();
     }
@@ -81,14 +104,16 @@ public sealed class SurfaceHost : IDisposable
             if (ReferenceEquals(_popup, window))
             {
                 _popup = null;
+                _escape.Stop();
             }
         };
         window.ShowPlaced(place, animate: true);
+        _escape.Start();
     }
 
     private void OnButtonDown(PixelPoint at, MouseButton button)
     {
-        if (_popup is { IsVisible: true } popup && !popup.Bounds.Contains(at))
+        if (_popup is { IsVisible: true } popup && !popup.Bounds.Contains(at) && !(popup is GroupPanelWindow && _keepOpenArea.Contains(at)))
         {
             ClosePopup();
         }

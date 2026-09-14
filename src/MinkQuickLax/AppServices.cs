@@ -34,6 +34,7 @@ public static class AppServices
         builder.Services.AddSingleton<IMonitorProvider, MonitorProvider>();
         builder.Services.AddSingleton<SystemEvents>();
         builder.Services.AddSingleton<MouseProximityTracker>();
+        builder.Services.AddSingleton<EscapeKeyWatcher>();
         builder.Services.AddSingleton<TopmostKeeper>();
         builder.Services.AddSingleton<ThemeService>();
         builder.Services.AddSingleton(Localizer.Instance);
@@ -42,6 +43,7 @@ public static class AppServices
         builder.Services.AddSingleton<SurfaceHost>();
         builder.Services.AddSingleton<PlacementController>();
         builder.Services.AddSingleton<ArrangeController>();
+        builder.Services.AddSingleton<GroupController>();
         builder.Services.AddSingleton<LinkActions>();
         builder.Services.AddSingleton<LinkAdder>();
         builder.Services.AddSingleton<Scanner.ScannerService>();

@@ -23,6 +23,8 @@ public sealed class IconWindow : Window
     private readonly Border _ripple;
     private readonly ScaleTransform _rippleScale = new(1, 1);
     private readonly Border _selection;
+    private readonly Border _folder;
+    private readonly Image[] _folderImages = [new(), new(), new(), new()];
     private readonly Border _missingBadge;
     private readonly Grid _badgeHost;
     private readonly TextBlock _label;
@@ -55,6 +57,19 @@ public sealed class IconWindow : Window
         _ripple = new Border { BorderBrush = Brushes.White, BorderThickness = new Thickness(2), Opacity = 0, RenderTransform = _rippleScale, RenderTransformOrigin = new Point(0.5, 0.5), IsHitTestVisible = false };
         _selection = new Border { BorderThickness = new Thickness(2), Margin = new Thickness(-5), Visibility = Visibility.Collapsed, IsHitTestVisible = false };
         _selection.SetResourceReference(Border.BorderBrushProperty, "Accent");
+
+        // Folder (SPEC 4.3, 5.2): unblurred glass sheet, 2×2 previews each 36% wide with 8% between them.
+        var previews = new System.Windows.Controls.Primitives.UniformGrid { Rows = 2, Columns = 2 };
+        foreach (var preview in _folderImages)
+        {
+            RenderOptions.SetBitmapScalingMode(preview, BitmapScalingMode.HighQuality);
+            preview.Stretch = Stretch.Uniform;
+            previews.Children.Add(preview);
+        }
+        _folder = new Border { BorderThickness = new Thickness(1), Child = previews, Visibility = Visibility.Collapsed };
+        _folder.SetResourceReference(Border.BackgroundProperty, "Glass.Fill.Folder");
+        _folder.SetResourceReference(Border.BorderBrushProperty, "Glass.Edge");
+
         _missingBadge = new Border
         {
             Width = 18,
@@ -77,7 +92,7 @@ public sealed class IconWindow : Window
             RenderTransformOrigin = new Point(0.5, 0.5),
             RenderTransform = new TransformGroup { Children = { _scale, _lift, _jiggle, _hop } },
             Background = Brushes.Transparent,
-            Children = { _image, _ripple, _selection },
+            Children = { _image, _folder, _ripple, _selection },
         };
         var shadowHost = new Grid { Effect = _shadow, Children = { _iconHost } };
 
@@ -161,7 +176,35 @@ public sealed class IconWindow : Window
     /// <summary>The square icon area plus its margins: what snapping and collisions use.</summary>
     public PixelRect SquareRect { get; private set; }
 
-    public void SetImage(ImageSource image) => _image.Source = image;
+    /// <summary>A group's folder rather than a single link.</summary>
+    public bool IsFolder => _folder.Visibility == Visibility.Visible;
+
+    public void SetImage(ImageSource image)
+    {
+        _image.Source = image;
+        _image.Visibility = Visibility.Visible;
+        _folder.Visibility = Visibility.Collapsed;
+    }
+
+    /// <summary>Shows a folder with up to four previews; an empty group shows an empty folder (SPEC 4.3).</summary>
+    public void SetFolder(IReadOnlyList<ImageSource?> previews)
+    {
+        for (var i = 0; i < _folderImages.Length; i++)
+        {
+            _folderImages[i].Source = i < previews.Count ? previews[i] : null;
+        }
+        _image.Visibility = Visibility.Collapsed;
+        _folder.Visibility = Visibility.Visible;
+    }
+
+    /// <summary>Something dragged over this icon will join it or create a group: grow as the signal (SPEC 4.4).</summary>
+    public void SetDropTarget(bool active)
+    {
+        var scale = active ? Motion.DragScale : 1;
+        _lift.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(scale, TimeSpan.FromMilliseconds(160)) { EasingFunction = Motion.Out });
+        _lift.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(scale, TimeSpan.FromMilliseconds(160)) { EasingFunction = Motion.Out });
+        _selection.Visibility = active ? Visibility.Visible : Visibility.Collapsed;
+    }
 
     public void SetAppearance(double iconSizeDip, bool showLabel, string label, bool darkTileShadow)
     {
@@ -173,6 +216,12 @@ public sealed class IconWindow : Window
         _badgeHost.Height = iconSizeDip;
         var corner = iconSizeDip * IconDesign.CornerRatio;
         _ripple.CornerRadius = new CornerRadius(corner);
+        _folder.CornerRadius = new CornerRadius(corner);
+        _folder.Padding = new Thickness(iconSizeDip * IconDesign.FolderPaddingRatio);
+        foreach (var preview in _folderImages)
+        {
+            preview.Margin = new Thickness(iconSizeDip * IconDesign.FolderGapRatio / 2);
+        }
         _selection.CornerRadius = new CornerRadius(corner + 4);
 
         // SPEC 5.1 TileShadow: light y 6 blur 14 45%; dark y 8 blur 18 70%.
