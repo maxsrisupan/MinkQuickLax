@@ -37,11 +37,14 @@ public static class AppServices
         builder.Services.AddSingleton<TopmostKeeper>();
         builder.Services.AddSingleton<ThemeService>();
         builder.Services.AddSingleton(Localizer.Instance);
+        builder.Services.AddSingleton<Platform.Shell.FaviconFetcher>();
         builder.Services.AddSingleton<IconCache>();
         builder.Services.AddSingleton<SurfaceHost>();
         builder.Services.AddSingleton<PlacementController>();
         builder.Services.AddSingleton<ArrangeController>();
         builder.Services.AddSingleton<LinkActions>();
+        builder.Services.AddSingleton<LinkAdder>();
+        builder.Services.AddSingleton<Scanner.ScannerService>();
         builder.Services.AddSingleton<TrayController>();
         builder.Services.AddSingleton<AppShell>();
         return builder.Build();

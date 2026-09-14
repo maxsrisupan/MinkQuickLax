@@ -85,3 +85,16 @@ DeleteObject
 GetObject
 BITMAP
 CoInitializeEx
+
+// App scanning (M5)
+SHGetKnownFolderItem
+FOLDERID_AppsFolder
+IEnumShellItems
+BHID_EnumItems
+PKEY_AppUserModel_ID
+PKEY_Link_TargetParsingPath
+PKEY_Link_Arguments
+PKEY_ItemNameDisplay
+SIGDN
+KNOWN_FOLDER_FLAG
+DWM_SYSTEMBACKDROP_TYPE

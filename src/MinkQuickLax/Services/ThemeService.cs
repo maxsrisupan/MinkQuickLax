@@ -112,6 +112,8 @@ public sealed class ThemeService
         _resources["Glass.Fill.Menu"] = GlassFill(rgb, blur ? GlassAlpha.Menu : GlassAlpha.Solid);
         _resources["Glass.Fill.Notice"] = GlassFill(rgb, blur ? GlassAlpha.Menu : GlassAlpha.Solid);
         _resources["Glass.Fill.Panel"] = GlassFill(rgb, blur ? glass.TintStrength : GlassAlpha.Solid);
+        _resources["Glass.Fill.Scanner"] = GlassFill(rgb, blur ? GlassAlpha.Scanner : GlassAlpha.Solid);
+        SetBrush("Glass.FieldFill", Color.FromArgb(0x1F, 0xFF, 0xFF, 0xFF));
         _resources["Glass.Fill.Folder"] = GlassFill(rgb, GlassAlpha.Folder);
         _resources["Glass.Fill.Readout"] = GlassFill(rgb, GlassAlpha.DragReadout);
     }
@@ -127,7 +129,8 @@ public sealed class ThemeService
         _resources["AccentInk"] = SystemColors.HighlightTextBrush;
         _resources["Danger"] = SystemColors.WindowTextBrush;
         _resources["Guide"] = SystemColors.HighlightBrush;
-        foreach (var key in new[] { "Glass.Fill.Tooltip", "Glass.Fill.Menu", "Glass.Fill.Notice", "Glass.Fill.Panel", "Glass.Fill.Folder", "Glass.Fill.Readout" })
+        _resources["Glass.FieldFill"] = SystemColors.ControlBrush;
+        foreach (var key in new[] { "Glass.Fill.Tooltip", "Glass.Fill.Menu", "Glass.Fill.Notice", "Glass.Fill.Panel", "Glass.Fill.Folder", "Glass.Fill.Readout", "Glass.Fill.Scanner" })
         {
             _resources[key] = SystemColors.WindowBrush;
         }

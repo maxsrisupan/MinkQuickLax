@@ -22,26 +22,37 @@ public sealed partial class IconCache : IDisposable
     private readonly ILogger<IconCache> _logger;
     private readonly ConcurrentDictionary<string, Task<ImageSource?>> _loaded = new(StringComparer.Ordinal);
     private readonly SemaphoreSlim _extractors = new(2);
+    private readonly FaviconFetcher _favicons;
 
-    public IconCache(ILogger<IconCache> logger)
-        : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MinkQuickLax", "cache", "icons"), logger)
+    public IconCache(FaviconFetcher favicons, ILogger<IconCache> logger)
+        : this(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MinkQuickLax", "cache", "icons"), favicons, logger)
     {
     }
 
-    public IconCache(string directory, ILogger<IconCache> logger)
+    public IconCache(string directory, FaviconFetcher favicons, ILogger<IconCache> logger)
     {
         _directory = directory;
+        _favicons = favicons;
         _logger = logger;
     }
 
     /// <summary>The image for a link, or null when it should be drawn as a letter icon.</summary>
     public Task<ImageSource?> GetAsync(Link link)
     {
-        if (link.Icon.Source == IconSourceKind.Letter || (link.Icon.Source == IconSourceKind.Auto && link.Kind is LinkKind.Url or LinkKind.MsSettings or LinkKind.Unknown))
+        if (link.Icon.Source == IconSourceKind.Letter || link.Kind is LinkKind.MsSettings or LinkKind.Unknown)
         {
             return Task.FromResult<ImageSource?>(null);
         }
         return _loaded.GetOrAdd(KeyFor(link), _ => LoadAsync(link));
+    }
+
+    /// <summary>Stores an icon captured while scanning, so a new link shows exactly what Start shows.</summary>
+    public void Seed(Link link, IconBitmap bitmap)
+    {
+        var source = BitmapSource.Create(bitmap.Width, bitmap.Height, 96, 96, PixelFormats.Pbgra32, null, bitmap.Pixels, bitmap.Width * 4);
+        source.Freeze();
+        SavePng(source, CachePath(link));
+        _loaded[KeyFor(link)] = Task.FromResult<ImageSource?>(source);
     }
 
     public void Dispose() => _extractors.Dispose();
@@ -95,6 +106,11 @@ public sealed partial class IconCache : IDisposable
                 return await Task.Run(() => LoadImageFile(cached)).ConfigureAwait(false);
             }
 
+            if (link.Kind == LinkKind.Url)
+            {
+                return Uri.TryCreate(link.Target, UriKind.Absolute, out var page) ? await LoadFaviconAsync(page, cached).ConfigureAwait(false) : null;
+            }
+
             await _extractors.WaitAsync().ConfigureAwait(false);
             try
             {
@@ -122,6 +138,32 @@ public sealed partial class IconCache : IDisposable
             Invalidate(link);
             return null;
         }
+    }
+
+    private async Task<ImageSource?> LoadFaviconAsync(Uri page, string cachePath)
+    {
+        var bytes = await _favicons.FetchAsync(page).ConfigureAwait(false);
+        if (bytes is null)
+        {
+            LogNoFavicon(_logger, page.Host);
+            return null;
+        }
+        return await Task.Run(() =>
+        {
+            using var stream = new MemoryStream(bytes);
+            var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+            var frame = decoder.Frames.OrderByDescending(f => f.PixelWidth * f.PixelHeight).First();
+            BitmapSource image = frame;
+            if (frame.PixelWidth > IconExtractor.LargeSize)
+            {
+                var scale = (double)IconExtractor.LargeSize / frame.PixelWidth;
+                image = new TransformedBitmap(frame, new ScaleTransform(scale, scale));
+            }
+            var converted = new FormatConvertedBitmap(image, PixelFormats.Pbgra32, null, 0);
+            converted.Freeze();
+            SavePng(converted, cachePath);
+            return (ImageSource)converted;
+        }).ConfigureAwait(false);
     }
 
     private static BitmapFrame LoadImageFile(string path)
@@ -164,6 +206,9 @@ public sealed partial class IconCache : IDisposable
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Could not load icon for {Target}")]
     private static partial void LogLoadFailed(ILogger logger, Exception ex, string target);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "No favicon found for {Host}; using a letter icon")]
+    private static partial void LogNoFavicon(ILogger logger, string host);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Could not write icon cache file {Path}")]
     private static partial void LogSaveFailed(ILogger logger, Exception ex, string path);

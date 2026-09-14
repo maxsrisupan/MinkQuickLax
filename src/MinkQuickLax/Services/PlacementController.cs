@@ -25,6 +25,7 @@ public sealed partial class PlacementController : IDisposable
     private readonly SurfaceHost _surfaces;
     private readonly ProximityAnimator _animator;
     private readonly WindowMover _mover = new();
+    private readonly List<string> _popIn = [];
     private bool _slideNextMoves;
     private readonly ILogger<PlacementController> _logger;
     private readonly Dictionary<string, IconWindow> _windows = new(StringComparer.Ordinal);
@@ -110,6 +111,13 @@ public sealed partial class PlacementController : IDisposable
             window.SetArranging(arranging, (i++ * 0.37) % 1, _theme.Current.ReduceMotion);
             window.SetSelected(false);
         }
+    }
+
+    /// <summary>The next config change creates these placements; they spring in one after another.</summary>
+    public void PopInNext(IEnumerable<string> placementIds)
+    {
+        _popIn.Clear();
+        _popIn.AddRange(placementIds);
     }
 
     /// <summary>A click that should open the link (decided by the arrange controller).</summary>
@@ -257,13 +265,19 @@ public sealed partial class PlacementController : IDisposable
                 window!.CurrentOpacity = window.TargetOpacity = settings.IdleOpacity;
                 window.CurrentScale = window.TargetScale = 1;
                 window.SetProximity(settings.IdleOpacity, 1);
+                var popIndex = _popIn.IndexOf(placement.Id);
                 if (!IsHidden)
                 {
+                    if (popIndex >= 0)
+                    {
+                        window.PlayPopIn(Styles.Glass.Motion.AddPopStagger * popIndex, _theme.Current.ReduceMotion);
+                    }
                     window.Show();
                 }
                 _topmost.Register(window.Handle);
             }
         }
+        _popIn.Clear();
         _animator.Refresh();
     }
 

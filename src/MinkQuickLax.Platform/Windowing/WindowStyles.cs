@@ -90,6 +90,17 @@ public static unsafe class DwmBackdrop
         PInvoke.DwmSetWindowAttribute((HWND)hwnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(int));
     }
 
+    /// <summary>System acrylic for normal windows that can be active (the scanner). Returns false when unsupported.</summary>
+    public static bool SetSystemAcrylic(nint hwnd, bool enabled)
+    {
+        if (!IsBlurSupported)
+        {
+            return false;
+        }
+        var type = (int)(enabled ? DWM_SYSTEMBACKDROP_TYPE.DWMSBT_TRANSIENTWINDOW : DWM_SYSTEMBACKDROP_TYPE.DWMSBT_NONE);
+        return PInvoke.DwmSetWindowAttribute((HWND)hwnd, DWMWINDOWATTRIBUTE.DWMWA_SYSTEMBACKDROP_TYPE, &type, sizeof(int)).Succeeded;
+    }
+
     public static void SetDarkFrame(nint hwnd, bool dark)
     {
         var value = dark ? 1 : 0;

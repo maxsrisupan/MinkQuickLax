@@ -100,6 +100,72 @@
   <data name="Notice_Unsupported" xml:space="preserve">
     <value>This version cannot open this kind of link.</value>
   </data>
+  <data name="Scanner_Add" xml:space="preserve">
+    <value>Add to screen</value>
+  </data>
+  <data name="Scanner_AlreadyAdded" xml:space="preserve">
+    <value>Added</value>
+  </data>
+  <data name="Scanner_FilterAll" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Scanner_FilterDesktop" xml:space="preserve">
+    <value>Desktop</value>
+  </data>
+  <data name="Scanner_FilterPrograms" xml:space="preserve">
+    <value>Programs</value>
+  </data>
+  <data name="Scanner_FilterStore" xml:space="preserve">
+    <value>Store</value>
+  </data>
+  <data name="Scanner_FirstRun" xml:space="preserve">
+    <value>Tick the apps you use often. Their icons will appear at the top-right of your screen, and you can move them anywhere later.</value>
+  </data>
+  <data name="Scanner_Found" xml:space="preserve">
+    <value>{0} apps found</value>
+  </data>
+  <data name="Scanner_NoneSelected" xml:space="preserve">
+    <value>Nothing selected</value>
+  </data>
+  <data name="Scanner_PickFile" xml:space="preserve">
+    <value>File…</value>
+  </data>
+  <data name="Scanner_PickFolder" xml:space="preserve">
+    <value>Folder…</value>
+  </data>
+  <data name="Scanner_Rename" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Scanner_Scanning" xml:space="preserve">
+    <value>Looking for apps…</value>
+  </data>
+  <data name="Scanner_Search" xml:space="preserve">
+    <value>Search apps</value>
+  </data>
+  <data name="Scanner_Selected" xml:space="preserve">
+    <value>{0} selected</value>
+  </data>
+  <data name="Scanner_SourceDesktop" xml:space="preserve">
+    <value>Desktop</value>
+  </data>
+  <data name="Scanner_SourceManual" xml:space="preserve">
+    <value>Added by you</value>
+  </data>
+  <data name="Scanner_SourceProgram" xml:space="preserve">
+    <value>Program</value>
+  </data>
+  <data name="Scanner_SourceStore" xml:space="preserve">
+    <value>Store</value>
+  </data>
+  <data name="Scanner_Title" xml:space="preserve">
+    <value>Add from this PC</value>
+  </data>
+  <data name="Scanner_UrlHint" xml:space="preserve">
+    <value>Paste a web address and press Enter</value>
+  </data>
+  <data name="Scanner_UrlInvalid" xml:space="preserve">
+    <value>That does not look like a web address.</value>
+  </data>
   <data name="Tray_AddFromPc" xml:space="preserve">
     <value>Add from this PC…</value>
   </data>

@@ -261,6 +261,8 @@ public sealed class IconWindow : Window
     public void SetLifted(bool lifted)
     {
         var scale = lifted ? Motion.DragScale : 1;
+        _lift.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+        _lift.BeginAnimation(ScaleTransform.ScaleYProperty, null);
         _lift.ScaleX = scale;
         _lift.ScaleY = scale;
         _shadow.Opacity = lifted ? Math.Min(1, _restShadowOpacity + 0.2) : _restShadowOpacity;
@@ -285,6 +287,20 @@ public sealed class IconWindow : Window
         _rippleScale.BeginAnimation(ScaleTransform.ScaleXProperty, grow);
         _rippleScale.BeginAnimation(ScaleTransform.ScaleYProperty, grow);
         _ripple.BeginAnimation(OpacityProperty, new DoubleAnimation(0.9, 0, Motion.LaunchRipple) { EasingFunction = Motion.Out });
+    }
+
+    /// <summary>A new icon springs in (SPEC 5.4: 600 ms, 90 ms apart).</summary>
+    public void PlayPopIn(TimeSpan delay, bool reduceMotion)
+    {
+        if (reduceMotion)
+        {
+            return;
+        }
+        Opacity = 0;
+        BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180)) { BeginTime = delay });
+        var grow = new DoubleAnimation(0.4, 1, Motion.AddPop) { BeginTime = delay, EasingFunction = Motion.Spring };
+        _lift.BeginAnimation(ScaleTransform.ScaleXProperty, grow);
+        _lift.BeginAnimation(ScaleTransform.ScaleYProperty, grow);
     }
 
     /// <summary>Fades out (hide) or in (show) after <paramref name="delay"/> (SPEC 4.5, 5.4).</summary>

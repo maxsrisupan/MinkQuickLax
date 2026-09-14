@@ -23,6 +23,7 @@ public sealed partial class AppShell
     private readonly PlacementController _placements;
     private readonly ArrangeController _arrange;
     private readonly LinkActions _actions;
+    private readonly Scanner.ScannerService _scanner;
     private readonly TrayController _tray;
     private readonly SingleInstance _instance;
     private readonly ILogger<AppShell> _logger;
@@ -36,6 +37,7 @@ public sealed partial class AppShell
         PlacementController placements,
         ArrangeController arrange,
         LinkActions actions,
+        Scanner.ScannerService scanner,
         TrayController tray,
         SingleInstance instance,
         ILogger<AppShell> logger)
@@ -48,6 +50,8 @@ public sealed partial class AppShell
         _placements = placements;
         _arrange = arrange;
         _actions = actions;
+        _scanner = scanner;
+        _arrange.AddRequested = () => _scanner.Show();
         _tray = tray;
         _instance = instance;
         _logger = logger;
@@ -70,6 +74,11 @@ public sealed partial class AppShell
         _systemEvents.SettingsChanged += () => _theme.Apply(_store.Current.Settings, SystemSettings.Read());
 
         _placements.Start();
+        // SPEC 4.12 / PLAN 3.1 step 6: nothing to show yet, so help the user pick apps (not when started at sign-in).
+        if (!launchedAtStartup && _store.Current.Links.Count == 0)
+        {
+            _application.Dispatcher.BeginInvoke(() => _scanner.Show(firstRun: true));
+        }
         _tray.ExitRequested += () => _application.Shutdown();
 
         if (LoadResult is { NeedsUserNotice: true } load)

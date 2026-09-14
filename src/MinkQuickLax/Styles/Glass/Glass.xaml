@@ -19,6 +19,8 @@
   <SolidColorBrush x:Key="Glass.Fill.Tooltip" Color="#D1121E24" />
   <SolidColorBrush x:Key="Glass.Fill.Menu" Color="#94121E24" />
   <SolidColorBrush x:Key="Glass.Fill.Notice" Color="#94121E24" />
+  <SolidColorBrush x:Key="Glass.Fill.Scanner" Color="#6B121E24" />
+  <SolidColorBrush x:Key="Glass.FieldFill" Color="#1FFFFFFF" />
 
   <Style x:Key="Glass.Text" TargetType="TextBlock">
     <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
