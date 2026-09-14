@@ -28,8 +28,8 @@ Quick launcher สำหรับ Windows: link แต่ละตัวเป�
 | test | `dotnet test --solution MinkQuickLax.slnx` |
 | test เฉพาะโปรเจกต์ | `dotnet test --project tests/MinkQuickLax.Core.Tests` |
 | รัน app | `dotnet run --project src/MinkQuickLax` (icon อยู่ที่ tray บน Windows 11 อาจอยู่ใต้ "แสดงไอคอนที่ซ่อน") |
-| สร้างคู่มือ | _(เติมใน M9)_ |
-| สร้างตัวติดตั้ง | _(เติมใน M10)_ |
+| สร้างคู่มือ | _(เติมใน M10)_ |
+| สร้างตัวติดตั้ง | _(เติมใน M11)_ |
 
 - **test ใช้ Microsoft.Testing.Platform:** ต้องระบุ `--solution` หรือ `--project` · โปรเจกต์ test ที่ไม่มี test เลยจะล้ม (exit code 8) จึงสร้างโปรเจกต์ test พร้อม test แรกเท่านั้น
 - **ปิด app ก่อน build ซ้ำ:** ถ้า app ยังรันอยู่ build จะล้มเพราะไฟล์ exe ถูกล็อก

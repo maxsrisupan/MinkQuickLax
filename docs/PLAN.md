@@ -1,6 +1,6 @@
 # MinkQuickLax — แผนลงมือ (Plan)
 
-> **ความคืบหน้า:** M0–M6 เสร็จ (มีข้อตรวจของ M5 ที่ยกไป M7) · งานถัดไปคือ **M7 หน้าตั้งค่า** (หัวข้อ 6)
+> **ความคืบหน้า:** M0–M6 เสร็จ (มีข้อตรวจของ M5 ที่ยกไป M7) · กำลังทำ **M7 หน้าตั้งค่า** (ขอบเขตเปลี่ยน 2026-09-15: หน้าตั้งค่าแบบแผ่นตามสไตล์, browser ราย link และสไตล์ HUD/Dot Matrix ย้ายมาเฟส 1 เป็น M8) (หัวข้อ 6)
 > อัปเดตล่าสุด: 2026-09-15
 > **ข้อกำหนดอยู่ที่ [SPEC.md](SPEC.md)** เอกสารนี้บอกแค่ว่าทำอย่างไรและทำอะไรก่อน
 
@@ -24,7 +24,7 @@
 |---|---|---|
 | ภาษา / runtime | C# · .NET 10 (LTS) | ใช้ได้ถึงปลายปี 2028 |
 | UI | WPF | ทำหน้าต่างโปร่งใส ลอยบนสุด และคุยกับ Win32 ได้ง่าย |
-| หน้าตั้งค่า | WPF-UI (`WPF-UI`) | หน้าตา Windows 11 พร้อม Mica/Acrylic และ NavigationView |
+| หน้าตั้งค่า | WPF เปล่ากับ style ของ app เอง (ไม่ใช้ WPF-UI) | หน้าตั้งค่าวาดตามสไตล์ Glass/HUD/Dot Matrix เหมือนแผ่นอื่นของ app (SPEC 4.8, หัวข้อ 12) |
 | MVVM | `CommunityToolkit.Mvvm` | source generator ลดโค้ดซ้ำ |
 | DI / host | `Microsoft.Extensions.Hosting` | จัดการ service และอายุของ object |
 | Win32 interop | `Microsoft.Windows.CsWin32` | สร้าง P/Invoke และ COM ที่ถูกต้องให้อัตโนมัติ |
@@ -37,6 +37,7 @@
 | ตัวติดตั้ง / อัปเดต | `Velopack` (NuGet) + `vpk` (dotnet tool) | ติดตั้งแบบรายผู้ใช้ อัปเดตแบบ delta แยกช่องทางได้ |
 | test | xUnit v3 (`xunit.v3` 4.x) บน Microsoft.Testing.Platform | มาตรฐานของ .NET · `xunit.v3` 4.x ใช้ได้กับ `dotnet test` แบบใหม่เท่านั้น (หัวข้อ 12) |
 | CI / release | GitHub Actions (`windows-latest`) | repo อยู่บน GitHub อยู่แล้ว |
+| ฟอนต์ | IBM Plex Sans Thai, Chakra Petch, JetBrains Mono, Doto (ฝังใน app) | ตาม SPEC 5.7 · สัญญาอนุญาต OFL ทุกตัว |
 | สัญญาอนุญาต | MIT | เข้ากับ library ทุกตัวข้างบน (MIT, Apache-2.0, BSD, OFL) |
 
 ---
@@ -70,7 +71,7 @@ MinkQuickLax/
 │  │  ├─ Windowing/               WindowStyles, TopmostKeeper, DwmBackdrop
 │  │  ├─ Input/                   MouseProximityTracker (Raw Input), HotkeyService (F2)
 │  │  ├─ Displays/                MonitorProvider, DisplayChangeWatcher
-│  │  ├─ Shell/                   AppScanner, IconExtractor, Launcher, FaviconFetcher
+│  │  ├─ Shell/                   AppScanner, IconExtractor, Launcher, FaviconFetcher, BrowserCatalog
 │  │  ├─ SystemIntegration/       StartupRegistration, SingleInstance, SystemSettingsWatcher, FullscreenDetector (F2)
 │  │  └─ Update/                  UpdateService (ห่อ Velopack)
 │  └─ MinkQuickLax/               net10.0-windows · WPF · ได้ไฟล์ MinkQuickLax.exe
@@ -99,7 +100,7 @@ MinkQuickLax/
 │  ├─ Directory.Build.props       ค่าร่วมของโปรเจกต์ test (xunit.v3)
 │  ├─ MinkQuickLax.Core.Tests/    รวม RepositoryRules/ ที่ตรวจกฎของ repo (resx ครบสองภาษา, Core ไม่อ้าง WPF/Win32, manifest)
 │  ├─ MinkQuickLax.Platform.Tests/  test ที่ต้องรันบน Windows (สร้างเมื่อมี test แรก)
-│  └─ ManualBuilder.Tests/        (สร้างใน M9)
+│  └─ ManualBuilder.Tests/        (สร้างใน M10)
 ├─ build/
 │  ├─ publish.ps1                 dotnet publish self-contained win-x64
 │  └─ pack.ps1                    vpk pack (+ upload)
@@ -133,12 +134,13 @@ MinkQuickLax/
 | EditToolbarWindow | | accent acrylic | ✔ | ✔ | | รับแป้นพิมพ์ในโหมดแก้ไข |
 | DragReadoutWindow | ✔ (วาดด้วย CPU) | | ✔ | ✔ | ✔ | คลิกทะลุ |
 | ScannerWindow | | Acrylic ของระบบ | | | | หน้าต่างปกติ ไม่มีกรอบ · active ได้ จึงใช้ `DWMWA_SYSTEMBACKDROP_TYPE` ได้ |
-| SettingsWindow | | Mica | | | | `FluentWindow` ของ WPF-UI |
+| SettingsWindow | | Glass: Acrylic ของระบบ · HUD/Dot Matrix: ไม่เบลอ | | | | หน้าต่างปกติแบบเดียวกับ ScannerWindow วาดแผ่นตามสไตล์ |
 | ManualWindow | | Mica | | | | WebView2 |
 
 - **layered ใช้กับเบลอไม่ได้:** หน้าต่างที่เบลอต้องตั้ง `AllowsTransparency=False` + `WindowChrome` (`GlassFrameThickness=-1`) + พื้นหลังของ `CompositionTarget` โปร่งใส
 - **accent acrylic:** `SetWindowCompositionAttribute(WCA_ACCENT_POLICY, ACCENT_ENABLE_ACRYLICBLURBEHIND)` เพราะ Acrylic ของระบบ (`DWMWA_SYSTEMBACKDROP_TYPE`) เป็นพื้นทึบเสมอบนหน้าต่างที่ไม่เคย active (S4) · มุมโค้งใช้ `DWMWA_WINDOW_CORNER_PREFERENCE = DWMWCP_ROUND` · ถ้าเรียกไม่สำเร็จให้ใช้พื้นทึบ `a = 0.92`
 - **กลไกกลาง:** style ของหน้าต่างตั้งผ่าน `WindowStyles.Apply(hwnd, …)` ที่เดียว
+- **สไตล์ (SPEC 5):** แผ่นทุกบานวาดด้วย `SurfaceFrame` ตัวเดียวที่เลือกรูปทรงตามสไตล์ · ไอคอนวาดด้วย visual ของแต่ละสไตล์ใน `IconWindow` · ค่าสี/ฟอนต์/มุมเป็น resource ที่ `ThemeService` เปลี่ยนตามสไตล์และธีม · HUD/Dot Matrix ไม่ใช้ accent acrylic
 
 ### 3.3 service หลัก
 
@@ -160,7 +162,8 @@ MinkQuickLax/
 | `MonitorProvider` | Platform | รายการจอ + id ที่คงที่ (`QueryDisplayConfig` → `monitorDevicePath`) + EDID (ผู้ผลิต, รุ่น, serial) ไว้จับคู่สำรอง + พื้นที่ทำงาน + DPI |
 | `AppScanner` | Platform | ไล่รายการ `shell:AppsFolder` และ shortcut บน Desktop |
 | `IconExtractor` | Platform | `IShellItemImageFactory.GetImage` 256px (`SIIGBF_ICONONLY`) → PNG ลง `IconCache` · ตรวจภาพที่เป็น icon เล็กในกรอบแล้วขอขนาดเล็กลง (S5) |
-| `Launcher` | Platform | `ShellExecuteEx` (verb `runas` สำหรับ admin) · `shellApp` เปิดด้วย `shell:AppsFolder\<id>` |
+| `Launcher` | Platform | `ShellExecuteEx` (verb `runas` สำหรับ admin) · `shellApp` เปิดด้วย `shell:AppsFolder\<id>` · link เว็บที่เลือก browser ไว้ส่ง URL ให้ exe ของ browser นั้น |
+| `BrowserCatalog` | Platform | รายชื่อ browser จาก `HKLM` และ `HKCU\SOFTWARE\Clients\StartMenuInternet` (ชื่อ, exe, icon) |
 | `StartupRegistration` | Platform | อ่าน/เขียน `Run` + อ่าน `StartupApproved` |
 | `SystemSettingsWatcher` | Platform | ธีมสว่าง/มืด, Transparency effects, Animation effects, High contrast, โหมดประหยัดแบต |
 | `UpdateService` | Platform | Velopack `UpdateManager` + `GithubSource` · แยกช่องทาง |
@@ -211,7 +214,8 @@ MinkQuickLax/
       "name": "GitHub",
       "kind": "url",
       "target": "https://github.com",
-      "icon": { "source": "favicon" }
+      "icon": { "source": "favicon" },
+      "browser": "Google Chrome"                  // ชื่อ key ใต้ StartMenuInternet · null หรือไม่มี = browser หลักของ Windows
     }
   ],
   "groups": [
@@ -280,7 +284,7 @@ MinkQuickLax/
 - **ข้อความที่ผู้ใช้เห็น:** ต้องอยู่ใน `Strings.resx` และ `Strings.th.resx` เท่านั้น · มี test ตรวจว่า key ครบทั้งสองไฟล์
   - ชื่อ key เป็น `ส่วน_ชื่อ` แบบ PascalCase เช่น `Tray_Exit`, `Settings_IdleOpacity` · ใส่ `<comment>` ในไฟล์อังกฤษเมื่อความหมายไม่ชัด
   - ในโค้ดใช้ `Localizer.Instance.Bind("key")` หรือ `Localizer.Instance["key"]` · ใน XAML ใช้ `{Binding [key], Source={x:Static services:Localizer.Instance}}`
-- **ค่าตัวเลขของดีไซน์:** (สี, ขนาด, เวลา) อยู่ใน `Styles/Glass/*.xaml` หรือค่าคงที่ที่มีชื่อ ห้ามเขียนตัวเลขลอย ๆ ใน code-behind
+- **ค่าตัวเลขของดีไซน์:** (สี, ขนาด, เวลา) อยู่ใน `Styles/*.xaml` หรือค่าคงที่ที่มีชื่อ (`GlassDesign`, `HudDesign`, `DotDesign`) ห้ามเขียนตัวเลขลอย ๆ ใน code-behind
 - **Core ห้ามอ้าง WPF หรือ Win32:** ถ้าต้องใช้ ให้ผ่าน interface ใน `Abstractions/`
 - **Win32:** ประกาศผ่าน CsWin32 (`NativeMethods.txt`) ไม่เขียน `DllImport` เอง ยกเว้นตัวที่ CsWin32 ไม่มี
 - **async:** งานที่รอ I/O ใช้ `async` · ห้าม `.Result` / `.Wait()` บน UI thread
@@ -375,23 +379,38 @@ MinkQuickLax/
 - **ผลตรวจ (2026-09-15):** config ทดสอบมีกลุ่ม "งาน" (Calculator, Windows) · โฟลเดอร์แสดงไอคอนย่อของ link ข้างใน · คลิกแล้วแผงกางไปทางซ้ายเพราะโฟลเดอร์ชิดขอบขวา มีชื่อกลุ่มและชื่อ link · คลิก Calculator ในแผงแล้ว app เปิดและแผงหุบ · Esc ปิดแผงได้ และปล่อยปุ่ม Esc คืนให้ app อื่นทันทีหลังปิด · เมนูคลิกขวาที่กลุ่มครบตาม SPEC · ลาก GitHub ไปวางบนโฟลเดอร์แล้วเข้ากลุ่มและไอคอนเดี่ยวหาย · ลาก Home ไปค้างบน Notepad แล้วได้กลุ่มใหม่ตรงตำแหน่งของ Notepad · ลาก GitHub ในแผงไปช่องแรกแล้วลำดับเปลี่ยน · ลาก Windows ออกนอกแผงแล้วเป็นไอคอนเดี่ยวตรงที่ปล่อย (ชิดกริด) · ลากโฟลเดอร์ไปที่ใหม่ได้ · ลบกลุ่มแล้ว link ข้างในยังอยู่ · "เพิ่มเข้ากลุ่ม…" → "งาน" ใช้ได้ · คลิกขวาที่ link ในแผง → "เอาออกจากกลุ่ม" ใช้ได้
 - **บั๊กที่เจอและแก้ระหว่างตรวจ:** มีการกดซ้ำเข้ามาระหว่างลาก (เมาส์ของผู้ใช้กับสคริปต์ทดสอบชนกัน) แล้วออกจากโหมดแก้ไข ทำให้เส้นช่วยจัดแนวและป้ายพิกัดค้างบนจอ · ตอนนี้กดซ้ำหรือออกจากโหมดแก้ไขระหว่างลากจะวางไอคอนลงตรงนั้นก่อนเสมอ · แผงที่ปิดระหว่างลาก link จะเก็บไอคอนที่ลากอยู่ด้วย
 
-### M7 · หน้าตั้งค่า
-- [ ] `SettingsWindow` (WPF-UI, Mica) + NavigationView หมวดที่เป็น F1 ใน SPEC 4.8
+### M7 · หน้าตั้งค่า และ browser ของ link เว็บ
+- [ ] `StartupRegistration` ที่ตรงกับ Task Manager + ลงทะเบียนตอนเปิดครั้งแรก (เฉพาะตัวที่ติดตั้ง)
+- [ ] `BrowserCatalog` + `Link.Browser` + `Launcher` เปิด URL ด้วย browser ที่เลือก · เลือกได้ในหน้าสแกนและหน้าแก้ link (SPEC 4.1)
+- [ ] ระบบสไตล์: `SurfaceFrame` วาดแผ่นทุกบาน, resource ตามสไตล์และธีม, ฟอนต์ Doto · หน้าตาของ Glass ต้องเหมือนเดิม
+- [ ] `SettingsWindow` แบบแผ่นตามสไตล์ (ไม่ใช้ WPF-UI) + เมนูหมวดด้านซ้าย + ตัวควบคุมตาม SPEC 5.10 (ปุ่มแบ่งช่อง, ตัวเลือกสไตล์มีภาพตัวอย่าง, slider, สวิตช์, ช่องสีกระจก)
 - [ ] ปรับแล้วมีผลทันที · คืนค่าเริ่มต้นรายหมวด · ค่าขั้นสูงพับไว้
 - [ ] ช่องค้นหาค่าตั้ง (ดัชนีชื่อค่าตั้งไทย/อังกฤษ + คำค้น)
-- [ ] หมวด Link: รายการ, ค้นหา/กรอง, แก้ไขทุก field, "วางอยู่ที่ไหน"
-- [ ] หมวดทั่วไป: `StartupRegistration` ที่ตรงกับ Task Manager · สลับภาษาทันที
+- [ ] หมวด Link: รายการ, ค้นหา/กรอง, แก้ไขทุก field (รวม browser), "วางอยู่ที่ไหน"
+- [ ] หมวดกลุ่ม: สร้าง/ลบ, ชื่อ, จำนวนคอลัมน์, แสดงชื่อ, ลำดับ link
+- [ ] หมวดทั่วไป: เปิดพร้อม Windows · สลับภาษาทันที · อัปเดต
 - [ ] หมวดข้อมูล: สำรองตอนนี้, กู้คืน, เปิดโฟลเดอร์, คืนค่าทั้งหมด, ลบข้อมูลทั้งหมดและออก
 - [ ] หมวดเกี่ยวกับ: เวอร์ชัน, GitHub, สัญญาอนุญาต, คัดลอกข้อมูลแจ้งปัญหา
-- **ตรวจ:** ทุกค่าตั้ง F1 มีผลทันทีกับไอคอนจริง · ปิดใน Task Manager แล้วหน้าตั้งค่าแสดงว่าปิด · สลับภาษาแล้วไม่มีข้อความตกค้าง
+- [ ] เมนู "แก้ไข…", "แก้ไขกลุ่ม…", หน้าตั้งค่าที่ tray, เปิด app ซ้ำแล้วหน้าตั้งค่าขึ้น, ปุ่ม "แก้ไข" ในกล่องแจ้งว่าไม่พบเป้าหมาย
+- **ตรวจ:** ทุกค่าตั้ง F1 มีผลทันทีกับไอคอนจริง · ปิดใน Task Manager แล้วหน้าตั้งค่าแสดงว่าปิด · สลับภาษาแล้วไม่มีข้อความตกค้าง · link เว็บที่ตั้ง Chrome/Edge เปิดใน browser นั้น · แก้ชื่อ link ที่วาง 2 ที่แล้วเปลี่ยนทั้งคู่ (ยกมาจาก M5) · ใช้หน้าตั้งค่าด้วยแป้นพิมพ์ได้ครบ
 
-### M8 · ภาษา
+### M8 · สไตล์ HUD และ Dot Matrix
+- [ ] resource ของ HUD และ Dot Matrix (สี ฟอนต์ มุม) ตาม SPEC 5.8, 5.9 · HUD ใช้สีมืดเสมอ · Dot Matrix ตามธีม
+- [ ] แผ่นพื้นทุกบาน (ชื่อไอคอน, เมนู, กล่องแจ้งเตือน, แถบเครื่องมือ, แผงกลุ่ม, หน้าสแกน, หน้าตั้งค่า) ตามสไตล์ · มุมที่ตัด/โค้งโปร่งใส
+- [ ] ไอคอน HUD: แผ่นรองตัดมุม, โฮโลแกรมตอนพัก (ภาพย้อมสีเตรียมไว้ใน icon cache แล้วไล่ความทึบตาม t), เส้นสแกน, เรืองแสง, วงเล็บล็อกเป้า, เส้นแสงกวาด
+- [ ] ไอคอน Dot Matrix: วงกลม, หน้ากากเม็ดจุดที่รัศมีเปลี่ยนตาม t, ขาวดำตอนพัก, วงจุดหมุน
+- [ ] ชื่อไอคอนแบบป้ายด้านข้าง (ลำดับ ชื่อ ข้อมูล) ของ HUD และ Dot Matrix · ชื่อใต้ไอคอนตามสไตล์
+- [ ] โฟลเดอร์, โหมดแก้ไข (วงเล็บ amber / วงจุดหมุน), เส้นช่วยจัดแนว, ป้ายพิกัด, กดเปิด ตามสไตล์
+- [ ] เปลี่ยนสไตล์แล้วทุกชิ้นเปลี่ยนทันทีพร้อมจังหวะไล่ทีละตัว (ข้ามเมื่อลดภาพเคลื่อนไหว)
+- **ตรวจ:** ภาพหน้าจอทุกชิ้นทั้ง 3 สไตล์ × ธีมสว่าง/มืด เทียบกับ mockup · 30 ไอคอน RAM และ CPU ยังอยู่ในเป้า (SPEC 6)
+
+### M9 · ภาษา
 - [ ] ไล่ตรวจว่าไม่มีข้อความเขียนตรงในโค้ดหรือ XAML
 - [ ] test: key ใน `Strings.resx` กับ `Strings.th.resx` ตรงกัน
 - [ ] ตรวจทุกหน้าจอทั้งสองภาษา: ภาษาไทยไม่โดนตัดสระ · ภาษาอังกฤษไม่ล้นปุ่ม
-- **ตรวจ:** ภาพหน้าจอทุกหน้าในทั้งสองภาษา ไม่มีปัญหาข้างบน
+- **ตรวจ:** ภาพหน้าจอทุกหน้าในทั้งสองภาษาและทุกสไตล์ ไม่มีปัญหาข้างบน
 
-### M9 · คู่มือ
+### M10 · คู่มือ
 - [ ] `ManualBuilder`: อ่าน `manual/<lang>/*.md` + `keywords.json` → HTML ไฟล์เดียวต่อภาษา (ฝัง CSS, JS, ฟอนต์, รูปแบบ base64, ดัชนีค้นหา)
 - [ ] ตรวจตอน build: id หัวข้อไม่ซ้ำ, หัวข้อมีครบทั้งสองภาษา (ภาษาอังกฤษขาดให้เตือนใน F1), id ที่หน้าตั้งค่าอ้างถึงมีจริง
 - [ ] template: สไตล์ Glass, ธีมสว่าง/มืด, สารบัญ, ปุ่มสลับภาษา, พิมพ์ได้
@@ -401,7 +420,7 @@ MinkQuickLax/
 - [ ] ผูกการ build คู่มือเข้ากับ build ของ app (MSBuild target) แล้วคัดลอกผลลัพธ์ไปไว้ที่ `Manual/`
 - **ตรวจ:** ปิดเน็ตแล้วเปิดคู่มือได้ · ค้น "คีย์ลัด", "hotkey", "ซ่อน" เจอหัวข้อที่ถูก · คำไทยกลางประโยคก็เจอ
 
-### M10 · ติดตั้ง อัปเดต และออกรุ่นแรก
+### M11 · ติดตั้ง อัปเดต และออกรุ่นแรก
 - [ ] `UpdateService` + แจ้งเตือนที่ tray + "รีสตาร์ทตอนนี้" + ช่องทาง beta/stable + ปิดการตรวจได้
 - [ ] `build/publish.ps1` และ `build/pack.ps1` (self-contained win-x64, shortcut Start Menu, icon, ชื่อ app)
 - [ ] `release.yml`: push tag `v*` → build → test → pack → อัปโหลด GitHub Release (tag มี `-beta` ให้ออกเป็น prerelease ช่องทาง beta)
@@ -416,13 +435,12 @@ MinkQuickLax/
 **เฟส 2**
 1. คีย์ลัด + หน้าค้นหาด่วน + คีย์ซ่อน/แสดง + หน้าตั้งคีย์พร้อมเตือนคีย์ชน
 2. ซ่อนตอนเปิด app เต็มจอ/present (`SHQueryUserNotificationState` + ตรวจหน้าต่างที่ active ว่าเต็มจอ)
-3. สไตล์ HUD และ Dot Matrix + ตัวเลือกสไตล์ในหน้าตั้งค่า
-4. กลุ่มแบบแถบ · เปิดกลุ่มด้วยการชี้
-5. ลากไฟล์/URL มาวาง · ลาก link จากหน้าตั้งค่ามาวางบนจอ
-6. เลือกหลายตัวแล้วลากพร้อมกัน
-7. หน้าต้อนรับครั้งแรก
-8. ปุ่ม ⓘ ในหน้าตั้งค่า · เนื้อหาคู่มือภาษาอังกฤษ
-9. link ประเภท `command`, `msSettings` · icon แบบ SVG · แสงสะท้อนวิ่งตามเมาส์
+3. กลุ่มแบบแถบ · เปิดกลุ่มด้วยการชี้
+4. ลากไฟล์/URL มาวาง · ลาก link จากหน้าตั้งค่ามาวางบนจอ
+5. เลือกหลายตัวแล้วลากพร้อมกัน
+6. หน้าต้อนรับครั้งแรก
+7. ปุ่ม ⓘ ในหน้าตั้งค่า · เนื้อหาคู่มือภาษาอังกฤษ
+8. link ประเภท `command`, `msSettings` · icon แบบ SVG · แสงสะท้อนวิ่งตามเมาส์
 
 **เฟส 3:** SPEC หัวข้อ 4.14
 
@@ -497,7 +515,7 @@ MinkQuickLax/
 | S3 | 2026-09-15 | ผ่าน | ขยับเมาส์ผ่านไอคอน 20 วินาที (WM_INPUT 2,501 ครั้ง): CPU 1.59% ของทั้งเครื่อง (35% ของ 1 core, Core Ultra 7 165H) · handler ของ WM_INPUT เฉลี่ย 0.0008ms · หยุดแล้ว CPU กลับเป็น 0% · เทียบ: ใช้ animation ของ WPF 2.25%, ไม่มีเงา 1.67%, 30fps ไม่ช่วย | Raw Input ≤30 ครั้ง/วินาที + ไล่ค่าเองด้วย timer ที่ทำงานเฉพาะตอนมีไอคอนกำลังเปลี่ยน · ไม่ใช้ Storyboard กับการเข้าใกล้ |
 | S4 | 2026-09-15 | ผ่านด้วยวิธีสำรอง | `DWMWA_SYSTEMBACKDROP_TYPE` บนหน้าต่างที่ไม่เคย active ได้พื้นทึบเสมอ (ลองส่ง WM_NCACTIVATE หลอกแล้วก็ไม่ช่วย) · `SetWindowCompositionAttribute` + `ACCENT_ENABLE_ACRYLICBLURBEHIND` เบลอจริง เห็นสีด้านหลังซึมผ่าน และเปลี่ยนเป็นพื้นทึบเองเมื่อปิด Transparency effects · มุมโค้งจาก `DWMWA_WINDOW_CORNER_PREFERENCE` ใช้ได้ · คลิกรายการในเมนูแล้ว focus ไม่หลุด · คลิกนอกเมนูแล้วปิด (ดักด้วย Raw Input) | ใช้ accent policy กับเมนู, ชื่อไอคอน, แผงกลุ่ม, แถบเครื่องมือ · เป็น API ที่ไม่มีเอกสาร จึงต้องมีพื้นทึบ `a = 0.92` เป็นทางสำรองเสมอ (หัวข้อ 12) |
 | S5 | 2026-09-15 | ผ่าน | AppsFolder 212 รายการ เท่ากับ `Get-StartApps` ใช้เวลา 1.1 วินาที · Store 49, Win32 163 (ทุกตัวมี `System.Link.TargetParsingPath`, เป็น .exe 112) · icon 256px ตัวละ ~63ms พื้นโปร่งใสถูก · เปิดผ่าน `shell:AppsFolder\<parsing name>` ได้ทั้ง Win32 และ Calculator · app ที่มีแต่ icon เล็กจะได้ภาพเล็กในกรอบสี่เหลี่ยม | ดึง icon นอก UI thread แล้วเก็บลง cache · M5 ต้องตรวจจับ icon ที่มีกรอบแล้วขอขนาดเล็กลงแทน · Store app ไม่มี path จึงซ่อน "เปิดตำแหน่งที่เก็บ" และ run as admin |
-| S6 | 2026-09-15 | ผ่าน (แหล่งอัปเดตในเครื่อง) | ติดตั้งแบบ `--silent` 3.8 วินาที ไม่ขอสิทธิ์ admin · มี shortcut แค่ Start Menu (`--shortcuts StartMenuRoot`) · ติดตั้งแบบปกติแล้วเปิด app ให้เอง · อัปเดต 1.0.1→1.0.3 (stable) และสลับไป 1.0.4-beta.1 (beta) แล้วรีสตาร์ทเอง · path ใน Run `…\current\<app>.exe --startup` ไม่เปลี่ยน · ถอนแล้ว hook ลบค่าใน Run, shortcut และรายการใน Apps หาย, โฟลเดอร์ถูกลบหลัง process จบ · **ยังไม่ได้ทดสอบกับ GitHub Release และ Windows Sandbox** (เครื่องไม่มี Sandbox) | ใช้ Velopack ต่อ · ใส่ `Environment.ProcessPath` ลง Run ได้เลย · ทดสอบ GitHub source ใน M10 |
+| S6 | 2026-09-15 | ผ่าน (แหล่งอัปเดตในเครื่อง) | ติดตั้งแบบ `--silent` 3.8 วินาที ไม่ขอสิทธิ์ admin · มี shortcut แค่ Start Menu (`--shortcuts StartMenuRoot`) · ติดตั้งแบบปกติแล้วเปิด app ให้เอง · อัปเดต 1.0.1→1.0.3 (stable) และสลับไป 1.0.4-beta.1 (beta) แล้วรีสตาร์ทเอง · path ใน Run `…\current\<app>.exe --startup` ไม่เปลี่ยน · ถอนแล้ว hook ลบค่าใน Run, shortcut และรายการใน Apps หาย, โฟลเดอร์ถูกลบหลัง process จบ · **ยังไม่ได้ทดสอบกับ GitHub Release และ Windows Sandbox** (เครื่องไม่มี Sandbox) | ใช้ Velopack ต่อ · ใส่ `Environment.ProcessPath` ลง Run ได้เลย · ทดสอบ GitHub source ใน M11 |
 | S7 | 2026-09-15 | ผ่าน | คลิกขวาที่ icon (ผ่านถาดไอคอนที่ซ่อน) แล้วเมนูของเราขึ้นชิดเคอร์เซอร์ · คลิกนอกเมนูแล้วปิด · ลบ icon ด้วย NIM_DELETE แล้วส่ง `TaskbarCreated` ให้หน้าต่างของเรา icon กลับมา · GUID ของ icon ที่ H.NotifyIcon สร้างเองต่างกันตาม path ของ exe จึงรันจากหลาย path ได้ · **ยังไม่ได้รีสตาร์ท Explorer จริง** (จะปิดหน้าต่าง File Explorer ที่ผู้ใช้เปิดอยู่) | ใช้ Id ค่าเริ่มต้นของ H.NotifyIcon · รีสตาร์ท Explorer จริงอยู่ในหัวข้อ 8.2 |
 | S8 | 2026-09-15 | ผ่าน | WebView2 runtime 152 · พร้อมใน 486ms · เปิด `file:///…/manual th.html#section-30` แล้วหัวข้ออยู่บนสุดของหน้าต่าง · เปลี่ยน hash ด้วย script ก็เลื่อนไปถูก · ชี้ runtime ไปโฟลเดอร์ที่ไม่มีได้ `WebView2RuntimeNotFoundException` | ตรวจ runtime ด้วย `GetAvailableBrowserVersionString` · เก็บ user data ไว้ใน `%LocalAppData%\MinkQuickLax\WebView2` |
 | S9 | 2026-09-15 | ผ่านบางส่วน | อ่าน `monitorDevicePath` (`\\?\DISPLAY#BOE0C6B#4&…&UID8388688#{…}`), EDID ผู้ผลิต/รุ่น และจับคู่กับ `HMONITOR` + พื้นที่ทำงาน + DPI ได้ · จอ laptop ไม่มี serial ใน EDID · **รีบูต ถอด/เสียบ และสลับพอร์ตยังไม่ได้ทดสอบ** (จอเดียวในตัวเครื่อง) | เก็บ `monitorDevicePath` เป็น id หลัก · ถ้าไม่เจอให้หาจอที่ EDID (ผู้ผลิต+รุ่น+serial) ตรงกัน · ถ้ายังไม่เจอใช้จอหลัก · เขียน id ของจอลง log ทุกครั้งที่จอเปลี่ยน เพื่อตรวจในการใช้งานจริง |
