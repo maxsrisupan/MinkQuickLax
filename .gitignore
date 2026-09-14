@@ -480,3 +480,5 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+# Spike output: screenshots and logs contain machine-specific data (installed apps, screen content)
+spikes/results/
