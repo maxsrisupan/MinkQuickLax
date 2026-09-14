@@ -1,6 +1,6 @@
 # MinkQuickLax — แผนลงมือ (Plan)
 
-> **ความคืบหน้า:** M0 เสร็จ · งานถัดไปคือ **M1 Spike** เริ่มที่ S1 (หัวข้อ 6)
+> **ความคืบหน้า:** M0, M1 เสร็จ · งานถัดไปคือ **M2 Core** (หัวข้อ 6)
 > อัปเดตล่าสุด: 2026-09-15
 > **ข้อกำหนดอยู่ที่ [SPEC.md](SPEC.md)** เอกสารนี้บอกแค่ว่าทำอย่างไรและทำอะไรก่อน
 
@@ -121,20 +121,21 @@ MinkQuickLax/
 
 ### 3.2 ชนิดหน้าต่าง
 
-| หน้าต่าง | โปร่งใสแบบ layered | Acrylic ของระบบ | บนสุด | `WS_EX_TOOLWINDOW` | `WS_EX_NOACTIVATE` | หมายเหตุ |
+| หน้าต่าง | โปร่งใสแบบ layered | เบลอข้างหลัง | บนสุด | `WS_EX_TOOLWINDOW` | `WS_EX_NOACTIVATE` | หมายเหตุ |
 |---|---|---|---|---|---|---|
-| IconWindow | ✔ | | ✔ | ✔ | ✔ | 1 ชิ้นต่อ 1 ไอคอนเดี่ยว |
-| FolderWindow | ✔ | | ✔ | ✔ | ✔ | 1 ชิ้นต่อ 1 กลุ่ม |
-| GroupPanelWindow | | ✔ (Win11 22H2+) | ✔ | ✔ | ✔ | สร้างตอนกาง ทำลายตอนหุบ |
-| TooltipWindow | | ✔ | ✔ | ✔ | ✔ | มีตัวเดียวใช้ร่วมกัน · คลิกทะลุ (`WS_EX_TRANSPARENT`) |
-| GlassMenuWindow | | ✔ | ✔ | ✔ | ✔ | เมนูคลิกขวาทั้งที่ไอคอนและที่ tray · ปิดเมื่อคลิกนอกเมนู |
-| EditToolbarWindow | | ✔ | ✔ | ✔ | | รับแป้นพิมพ์ในโหมดแก้ไข |
-| DragReadoutWindow | ✔ | | ✔ | ✔ | ✔ | คลิกทะลุ |
-| ScannerWindow | | ✔ | | | | หน้าต่างปกติ ไม่มีกรอบ |
+| IconWindow | ✔ (วาดด้วย CPU) | | ✔ | ✔ | ✔ | 1 ชิ้นต่อ 1 ไอคอนเดี่ยว |
+| FolderWindow | ✔ (วาดด้วย CPU) | | ✔ | ✔ | ✔ | 1 ชิ้นต่อ 1 กลุ่ม |
+| GroupPanelWindow | | accent acrylic (Win11 22H2+) | ✔ | ✔ | ✔ | สร้างตอนกาง ทำลายตอนหุบ |
+| TooltipWindow | | accent acrylic | ✔ | ✔ | ✔ | มีตัวเดียวใช้ร่วมกัน · คลิกทะลุ (`WS_EX_TRANSPARENT`) |
+| GlassMenuWindow | | accent acrylic | ✔ | ✔ | ✔ | เมนูคลิกขวาทั้งที่ไอคอนและที่ tray · ปิดเมื่อคลิกนอกเมนู (ดักด้วย Raw Input) |
+| EditToolbarWindow | | accent acrylic | ✔ | ✔ | | รับแป้นพิมพ์ในโหมดแก้ไข |
+| DragReadoutWindow | ✔ (วาดด้วย CPU) | | ✔ | ✔ | ✔ | คลิกทะลุ |
+| ScannerWindow | | Acrylic ของระบบ | | | | หน้าต่างปกติ ไม่มีกรอบ · active ได้ จึงใช้ `DWMWA_SYSTEMBACKDROP_TYPE` ได้ |
 | SettingsWindow | | Mica | | | | `FluentWindow` ของ WPF-UI |
 | ManualWindow | | Mica | | | | WebView2 |
 
-- **layered ใช้กับ Acrylic ไม่ได้:** หน้าต่างที่ใช้ Acrylic ต้องตั้ง `AllowsTransparency=False` + `WindowChrome`
+- **layered ใช้กับเบลอไม่ได้:** หน้าต่างที่เบลอต้องตั้ง `AllowsTransparency=False` + `WindowChrome` (`GlassFrameThickness=-1`) + พื้นหลังของ `CompositionTarget` โปร่งใส
+- **accent acrylic:** `SetWindowCompositionAttribute(WCA_ACCENT_POLICY, ACCENT_ENABLE_ACRYLICBLURBEHIND)` เพราะ Acrylic ของระบบ (`DWMWA_SYSTEMBACKDROP_TYPE`) เป็นพื้นทึบเสมอบนหน้าต่างที่ไม่เคย active (S4) · มุมโค้งใช้ `DWMWA_WINDOW_CORNER_PREFERENCE = DWMWCP_ROUND` · ถ้าเรียกไม่สำเร็จให้ใช้พื้นทึบ `a = 0.92`
 - **กลไกกลาง:** style ของหน้าต่างตั้งผ่าน `WindowStyles.Apply(hwnd, …)` ที่เดียว
 
 ### 3.3 service หลัก
@@ -150,12 +151,13 @@ MinkQuickLax/
 | `UndoStack` | App | เก็บการเปลี่ยนแปลงในโหมดแก้ไข (Ctrl+Z / Ctrl+Y / ยกเลิก) |
 | `PlacementController` | App | สร้าง/ทำลาย/อัปเดตหน้าต่างให้ตรงกับข้อมูล · ซ่อน/แสดงทั้งชุด |
 | `EditModeController` | App | เข้า/ออกโหมดแก้ไข · ลาก · สร้างกลุ่มเมื่อลากค้าง |
-| `MouseProximityTracker` | Platform | ใช้ Raw Input (`RIDEV_INPUTSINK`) อ่านตำแหน่งเมาส์ ส่งไม่เกิน 30 ครั้ง/วินาที · อัปเดตเฉพาะชิ้นที่อยู่ในระยะ · ไม่ใช้ timer ตอนเมาส์นิ่ง |
+| `MouseProximityTracker` | Platform | ใช้ Raw Input (`RIDEV_INPUTSINK`) บนหน้าต่าง message-only อ่านตำแหน่งเมาส์ ส่งไม่เกิน 30 ครั้ง/วินาที (ส่งตำแหน่งสุดท้ายตามหลังเสมอ) · แจ้งการกดปุ่มเมาส์ด้วย (ใช้ปิดเมนู/แผงเมื่อคลิกข้างนอก) · ไม่ใช้ timer ตอนเมาส์นิ่ง |
+| `ProximityAnimator` | App | รับตำแหน่งจาก tracker แล้วคำนวณความทึบ/ขนาดเป้าหมาย · ไล่ค่าเองด้วย timer 33ms ที่ทำงานเฉพาะตอนมีชิ้นกำลังเปลี่ยน · ไม่ใช้ Storyboard ของ WPF เพราะกิน CPU มากกว่า (S3) |
 | `TopmostKeeper` | Platform | `SetWinEventHook(EVENT_SYSTEM_FOREGROUND)` แล้วสั่ง `SetWindowPos(HWND_TOPMOST, SWP_NOACTIVATE…)` ให้ทุกชิ้น |
 | `DisplayChangeWatcher` | Platform | ดัก `WM_DISPLAYCHANGE`, `WM_DPICHANGED`, `WM_SETTINGCHANGE` (พื้นที่ทำงาน), resume จาก sleep แล้วสั่งจัดตำแหน่งใหม่ |
-| `MonitorProvider` | Platform | รายการจอ + id ที่คงที่ (`QueryDisplayConfig` → `monitorDevicePath`) + พื้นที่ทำงาน + DPI |
+| `MonitorProvider` | Platform | รายการจอ + id ที่คงที่ (`QueryDisplayConfig` → `monitorDevicePath`) + EDID (ผู้ผลิต, รุ่น, serial) ไว้จับคู่สำรอง + พื้นที่ทำงาน + DPI |
 | `AppScanner` | Platform | ไล่รายการ `shell:AppsFolder` และ shortcut บน Desktop |
-| `IconExtractor` | Platform | `IShellItemImageFactory.GetImage` 256px → PNG ลง `IconCache` |
+| `IconExtractor` | Platform | `IShellItemImageFactory.GetImage` 256px (`SIIGBF_ICONONLY`) → PNG ลง `IconCache` · ตรวจภาพที่เป็น icon เล็กในกรอบแล้วขอขนาดเล็กลง (S5) |
 | `Launcher` | Platform | `ShellExecuteEx` (verb `runas` สำหรับ admin) · `shellApp` เปิดด้วย `shell:AppsFolder\<id>` |
 | `StartupRegistration` | Platform | อ่าน/เขียน `Run` + อ่าน `StartupApproved` |
 | `SystemSettingsWatcher` | Platform | ธีมสว่าง/มืด, Transparency effects, Animation effects, High contrast, โหมดประหยัดแบต |
@@ -166,7 +168,10 @@ MinkQuickLax/
 - **ลากหน้าต่าง `WS_EX_NOACTIVATE`:** เขียน drag loop เองด้วย mouse capture + `SetWindowPos` ห้ามใช้ `DragMove()` เพราะต้องชิดกริดระหว่างลาก
 - **อ่านปุ่ม Ctrl:** ใช้ `GetKeyState(VK_CONTROL)` แทน `Keyboard.Modifiers` เพราะหน้าต่างไม่มี focus
 - **DPI:** ตั้ง PerMonitorV2 ใน `app.manifest` · คำนวณตำแหน่งเป็น pixel จริงของจอ แล้วค่อยแปลงเป็นหน่วยของ WPF
-- **thread:** ทุกหน้าต่างอยู่บน UI thread เดียว · งานสแกนและดึง icon/favicon ทำนอก UI thread
+- **thread:** ทุกหน้าต่างอยู่บน UI thread เดียว · งานสแกนและดึง icon/favicon ทำนอก UI thread (ดึง icon ละ ~60ms)
+- **หน้าต่าง layered วาดด้วย CPU:** ตั้ง `HwndSource.CompositionTarget.RenderMode = RenderMode.SoftwareOnly` รายหน้าต่างใน `SourceInitialized` · ประหยัด RAM ~40MB ต่อ 30 บานเทียบกับ GPU และ CPU ไม่เพิ่ม (S1, S3) · ห้ามตั้งทั้ง process เพราะหน้าตั้งค่าจะช้า
+- **หน้าต่างที่ไม่เคย active:** ไม่มี focus · capture ของเมาส์ได้เฉพาะตอนเมาส์อยู่บนหน้าต่าง · Acrylic ของระบบไม่ทำงาน · การคลิกข้างนอกให้ดักด้วย Raw Input
+- **ค่าใน Run ของ Windows:** ใช้ `Environment.ProcessPath` ได้เลย เพราะ Velopack วาง exe ไว้ที่ `…\current\` ซึ่ง path ไม่เปลี่ยนหลังอัปเดต (S6)
 - **เปิด link:** ห้ามต่อ string เป็นคำสั่ง shell · ส่ง target กับ argument แยกกัน
 
 ---
@@ -310,6 +315,8 @@ MinkQuickLax/
 | S8 | WebView2 เปิดไฟล์ HTML ในเครื่องแล้วไปตรง `#id` · กรณีไม่มี runtime | ไปตรงหัวข้อ · ไม่มี runtime แล้วเปิด browser แทนได้ |
 | S9 | id ของจอจาก `QueryDisplayConfig` คงที่หลังรีบูต ถอดแล้วเสียบจอกลับ และสลับพอร์ต | id เดิมเมื่อจอเดิม |
 
+- **ผล (2026-09-15):** ผ่านทั้ง 9 ข้อเท่าที่ทดสอบได้บนเครื่องจอเดียว ไม่มีข้อไหนต้องเปลี่ยนสถาปัตยกรรมหลัก · รายละเอียดและส่วนที่ต้องทดสอบด้วยมืออยู่ในหัวข้อ 11
+
 ### M2 · Core: ข้อมูลและการคำนวณตำแหน่ง
 - [ ] Model + JSON source generation ตามหัวข้อ 4.2
 - [ ] `ConfigStore`: เขียนไฟล์ชั่วคราวแล้วแทนที่, หน่วงบันทึก, สำรอง 10 ชุด, กู้จากไฟล์สำรอง, ตรวจและซ่อมข้อมูล
@@ -427,6 +434,8 @@ MinkQuickLax/
 - [ ] สร้างกลุ่มด้วยการลากค้าง · กางกลุ่มใกล้ขอบจอทั้ง 4 ด้าน
 - [ ] สลับธีม Windows สว่าง/มืด · ปิด Transparency effects · ปิด Animation effects
 - [ ] เปลี่ยน scale 100% → 150% · ถอดจอที่สองแล้วเสียบกลับ
+- [ ] ลากไอคอนข้ามจอที่ scale ต่างกันแล้วขนาดไม่เพี้ยน (S2)
+- [ ] id ของจอเดิมหลังรีบูต, ถอดแล้วเสียบ, สลับพอร์ต (S9) · ดูได้จาก log ของ app
 - [ ] รีสตาร์ท Explorer (Task Manager) แล้ว icon ที่ tray กลับมา
 - [ ] รีบูตแล้ว app เปิดเองแบบเงียบ · ปิดใน Task Manager แล้วไม่เปิดเอง
 - [ ] Task Manager → ปิดโปรเซสระหว่างบันทึก แล้วเปิดใหม่ ค่าตั้งไม่เสีย
@@ -456,7 +465,7 @@ MinkQuickLax/
 | ความเสี่ยง | ผลกระทบ | ทางออกถ้าเกิด |
 |---|---|---|
 | หน้าต่าง layered 30 บานกิน RAM/CPU เกินเป้า (S1, S3) | ต้องเปลี่ยนสถาปัตยกรรมไอคอน | รวมไอคอนที่อยู่ใกล้กันไว้ในหน้าต่างเดียว · ลดความถี่อัปเดต · ปิดการขยายตามเมาส์เป็นค่าเริ่มต้น |
-| Acrylic บนหน้าต่าง noactivate/บนสุดทำงานไม่ถูก (S4) | เมนูและแผงไม่เบลอ | ใช้พื้นทึบ `a = 0.92` ทุกที่ (หน้าตายังเป็น Glass แต่ไม่เบลอ) |
+| Acrylic บนหน้าต่าง noactivate/บนสุดทำงานไม่ถูก (S4) | เมนูและแผงไม่เบลอ | **เกิดจริงกับ Acrylic ของระบบ** จึงใช้ accent acrylic แทน · ถ้า Windows รุ่นหน้าเลิกรองรับ ใช้พื้นทึบ `a = 0.92` ทุกที่ (หน้าตายังเป็น Glass แต่ไม่เบลอ) |
 | หา path จริงของ exe จาก `shell:AppsFolder` ไม่ได้ (S5) | "เปิดตำแหน่งที่เก็บ" และ run as admin ใช้ไม่ได้กับบาง app | ซ่อนเมนูเหล่านั้นสำหรับ `shellApp` ที่ไม่มี path |
 | Velopack ทำตามข้อกำหนดบางข้อไม่ได้ (S6) | ตัวติดตั้งไม่ตรง SPEC | ปรับ SPEC 4.11 ตามที่ทำได้ · ทางสุดท้ายคือ Inno Setup + ทำระบบอัปเดตเอง |
 | id ของจอไม่คงที่ (S9) | ไอคอนไปผิดจอหลังรีบูต | ใช้ชื่อรุ่นจอ + ความละเอียด + ตำแหน่งเทียบจอหลักเป็น id สำรอง |
@@ -468,15 +477,17 @@ MinkQuickLax/
 
 | # | วันที่ | ผล | ตัวเลขที่วัดได้ | ตัดสินใจ |
 |---|---|---|---|---|
-| S1 | | | | |
-| S2 | | | | |
-| S3 | | | | |
-| S4 | | | | |
-| S5 | | | | |
-| S6 | | | | |
-| S7 | | | | |
-| S8 | | | | |
-| S9 | | | | |
+| S1 | 2026-09-15 | ผ่าน | private working set 38MB (ใช้ GPU วาด 80MB) · CPU ตอนนิ่ง 20 วินาที 0.000% · ทั้ง 30 บานเป็น TOOLWINDOW+NOACTIVATE ไม่มี APPWINDOW · กดไอคอนขณะพิมพ์ในหน้าต่างอื่นแล้วยังเป็น foreground ข้อความ `abcdef` ครบ deactivated=0 | วาดหน้าต่างไอคอนด้วย CPU รายหน้าต่าง (หัวข้อ 3.4) |
+| S2 | 2026-09-15 | ผ่านบางส่วน | ลาก 131 ครั้ง ใช้เวลาต่อครั้งเฉลี่ย 0.88ms สูงสุด 6ms · ชิดกริด 24px ถูก · ขนาด 72×72 ไม่เปลี่ยน · **ข้ามจอที่ scale ต่างกันยังไม่ได้ทดสอบ** (เครื่องมีจอเดียว) | ใช้ drag loop แบบนี้ · ทดสอบข้ามจอด้วยมือในหัวข้อ 8.2 |
+| S3 | 2026-09-15 | ผ่าน | ขยับเมาส์ผ่านไอคอน 20 วินาที (WM_INPUT 2,501 ครั้ง): CPU 1.59% ของทั้งเครื่อง (35% ของ 1 core, Core Ultra 7 165H) · handler ของ WM_INPUT เฉลี่ย 0.0008ms · หยุดแล้ว CPU กลับเป็น 0% · เทียบ: ใช้ animation ของ WPF 2.25%, ไม่มีเงา 1.67%, 30fps ไม่ช่วย | Raw Input ≤30 ครั้ง/วินาที + ไล่ค่าเองด้วย timer ที่ทำงานเฉพาะตอนมีไอคอนกำลังเปลี่ยน · ไม่ใช้ Storyboard กับการเข้าใกล้ |
+| S4 | 2026-09-15 | ผ่านด้วยวิธีสำรอง | `DWMWA_SYSTEMBACKDROP_TYPE` บนหน้าต่างที่ไม่เคย active ได้พื้นทึบเสมอ (ลองส่ง WM_NCACTIVATE หลอกแล้วก็ไม่ช่วย) · `SetWindowCompositionAttribute` + `ACCENT_ENABLE_ACRYLICBLURBEHIND` เบลอจริง เห็นสีด้านหลังซึมผ่าน และเปลี่ยนเป็นพื้นทึบเองเมื่อปิด Transparency effects · มุมโค้งจาก `DWMWA_WINDOW_CORNER_PREFERENCE` ใช้ได้ · คลิกรายการในเมนูแล้ว focus ไม่หลุด · คลิกนอกเมนูแล้วปิด (ดักด้วย Raw Input) | ใช้ accent policy กับเมนู, ชื่อไอคอน, แผงกลุ่ม, แถบเครื่องมือ · เป็น API ที่ไม่มีเอกสาร จึงต้องมีพื้นทึบ `a = 0.92` เป็นทางสำรองเสมอ (หัวข้อ 12) |
+| S5 | 2026-09-15 | ผ่าน | AppsFolder 212 รายการ เท่ากับ `Get-StartApps` ใช้เวลา 1.1 วินาที · Store 49, Win32 163 (ทุกตัวมี `System.Link.TargetParsingPath`, เป็น .exe 112) · icon 256px ตัวละ ~63ms พื้นโปร่งใสถูก · เปิดผ่าน `shell:AppsFolder\<parsing name>` ได้ทั้ง Win32 และ Calculator · app ที่มีแต่ icon เล็กจะได้ภาพเล็กในกรอบสี่เหลี่ยม | ดึง icon นอก UI thread แล้วเก็บลง cache · M5 ต้องตรวจจับ icon ที่มีกรอบแล้วขอขนาดเล็กลงแทน · Store app ไม่มี path จึงซ่อน "เปิดตำแหน่งที่เก็บ" และ run as admin |
+| S6 | 2026-09-15 | ผ่าน (แหล่งอัปเดตในเครื่อง) | ติดตั้งแบบ `--silent` 3.8 วินาที ไม่ขอสิทธิ์ admin · มี shortcut แค่ Start Menu (`--shortcuts StartMenuRoot`) · ติดตั้งแบบปกติแล้วเปิด app ให้เอง · อัปเดต 1.0.1→1.0.3 (stable) และสลับไป 1.0.4-beta.1 (beta) แล้วรีสตาร์ทเอง · path ใน Run `…\current\<app>.exe --startup` ไม่เปลี่ยน · ถอนแล้ว hook ลบค่าใน Run, shortcut และรายการใน Apps หาย, โฟลเดอร์ถูกลบหลัง process จบ · **ยังไม่ได้ทดสอบกับ GitHub Release และ Windows Sandbox** (เครื่องไม่มี Sandbox) | ใช้ Velopack ต่อ · ใส่ `Environment.ProcessPath` ลง Run ได้เลย · ทดสอบ GitHub source ใน M10 |
+| S7 | 2026-09-15 | ผ่าน | คลิกขวาที่ icon (ผ่านถาดไอคอนที่ซ่อน) แล้วเมนูของเราขึ้นชิดเคอร์เซอร์ · คลิกนอกเมนูแล้วปิด · ลบ icon ด้วย NIM_DELETE แล้วส่ง `TaskbarCreated` ให้หน้าต่างของเรา icon กลับมา · GUID ของ icon ที่ H.NotifyIcon สร้างเองต่างกันตาม path ของ exe จึงรันจากหลาย path ได้ · **ยังไม่ได้รีสตาร์ท Explorer จริง** (จะปิดหน้าต่าง File Explorer ที่ผู้ใช้เปิดอยู่) | ใช้ Id ค่าเริ่มต้นของ H.NotifyIcon · รีสตาร์ท Explorer จริงอยู่ในหัวข้อ 8.2 |
+| S8 | 2026-09-15 | ผ่าน | WebView2 runtime 152 · พร้อมใน 486ms · เปิด `file:///…/manual th.html#section-30` แล้วหัวข้ออยู่บนสุดของหน้าต่าง · เปลี่ยน hash ด้วย script ก็เลื่อนไปถูก · ชี้ runtime ไปโฟลเดอร์ที่ไม่มีได้ `WebView2RuntimeNotFoundException` | ตรวจ runtime ด้วย `GetAvailableBrowserVersionString` · เก็บ user data ไว้ใน `%LocalAppData%\MinkQuickLax\WebView2` |
+| S9 | 2026-09-15 | ผ่านบางส่วน | อ่าน `monitorDevicePath` (`\\?\DISPLAY#BOE0C6B#4&…&UID8388688#{…}`), EDID ผู้ผลิต/รุ่น และจับคู่กับ `HMONITOR` + พื้นที่ทำงาน + DPI ได้ · จอ laptop ไม่มี serial ใน EDID · **รีบูต ถอด/เสียบ และสลับพอร์ตยังไม่ได้ทดสอบ** (จอเดียวในตัวเครื่อง) | เก็บ `monitorDevicePath` เป็น id หลัก · ถ้าไม่เจอให้หาจอที่ EDID (ผู้ผลิต+รุ่น+serial) ตรงกัน · ถ้ายังไม่เจอใช้จอหลัก · เขียน id ของจอลง log ทุกครั้งที่จอเปลี่ยน เพื่อตรวจในการใช้งานจริง |
+
+**สรุป M1:** ไม่มีข้อไหนที่ต้องเปลี่ยนสถาปัตยกรรมหลัก จึงเริ่ม M2 ได้ · สิ่งที่ยังต้องทดสอบด้วยมือ (ย้ายไปไว้ในหัวข้อ 8.2 แล้ว): ลากข้ามจอที่ scale ต่างกัน, รีสตาร์ท Explorer จริง, id ของจอหลังรีบูต/ถอดเสียบ/สลับพอร์ต, อัปเดตจาก GitHub Release · โค้ดทดลองอยู่ใน branch `spike/m1`
 
 ---
 
@@ -496,3 +507,7 @@ MinkQuickLax/
 | 2026-09-15 | เมนูที่ tray ใน M0 | ใช้ `ContextMenu` ของ WPF ชั่วคราว · เปลี่ยนเป็น `GlassMenuWindow` ใน M3 หลังผ่าน S7 | M0 ต้องการแค่เมนู "ออก" |
 | 2026-09-15 | Efficiency mode ของ H.NotifyIcon | ปิด (`ForceCreate(enablesEfficiencyMode: false)`) | โหมดนี้ลดลำดับความสำคัญของ process ซึ่งจะทำให้ไอคอนตอบสนองเมาส์ช้า |
 | 2026-09-15 | icon ของ app | `Assets/AppIcon.ico` ตอนนี้เป็นตัวชั่วคราว (ลูกแก้ว 3 สีวาดด้วยโค้ด ขนาด 16–256px) | ตัวจริงออกแบบใน M3 ตามรายการในหัวข้อ 6 |
+| 2026-09-15 | เบลอบนเมนู/แผง/ชื่อไอคอน | accent acrylic (`SetWindowCompositionAttribute`) แทน `DWMWA_SYSTEMBACKDROP_TYPE` | Acrylic ของระบบเป็นพื้นทึบบนหน้าต่างที่ไม่เคย active (S4) · API นี้ไม่มีเอกสาร จึงห่อไว้ใน `DwmBackdrop` ที่เดียวและมีพื้นทึบเป็นทางสำรอง |
+| 2026-09-15 | การวาดหน้าต่างไอคอน | layered + วาดด้วย CPU รายหน้าต่าง · การเข้าใกล้ไล่ค่าเองที่ 30Hz | RAM 38MB แทน 80MB · CPU ตอนขยับเมาส์ 1.59% แทน 2.25% (S1, S3) |
+| 2026-09-15 | id ของจอ | `monitorDevicePath` → EDID (ผู้ผลิต+รุ่น+serial) → จอหลัก | ทดสอบรีบูต/ถอดเสียบไม่ได้บนเครื่องจอเดียว · path มีเลขพอร์ตอยู่ด้วย จึงต้องมี EDID เป็นตัวสำรองตอนสลับพอร์ต (S9) |
+| 2026-09-15 | ผลลัพธ์ spike | ไม่ commit `spikes/results/` | มีภาพหน้าจอและรายชื่อโปรแกรมในเครื่องผู้ใช้ ซึ่งไม่ควรอยู่ใน repo สาธารณะ · ตัวเลขสรุปอยู่ในหัวข้อ 11 |
