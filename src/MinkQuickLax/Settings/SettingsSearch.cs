@@ -68,9 +68,6 @@ public static class SettingsSearch
         (SettingsPage.About, "GitHub", "About_GitHub"),
     ];
 
-    /// <summary>Every page and setting key, so a test can check each one exists in the resources.</summary>
-    public static IEnumerable<string> ResourceKeys => Entries.Select(e => e.NameKey).Concat(Enum.GetNames<SettingsPage>().Select(p => "Page_" + p));
-
     public static IReadOnlyList<SettingsSearchResult> Find(string query, Localizer text)
     {
         ArgumentNullException.ThrowIfNull(text);

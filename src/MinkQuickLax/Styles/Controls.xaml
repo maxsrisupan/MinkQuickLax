@@ -6,6 +6,25 @@
   <!-- Inputs on style plates (scanner, settings: SPEC 5.10). Colors, corners and fonts come from ThemeService resources;
        shape details that differ by style switch on the inherited styles:Skin.Kind. -->
 
+  <!-- Link icons in lists: round in Dot Matrix (SPEC 5.9), as they are. -->
+  <DrawingBrush x:Key="Skin.CircleMask" Stretch="Fill">
+    <DrawingBrush.Drawing>
+      <GeometryDrawing Brush="Black">
+        <GeometryDrawing.Geometry>
+          <EllipseGeometry Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" />
+        </GeometryDrawing.Geometry>
+      </GeometryDrawing>
+    </DrawingBrush.Drawing>
+  </DrawingBrush>
+  <Style x:Key="Skin.ListIcon" TargetType="Image">
+    <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality" />
+    <Style.Triggers>
+      <Trigger Property="styles:Skin.Kind" Value="{x:Static model:StyleSetting.Dot}">
+        <Setter Property="OpacityMask" Value="{StaticResource Skin.CircleMask}" />
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
   <Style x:Key="Skin.FocusVisual">
     <Setter Property="Control.Template">
       <Setter.Value>
@@ -475,7 +494,8 @@
         <ControlTemplate TargetType="Expander">
           <StackPanel>
             <ToggleButton x:Name="Header" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                          Cursor="Hand" FocusVisualStyle="{StaticResource Skin.FocusVisual}">
+                          Cursor="Hand" FocusVisualStyle="{StaticResource Skin.FocusVisual}"
+                          Foreground="{TemplateBinding Foreground}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}">
               <ToggleButton.Template>
                 <ControlTemplate TargetType="ToggleButton">
                   <StackPanel Orientation="Horizontal" Background="Transparent">

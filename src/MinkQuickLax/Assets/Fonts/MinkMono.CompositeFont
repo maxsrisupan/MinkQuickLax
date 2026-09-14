@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JetBrains Mono with Thai drawn by IBM Plex Sans Thai at 115% so it matches the Latin letters in size.
+     Baseline and line spacing are taller than JetBrains Mono alone (1.02 / 1.32) to leave room for Thai marks. -->
+<FontFamily
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/composite-font"
+    xmlns:System="clr-namespace:System;assembly=mscorlib"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Baseline="1.15"
+    LineSpacing="1.5">
+  <FontFamily.FamilyNames>
+    <System:String x:Key="en-US">Mink Mono</System:String>
+  </FontFamily.FamilyNames>
+  <FontFamily.FamilyMaps>
+    <FontFamilyMap Unicode="0E00-0E7F" Target="./#IBM Plex Sans Thai" Scale="1.15" />
+    <FontFamilyMap Target="./#JetBrains Mono" />
+  </FontFamily.FamilyMaps>
+</FontFamily>

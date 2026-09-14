@@ -91,7 +91,7 @@
                 <ListBox.ItemTemplate>
                   <DataTemplate DataType="settings:GroupLinkRow">
                     <StackPanel Orientation="Horizontal" Margin="0,2" AutomationProperties.Name="{Binding Name}">
-                      <Image Width="22" Height="22" Source="{Binding Icon}" RenderOptions.BitmapScalingMode="HighQuality" />
+                      <Image Style="{StaticResource Skin.ListIcon}" Width="22" Height="22" Source="{Binding Icon}" />
                       <TextBlock Style="{StaticResource Skin.Text}" FontSize="13" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding Name}" />
                     </StackPanel>
                   </DataTemplate>

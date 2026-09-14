@@ -288,7 +288,8 @@ public sealed partial class LinkEditorViewModel(string id, ConfigStore store, Ic
 
     public BrowserChoice? Browser
     {
-        get => Link.Browser is null ? Browsers[0] : BrowserChoice.Find(Browsers, Link.Browser);
+        // A browser that is no longer installed shows as the default one, which is what opens the link (BrowserMissingText says why).
+        get => BrowserChoice.Find(Browsers, Link.Browser) ?? Browsers[0];
         set => Change(l => l with { Browser = value?.Id });
     }
 

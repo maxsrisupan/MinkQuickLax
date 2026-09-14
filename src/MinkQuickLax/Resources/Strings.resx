@@ -183,7 +183,7 @@
     <value>Add from this PC</value>
   </data>
   <data name="Scanner_UrlHint" xml:space="preserve">
-    <value>Paste a web address and press Enter</value>
+    <value>Paste a link and press Enter</value>
   </data>
   <data name="Scanner_UrlInvalid" xml:space="preserve">
     <value>That does not look like a web address.</value>

@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\AppIcon.ico" />
-    <Resource Include="Assets\Fonts\*.ttf" />
+    <Resource Include="Assets\Fonts\*.ttf;Assets\Fonts\*.CompositeFont" />
     <None Include="Assets\Fonts\OFL-*.txt" CopyToOutputDirectory="PreserveNewest" Link="Licenses\%(Filename)%(Extension)" />
   </ItemGroup>
 

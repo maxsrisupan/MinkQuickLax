@@ -7,7 +7,8 @@
   <!-- SPEC 5.7: embedded OFL fonts with system fallbacks -->
   <FontFamily x:Key="Font.Ui">pack://application:,,,/Assets/Fonts/#IBM Plex Sans Thai, Leelawadee UI, Segoe UI</FontFamily>
   <FontFamily x:Key="Font.Display">pack://application:,,,/Assets/Fonts/#Chakra Petch, Segoe UI</FontFamily>
-  <!-- JetBrains Mono and Doto have no Thai letters: Thai falls back to IBM Plex Sans Thai. -->
+  <!-- JetBrains Mono and Doto have no Thai letters: Thai falls back to IBM Plex Sans Thai.
+       ThemeService replaces Font.Mono with the Mink Mono composite font, which also enlarges the Thai (CompositeFonts). -->
   <FontFamily x:Key="Font.Mono">pack://application:,,,/Assets/Fonts/#JetBrains Mono, pack://application:,,,/Assets/Fonts/#IBM Plex Sans Thai, Cascadia Mono, Consolas</FontFamily>
   <FontFamily x:Key="Font.Dot">pack://application:,,,/Assets/Fonts/#Doto, pack://application:,,,/Assets/Fonts/#JetBrains Mono, pack://application:,,,/Assets/Fonts/#IBM Plex Sans Thai, Consolas</FontFamily>
 

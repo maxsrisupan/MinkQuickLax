@@ -34,6 +34,7 @@ public sealed class ThemeService
     public ThemeService(Application application)
     {
         _resources = application.Resources;
+        _resources["Font.Mono"] = CompositeFonts.Mono;
         Current = new Look(Dark: true, HighContrast: false, Blur: false, ReduceMotion: false, Style: StyleSetting.Glass);
     }
 

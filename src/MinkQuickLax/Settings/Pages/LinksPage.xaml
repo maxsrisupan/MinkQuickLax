@@ -49,7 +49,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
               </Grid.ColumnDefinitions>
-              <Image Width="30" Height="30" Source="{Binding Icon}" RenderOptions.BitmapScalingMode="HighQuality" />
+              <Image Style="{StaticResource Skin.ListIcon}" Width="30" Height="30" Source="{Binding Icon}" />
               <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
                 <TextBlock Style="{StaticResource Skin.Text}" FontSize="13.5" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
                 <TextBlock Style="{StaticResource Settings.Hint}" FontSize="11.5" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text="{Binding KindText}" />
@@ -72,7 +72,7 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
-          <Image Width="48" Height="48" Source="{Binding Preview}" RenderOptions.BitmapScalingMode="HighQuality" />
+          <Image Style="{StaticResource Skin.ListIcon}" Width="48" Height="48" Source="{Binding Preview}" />
           <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
             <TextBlock Style="{StaticResource Skin.Text}" FontFamily="{DynamicResource Font.Heading}" FontSize="18" FontWeight="SemiBold"
                        TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
@@ -135,8 +135,9 @@
         </StackPanel>
 
         <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Link_Icon}" />
-        <StackPanel Orientation="Horizontal">
-          <Border Style="{StaticResource Skin.SegmentTrack}">
+        <!-- Wraps so the longer English labels never push the image button out of view. -->
+        <WrapPanel>
+          <Border Style="{StaticResource Skin.SegmentTrack}" Margin="0,0,8,6">
             <StackPanel Orientation="Horizontal">
               <RadioButton Style="{StaticResource Skin.Segment}" GroupName="icon" Content="{s:Text Icon_Auto}"
                            IsChecked="{Binding IconChoice, Converter={x:Static settings:EnumIsConverter.Instance}, ConverterParameter={x:Static settings:IconChoice.Auto}}" />
@@ -146,9 +147,9 @@
                            IsChecked="{Binding IconChoice, Converter={x:Static settings:EnumIsConverter.Instance}, ConverterParameter={x:Static settings:IconChoice.Letter}}" />
             </StackPanel>
           </Border>
-          <Button Style="{StaticResource Skin.OutlineButton}" Margin="8,0,0,0" Content="{s:Text Link_PickIcon}" Command="{Binding PickIconCommand}" />
-        </StackPanel>
-        <TextBlock Style="{StaticResource Settings.Hint}" Margin="2,4,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Text="{Binding IconPath}" />
+          <Button Style="{StaticResource Skin.OutlineButton}" Margin="0,0,0,6" Content="{s:Text Link_PickIcon}" Command="{Binding PickIconCommand}" />
+        </WrapPanel>
+        <TextBlock Style="{StaticResource Settings.Hint}" Margin="2,0,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Text="{Binding IconPath}" />
 
         <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Link_Usage}" />
         <ItemsControl ItemsSource="{Binding Usage}" Focusable="False">
