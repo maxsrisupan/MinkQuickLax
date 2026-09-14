@@ -33,3 +33,5 @@ Quick launcher สำหรับ Windows: link แต่ละตัวเป�
 
 - **test ใช้ Microsoft.Testing.Platform:** ต้องระบุ `--solution` หรือ `--project` · โปรเจกต์ test ที่ไม่มี test เลยจะล้ม (exit code 8) จึงสร้างโปรเจกต์ test พร้อม test แรกเท่านั้น
 - **ปิด app ก่อน build ซ้ำ:** ถ้า app ยังรันอยู่ build จะล้มเพราะไฟล์ exe ถูกล็อก
+- **รันด้วยข้อมูลทดสอบ:** ตั้ง `MINKQUICKLAX_DATA_DIR` ให้ชี้โฟลเดอร์ที่มี `config.json` ของตัวเอง จะได้ไม่แตะ `%AppData%\MinkQuickLax` ของผู้ใช้ · log อยู่ที่ `%LocalAppData%\MinkQuickLax\logs`
+- **ทดสอบ UI บนเครื่องผู้ใช้:** คลิกเฉพาะหน้าต่างของ app และห้ามส่งปุ่มลัดไปหน้าต่างอื่น

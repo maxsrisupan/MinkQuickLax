@@ -53,6 +53,8 @@ public readonly record struct PixelRect(int Left, int Top, int Right, int Bottom
         return moved.Offset(dx, dy);
     }
 
+    public override string ToString() => FormattableString.Invariant($"({Left},{Top})-({Right},{Bottom})");
+
     /// <summary>Distance from <paramref name="p"/> to the nearest point of this rectangle (0 inside).</summary>
     public double DistanceTo(PixelPoint p)
     {

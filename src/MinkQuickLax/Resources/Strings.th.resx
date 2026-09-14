@@ -12,10 +12,100 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>ยกเลิก</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>ปิด</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>ลบ</value>
+  </data>
+  <data name="Menu_AddToGroup" xml:space="preserve">
+    <value>เพิ่มเข้ากลุ่ม…</value>
+  </data>
+  <data name="Menu_Arrange" xml:space="preserve">
+    <value>จัดวางไอคอน</value>
+  </data>
+  <data name="Menu_DeleteLink" xml:space="preserve">
+    <value>ลบ link…</value>
+  </data>
+  <data name="Menu_Edit" xml:space="preserve">
+    <value>แก้ไข…</value>
+  </data>
+  <data name="Menu_Open" xml:space="preserve">
+    <value>เปิด</value>
+  </data>
+  <data name="Menu_OpenLocation" xml:space="preserve">
+    <value>เปิดตำแหน่งที่เก็บ</value>
+  </data>
+  <data name="Menu_PlaceAgain" xml:space="preserve">
+    <value>วางเพิ่มบนจอ</value>
+  </data>
+  <data name="Menu_RemoveFromScreen" xml:space="preserve">
+    <value>เอาออกจากจอ</value>
+  </data>
+  <data name="Menu_RunAsAdmin" xml:space="preserve">
+    <value>เปิดในฐานะผู้ดูแลระบบ</value>
+  </data>
+  <data name="Notice_AccessDenied" xml:space="preserve">
+    <value>Windows ไม่อนุญาตให้เปิด “{0}”</value>
+  </data>
+  <data name="Notice_ConfigReset" xml:space="preserve">
+    <value>ไฟล์ค่าตั้งเสียหายและอ่านไฟล์สำรองไม่ได้ MinkQuickLax จึงเริ่มใหม่ ไฟล์เดิมเก็บไว้ในโฟลเดอร์ค่าตั้งแล้ว</value>
+  </data>
+  <data name="Notice_ConfigRestored" xml:space="preserve">
+    <value>ไฟล์ค่าตั้งเสียหาย จึงกู้คืนจากไฟล์สำรองเมื่อ {0}</value>
+  </data>
+  <data name="Notice_ConfirmDeleteMany" xml:space="preserve">
+    <value>ลบ “{0}” ไหม? ตอนนี้ใช้อยู่ {1} ที่ และจะหายจากทุกที่</value>
+  </data>
+  <data name="Notice_ConfirmDeleteOne" xml:space="preserve">
+    <value>ลบ “{0}” ไหม? ไอคอนนี้จะหายจากจอ</value>
+  </data>
+  <data name="Notice_NoAssociation" xml:space="preserve">
+    <value>ยังไม่มี app ที่ตั้งไว้สำหรับเปิด “{0}”</value>
+  </data>
+  <data name="Notice_NotFound" xml:space="preserve">
+    <value>ไม่พบ “{0}” อาจถูกย้าย เปลี่ยนชื่อ หรือถอนการติดตั้งไปแล้ว</value>
+  </data>
+  <data name="Notice_OpenFailed" xml:space="preserve">
+    <value>เปิด “{0}” ไม่สำเร็จ (รหัส {1})</value>
+  </data>
+  <data name="Notice_Unsupported" xml:space="preserve">
+    <value>เวอร์ชันนี้ยังเปิด link ประเภทนี้ไม่ได้</value>
+  </data>
+  <data name="Tray_AddFromPc" xml:space="preserve">
+    <value>เพิ่มจากเครื่องนี้…</value>
+  </data>
+  <data name="Tray_Arrange" xml:space="preserve">
+    <value>จัดวางไอคอน</value>
+  </data>
+  <data name="Tray_CheckUpdates" xml:space="preserve">
+    <value>ตรวจหาอัปเดต</value>
+  </data>
   <data name="Tray_Exit" xml:space="preserve">
     <value>ออก</value>
   </data>
+  <data name="Tray_Hide" xml:space="preserve">
+    <value>ซ่อนไอคอน</value>
+  </data>
+  <data name="Tray_Manual" xml:space="preserve">
+    <value>คู่มือ</value>
+  </data>
+  <data name="Tray_Settings" xml:space="preserve">
+    <value>หน้าตั้งค่า</value>
+  </data>
+  <data name="Tray_Show" xml:space="preserve">
+    <value>แสดงไอคอน</value>
+  </data>
+  <data name="Tray_Tidy" xml:space="preserve">
+    <value>จัดเรียงใหม่</value>
+  </data>
   <data name="Tray_ToolTip" xml:space="preserve">
     <value>MinkQuickLax</value>
+  </data>
+  <data name="Tray_ToolTipHidden" xml:space="preserve">
+    <value>MinkQuickLax (ซ่อนอยู่)</value>
   </data>
 </root>

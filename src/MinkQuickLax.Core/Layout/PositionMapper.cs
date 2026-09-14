@@ -57,7 +57,8 @@ public static class PositionMapper
     public static ScreenPosition ToScreen(Placement placement, int iconSizeDip, IReadOnlyList<MonitorInfo> monitors, bool allowOverTaskbar)
     {
         var monitor = FindMonitor(placement.Monitor, placement.MonitorEdid, monitors);
-        var isFallback = monitor is null;
+        // No monitor recorded at all (hand-written config): the primary monitor is simply where it belongs.
+        var isFallback = monitor is null && !(string.IsNullOrEmpty(placement.Monitor) && string.IsNullOrEmpty(placement.MonitorEdid));
         monitor ??= Primary(monitors);
 
         var area = PlacementArea(monitor, allowOverTaskbar);

@@ -1,36 +1,85 @@
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using H.NotifyIcon;
+using H.NotifyIcon.Core;
+using MinkQuickLax.Core.Config;
+using MinkQuickLax.Platform.Input;
 using MinkQuickLax.Services;
+using MinkQuickLax.Surfaces;
 
 namespace MinkQuickLax.Tray;
 
-/// <summary>Owns the notification-area icon and its menu.</summary>
-internal sealed class TrayController : IDisposable
+/// <summary>The notification-area icon: left click hides/shows, right click opens the glass menu (SPEC 4.5, 4.7).</summary>
+public sealed class TrayController : IDisposable
 {
     private static readonly Uri IconUri = new("pack://application:,,,/Assets/AppIcon.ico");
 
     private readonly TaskbarIcon _icon;
+    private readonly ConfigStore _store;
+    private readonly PlacementController _placements;
+    private readonly SurfaceHost _surfaces;
+    private readonly Localizer _text;
 
-    public TrayController(Application app)
+    public TrayController(ConfigStore store, PlacementController placements, SurfaceHost surfaces, Localizer text)
     {
-        var exitItem = new MenuItem();
-        exitItem.SetBinding(HeaderedItemsControl.HeaderProperty, Localizer.Instance.Bind("Tray_Exit"));
-        exitItem.Click += (_, _) => app.Shutdown();
+        _store = store;
+        _placements = placements;
+        _surfaces = surfaces;
+        _text = text;
 
         _icon = new TaskbarIcon
         {
             IconSource = new BitmapImage(IconUri),
-            ContextMenu = new ContextMenu { Items = { exitItem } },
             NoLeftClickDelay = true,
+            MenuActivation = PopupActivationMode.None,
         };
-        _icon.SetBinding(TaskbarIcon.ToolTipTextProperty, Localizer.Instance.Bind("Tray_ToolTip"));
+        _icon.TrayLeftMouseUp += (_, _) =>
+        {
+            if (_store.Current.Settings.TrayClickToggles)
+            {
+                _placements.ToggleHidden();
+            }
+            else
+            {
+                ShowMenu();
+            }
+        };
+        _icon.TrayRightMouseUp += (_, _) => ShowMenu();
+        _placements.HiddenChanged += _ => UpdateToolTip();
+        _text.PropertyChanged += (_, _) => UpdateToolTip();
+        UpdateToolTip();
 
-        // Created from code rather than XAML, so the icon must be added to the tray explicitly.
-        // Efficiency mode stays off: the launcher has to react to the mouse immediately.
+        // Built in code, so it has to be added to the tray explicitly. Efficiency mode would slow our reactions.
         _icon.ForceCreate(enablesEfficiencyMode: false);
     }
 
+    /// <summary>Raised by the Exit command.</summary>
+    public event Action? ExitRequested;
+
+    public void ShowBalloon(string message) =>
+        _icon.ShowNotification(_text["Tray_ToolTip"], message, NotificationIcon.Warning);
+
     public void Dispose() => _icon.Dispose();
+
+    private void UpdateToolTip() =>
+        _icon.ToolTipText = _placements.IsHidden ? _text["Tray_ToolTipHidden"] : _text["Tray_ToolTip"];
+
+    private void ShowMenu()
+    {
+        IReadOnlyList<MenuEntry> entries =
+        [
+            // Adding apps (M5), arranging (M4), settings (M7), the manual (M9) and updates (M10) arrive later.
+            new MenuCommand(_text["Tray_AddFromPc"], () => { }, IsEnabled: false),
+            new MenuCommand(_text["Tray_Arrange"], () => { }, IsEnabled: false),
+            new MenuCommand(_text["Tray_Tidy"], _placements.Tidy),
+            MenuSeparator.Instance,
+            new MenuCommand(_placements.IsHidden ? _text["Tray_Show"] : _text["Tray_Hide"], _placements.ToggleHidden),
+            MenuSeparator.Instance,
+            new MenuCommand(_text["Tray_Settings"], () => { }, IsEnabled: false),
+            new MenuCommand(_text["Tray_Manual"], () => { }, IsEnabled: false),
+            new MenuCommand(_text["Tray_CheckUpdates"], () => { }, IsEnabled: false),
+            MenuSeparator.Instance,
+            new MenuCommand(_text["Tray_Exit"], () => ExitRequested?.Invoke()),
+        ];
+        _surfaces.ShowMenu(MouseProximityTracker.CursorPosition(), null, entries);
+    }
 }

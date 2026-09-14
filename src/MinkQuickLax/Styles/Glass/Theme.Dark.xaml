@@ -1,0 +1,15 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- SPEC 5.1, dark theme -->
+  <Color x:Key="Glass.Rgb">#121E24</Color>
+  <Color x:Key="Glass.InkColor">#F1FAF8</Color>
+  <Color x:Key="Glass.Ink2Color">#A8F1FAF8</Color>
+  <Color x:Key="Glass.EdgeColor">#33FFFFFF</Color>
+  <Color x:Key="Glass.HighlightColor">#52FFFFFF</Color>
+  <Color x:Key="Glass.ShadowColor">#B3000000</Color>
+  <Color x:Key="Tile.ShadowColor">#000000</Color>
+  <Color x:Key="AccentColor">#5EE6FF</Color>
+  <Color x:Key="AccentInkColor">#02141A</Color>
+  <Color x:Key="DangerColor">#FF5A43</Color>
+  <Color x:Key="GuideColor">#FF7250</Color>
+</ResourceDictionary>

@@ -1,0 +1,102 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- SPEC 5.7: embedded OFL fonts with system fallbacks -->
+  <FontFamily x:Key="Font.Ui">pack://application:,,,/Assets/Fonts/#IBM Plex Sans Thai, Leelawadee UI, Segoe UI</FontFamily>
+  <FontFamily x:Key="Font.Display">pack://application:,,,/Assets/Fonts/#Chakra Petch, Segoe UI</FontFamily>
+  <FontFamily x:Key="Font.Mono">pack://application:,,,/Assets/Fonts/#JetBrains Mono, Cascadia Mono, Consolas</FontFamily>
+
+  <!-- Brushes that ThemeService replaces when the theme, tint or blur state changes. Defaults are the dark theme. -->
+  <SolidColorBrush x:Key="Glass.Ink" Color="#F1FAF8" />
+  <SolidColorBrush x:Key="Glass.Ink2" Color="#A8F1FAF8" />
+  <SolidColorBrush x:Key="Glass.Edge" Color="#33FFFFFF" />
+  <SolidColorBrush x:Key="Glass.Highlight" Color="#52FFFFFF" />
+  <SolidColorBrush x:Key="Glass.HoverFill" Color="#42FFFFFF" />
+  <SolidColorBrush x:Key="Accent" Color="#5EE6FF" />
+  <SolidColorBrush x:Key="AccentInk" Color="#02141A" />
+  <SolidColorBrush x:Key="Danger" Color="#FF5A43" />
+  <SolidColorBrush x:Key="Guide" Color="#FF7250" />
+  <SolidColorBrush x:Key="Glass.Fill.Tooltip" Color="#D1121E24" />
+  <SolidColorBrush x:Key="Glass.Fill.Menu" Color="#94121E24" />
+  <SolidColorBrush x:Key="Glass.Fill.Notice" Color="#94121E24" />
+
+  <Style x:Key="Glass.Text" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="Foreground" Value="{DynamicResource Glass.Ink}" />
+    <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+  </Style>
+
+  <!-- Frame shared by glass surfaces: tint fill, 1 px inner edge, 1 px highlight on top (SPEC 5.2). -->
+  <Style x:Key="Glass.Frame" TargetType="Border">
+    <Setter Property="BorderBrush" Value="{DynamicResource Glass.Edge}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="SnapsToDevicePixels" Value="True" />
+  </Style>
+
+  <Style x:Key="Glass.TopHighlight" TargetType="Border">
+    <Setter Property="Height" Value="1" />
+    <Setter Property="VerticalAlignment" Value="Top" />
+    <Setter Property="Margin" Value="8,0" />
+    <Setter Property="Background" Value="{DynamicResource Glass.Highlight}" />
+    <Setter Property="IsHitTestVisible" Value="False" />
+  </Style>
+
+  <!-- Menu row: padding 7×10, 8 px corners, 13.5 px text, hover fill (SPEC 5.2). -->
+  <Style x:Key="Glass.MenuRow" TargetType="Button">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="13.5" />
+    <Setter Property="Foreground" Value="{DynamicResource Glass.Ink}" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Cursor" Value="Arrow" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="Bg" Padding="10,7" CornerRadius="8" Background="Transparent">
+            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="False" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Glass.HoverFill}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Glass.Button" TargetType="Button" BasedOn="{StaticResource Glass.MenuRow}">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="MinWidth" Value="72" />
+  </Style>
+
+  <Style x:Key="Glass.AccentButton" TargetType="Button" BasedOn="{StaticResource Glass.Button}">
+    <Setter Property="Foreground" Value="{DynamicResource AccentInk}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="Bg" Padding="14,7" CornerRadius="8" Background="{DynamicResource Accent}">
+            <ContentPresenter HorizontalAlignment="Center" RecognizesAccessKey="False" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bg" Property="Opacity" Value="0.9" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Glass.DangerButton" TargetType="Button" BasedOn="{StaticResource Glass.Button}">
+    <Setter Property="Foreground" Value="{DynamicResource Danger}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+</ResourceDictionary>

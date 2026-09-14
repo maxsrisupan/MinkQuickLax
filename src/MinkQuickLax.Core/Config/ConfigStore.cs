@@ -11,9 +11,14 @@ public sealed record ConfigPaths(string Directory)
     public string TempFile => Path.Combine(Directory, "config.json.tmp");
     public string BackupDirectory => Path.Combine(Directory, "backups");
 
-    /// <summary>%AppData%\MinkQuickLax</summary>
+    /// <summary>Environment variable that points the app at another data folder (testing, portable use).</summary>
+    public const string OverrideVariable = "MINKQUICKLAX_DATA_DIR";
+
+    /// <summary>%AppData%\MinkQuickLax, unless <see cref="OverrideVariable"/> is set.</summary>
     public static ConfigPaths Default() =>
-        new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MinkQuickLax"));
+        Environment.GetEnvironmentVariable(OverrideVariable) is { Length: > 0 } custom
+            ? new ConfigPaths(custom)
+            : new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MinkQuickLax"));
 }
 
 public enum ConfigSource

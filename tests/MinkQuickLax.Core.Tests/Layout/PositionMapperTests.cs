@@ -102,6 +102,15 @@ public sealed class PositionMapperTests
     }
 
     [Fact]
+    public void NoMonitorRecorded_UsesPrimary_WithoutCountingAsFallback()
+    {
+        var position = PositionMapper.ToScreen(new Placement { X = 0.5, Y = 0.5 }, 48, [Monitors.Left(), Monitors.Primary()], false);
+
+        Assert.False(position.IsFallback);
+        Assert.True(position.Monitor.IsPrimary);
+    }
+
+    [Fact]
     public void MonitorOnAnotherPort_IsFoundByEdid()
     {
         var moved = Monitors.Left(id: "new-port-path");

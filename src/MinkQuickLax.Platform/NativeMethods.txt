@@ -1,1 +1,87 @@
 // Win32 APIs for CsWin32 to generate, one name per line.
+
+// Windows and messages
+CreateWindowEx
+DestroyWindow
+DefWindowProc
+RegisterClassEx
+GetModuleHandle
+GetWindowLongPtr
+SetWindowLongPtr
+SetWindowPos
+GetWindowRect
+GetDpiForWindow
+RegisterWindowMessage
+PostMessage
+SetTimer
+KillTimer
+GetCursorPos
+GetKeyState
+WINDOW_EX_STYLE
+WINDOW_STYLE
+WM_INPUT
+WM_TIMER
+WM_DISPLAYCHANGE
+WM_DPICHANGED
+WM_SETTINGCHANGE
+WM_POWERBROADCAST
+WM_DEVICECHANGE
+WM_WTSSESSION_CHANGE
+PBT_APMRESUMEAUTOMATIC
+PBT_POWERSETTINGCHANGE
+POWERBROADCAST_SETTING
+SYSTEM_PARAMETERS_INFO_ACTION
+SystemParametersInfo
+HIGHCONTRASTW
+
+// Input
+RegisterRawInputDevices
+GetRawInputData
+RAWINPUT
+RAWINPUTHEADER
+HRAWINPUT
+VIRTUAL_KEY
+
+// Topmost
+SetWinEventHook
+UnhookWinEvent
+EVENT_SYSTEM_FOREGROUND
+
+// DWM
+DwmSetWindowAttribute
+DWMWINDOWATTRIBUTE
+DWM_WINDOW_CORNER_PREFERENCE
+
+// Displays
+QueryDisplayConfig
+GetDisplayConfigBufferSizes
+DisplayConfigGetDeviceInfo
+DISPLAYCONFIG_TARGET_DEVICE_NAME
+DISPLAYCONFIG_SOURCE_DEVICE_NAME
+EnumDisplayMonitors
+GetMonitorInfo
+MONITORINFOEXW
+GetDpiForMonitor
+MONITOR_DPI_TYPE
+
+// Power
+GetSystemPowerStatus
+RegisterPowerSettingNotification
+UnregisterPowerSettingNotification
+GUID_POWER_SAVING_STATUS
+
+// Shell
+ShellExecuteEx
+SHELLEXECUTEINFOW
+SHCreateItemFromParsingName
+IShellItem
+IShellItem2
+IShellItemImageFactory
+SIIGBF
+SHParseDisplayName
+SHOpenFolderAndSelectItems
+ILFree
+DeleteObject
+GetObject
+BITMAP
+CoInitializeEx

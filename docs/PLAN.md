@@ -1,6 +1,6 @@
 # MinkQuickLax — แผนลงมือ (Plan)
 
-> **ความคืบหน้า:** M0, M1, M2 เสร็จ · งานถัดไปคือ **M3 ไอคอนบนจอและ tray** (หัวข้อ 6)
+> **ความคืบหน้า:** M0–M3 เสร็จ · งานถัดไปคือ **M4 โหมดแก้ไขและการลาก** (หัวข้อ 6)
 > อัปเดตล่าสุด: 2026-09-15
 > **ข้อกำหนดอยู่ที่ [SPEC.md](SPEC.md)** เอกสารนี้บอกแค่ว่าทำอย่างไรและทำอะไรก่อน
 
@@ -66,6 +66,7 @@ MinkQuickLax/
 │  │  └─ Abstractions/            IMonitorProvider, IRegistry (M7) · เวลาใช้ `TimeProvider` ของ .NET
 │  ├─ MinkQuickLax.Platform/      net10.0-windows · Win32 ทั้งหมดอยู่ที่นี่
 │  │  ├─ NativeMethods.txt        รายชื่อ API ให้ CsWin32 สร้าง
+│  │  ├─ Interop/                 MessageWindow (หน้าต่างรับข้อความของระบบ ไม่ใช้ WPF)
 │  │  ├─ Windowing/               WindowStyles, TopmostKeeper, DwmBackdrop
 │  │  ├─ Input/                   MouseProximityTracker (Raw Input), HotkeyService (F2)
 │  │  ├─ Displays/                MonitorProvider, DisplayChangeWatcher
@@ -74,14 +75,15 @@ MinkQuickLax/
 │  │  └─ Update/                  UpdateService (ห่อ Velopack)
 │  └─ MinkQuickLax/               net10.0-windows · WPF · ได้ไฟล์ MinkQuickLax.exe
 │     ├─ Program.cs               Main เอง: Velopack → single instance → host
+│     ├─ AppServices.cs / AppShell.cs  DI + Serilog / ลำดับตอนเปิด-ปิด
 │     ├─ App.xaml(.cs)
 │     ├─ Styles/Glass/            ResourceDictionary ของ Glass (สี, brush, template)
-│     ├─ Surfaces/                IconWindow, FolderWindow, GroupPanelWindow, TooltipWindow, GlassMenuWindow, EditToolbarWindow, DragReadoutWindow
+│     ├─ Surfaces/                IconWindow, FolderWindow, GroupPanelWindow, GlassSurfaceWindow (Tooltip, GlassMenu, Notice), SurfaceHost, EditToolbarWindow, DragReadoutWindow
 │     ├─ Settings/                SettingsWindow + Pages + ViewModels
 │     ├─ Scanner/                 ScannerWindow + ViewModel
 │     ├─ Manual/                  ManualWindow (WebView2)
 │     ├─ Tray/                    TrayController
-│     ├─ Services/                PlacementController, EditModeController, UndoStack, IconCache, Localizer
+│     ├─ Services/                PlacementController, LinkActions, ProximityAnimator, ThemeService, EditModeController, UndoStack, IconCache, Localizer
 │     ├─ Resources/Strings.resx   อังกฤษ (ค่าหลัก)
 │     ├─ Resources/Strings.th.resx
 │     ├─ Assets/Fonts/            IBM Plex Sans Thai, Chakra Petch, JetBrains Mono + ไฟล์ OFL
@@ -329,16 +331,18 @@ MinkQuickLax/
 - **ผลตรวจ (2026-09-15):** test ของ Core 115 ตัว (รวมทั้งหมด 120) ผ่าน · build 0 warning
 
 ### M3 · ไอคอนบนจอและ tray
-- [ ] Glass ResourceDictionary: สี ธีมสว่าง/มืด, brush, ค่าเวลา (SPEC 5.1–5.4) · สลับธีมตาม Windows ทันที
-- [ ] `IconWindow`: วาด icon + เงา, ตัวอักษรเมื่อไม่มี icon, ความทึบตอนพัก, ใกล้แล้วชัด/ขยาย, เด้งตอนกด, ไอคอนจางและมี ! เมื่อเป้าหมายหาย
-- [ ] `TooltipWindow` (ชื่อไอคอน) และแบบแสดงชื่อใต้ไอคอน
-- [ ] `Launcher`: เปิดทุก `kind` ของ F1, run as admin, เปิดตำแหน่งที่เก็บ, แจ้ง error
-- [ ] `GlassMenuWindow` + เมนูคลิกขวาที่ไอคอน (SPEC 4.2)
-- [ ] `PlacementController`: สร้างหน้าต่างตามข้อมูล, ซ่อน/แสดงทั้งชุด
-- [ ] `TopmostKeeper`, `DisplayChangeWatcher`, `SingleInstance`
-- [ ] tray: คลิกซ้ายซ่อน/แสดง, เมนูคลิกขวา (SPEC 4.7), icon ของ app (.ico 16–256px ทำจากลูกแก้วสี `#2FD9BE/#FFC15A/#FF7250` ใน mockup)
-- [ ] ค่าตั้งจาก `SystemSettingsWatcher`: Transparency effects, Animation effects, High contrast, ประหยัดแบต
+- [x] Glass ResourceDictionary: สี ธีมสว่าง/มืด, brush, ค่าเวลา (SPEC 5.1–5.4) · สลับธีมตาม Windows ทันที · สีอยู่ใน `Styles/Glass/Theme.*.xaml` ความทึบ ขนาด และจังหวะอยู่ใน `GlassDesign.cs`
+- [x] `IconWindow`: วาด icon + เงา, ตัวอักษรเมื่อไม่มี icon, ความทึบตอนพัก, ใกล้แล้วชัด/ขยาย, เด้งตอนกด, ไอคอนจางและมี ! เมื่อเป้าหมายหาย
+- [x] `TooltipWindow` (ชื่อไอคอน) และแบบแสดงชื่อใต้ไอคอน
+- [x] `Launcher`: เปิดทุก `kind` ของ F1, run as admin, เปิดตำแหน่งที่เก็บ, แจ้ง error
+- [x] `GlassMenuWindow` + เมนูคลิกขวาที่ไอคอน (SPEC 4.2) · รายการที่เป็นของ M4–M7 แสดงแต่กดไม่ได้จนกว่าจะทำ
+- [x] `PlacementController`: สร้างหน้าต่างตามข้อมูล, ซ่อน/แสดงทั้งชุด · มี "จัดเรียงใหม่" และ "วางเพิ่มบนจอ" แล้ว
+- [x] `TopmostKeeper`, `DisplayChangeWatcher` (อยู่ใน `SystemEvents`), `SingleInstance`
+- [x] tray: คลิกซ้ายซ่อน/แสดง, เมนูคลิกขวา (SPEC 4.7), icon ของ app (.ico 16–256px ทำจากลูกแก้วสี `#2FD9BE/#FFC15A/#FF7250` ใน mockup) · สร้างซ้ำได้ด้วย `build/make-app-icon.ps1`
+- [x] ค่าตั้งจาก `SystemSettingsWatcher` (`SystemSettings.Read` + `SystemEvents.SettingsChanged`): Transparency effects, Animation effects, High contrast, ประหยัดแบต
 - **ตรวจ:** ใส่ link ใน config.json เอง แล้ว app แสดงไอคอน กดเปิดได้ · focus ไม่หลุด · ไม่อยู่ใน Alt+Tab · เปลี่ยนความละเอียด/ถอดจอแล้วตำแหน่งถูก
+- **ผลตรวจ (2026-09-15):** config ทดสอบ 6 link (app, shellApp, folder, url, ไฟล์ที่หาย, ms-settings ชื่อไทย) แสดงครบ · icon จริงของ Notepad/Calculator/Windows, ตัวอักษร "G" และ "ที่" (ไม่หลุดวรรณยุกต์) · ไฟล์ที่หายจางและมี ! กดแล้วขึ้นกล่องแจ้ง · กด Calculator แล้วเปิดและขึ้นหน้าสุด · ชี้ค้างแล้วชื่อขึ้น · เมาส์เข้าใกล้แล้วชัดขึ้น (ความสว่าง 158→209) · เมนูคลิกขวาภาษาไทยขึ้นตรงเคอร์เซอร์และปิดเมื่อคลิกนอก · foreground ไม่เปลี่ยนตอน hover/เมนู · ทุกหน้าต่างเป็น TOOLWINDOW+NOACTIVATE ไม่มี APPWINDOW · คลิก tray แล้วซ่อนหมด tooltip เป็น "(ซ่อนอยู่)" · เปิดซ้ำแล้วตัวที่สองออกใน 189ms และตัวแรกแสดงไอคอนกลับ · จำลอง `WM_DISPLAYCHANGE` แล้วจัดตำแหน่งใหม่ไม่มี error · ไฟล์ค่าตั้งเสียจริง (backslash หาย) ถูกย้ายไปเก็บและเริ่มจากค่าเริ่มต้น · **30 ไอคอน: RAM 36MB, CPU ตอนนิ่ง 0.004%** · test ทั้งหมด 153 ผ่าน
+- **ยังไม่ได้ตรวจบนเครื่องนี้ (อยู่ในหัวข้อ 8.2):** เปลี่ยนความละเอียด/ถอดจอจริง · เบลอของเมนูตอนเปิด Transparency effects ในตัว app จริง (โค้ดเดียวกับที่ผ่าน S4) · run as admin (มีหน้าต่าง UAC) · บังด้วยหน้าต่างบนสุดของ app อื่น
 
 ### M4 · โหมดแก้ไขและการลาก
 - [ ] `EditModeController`: เข้า/ออก, ไอคอนสั่น, `EditToolbarWindow` (เพิ่ม, จัดเรียงใหม่, ยกเลิก, เสร็จ)
@@ -439,6 +443,9 @@ MinkQuickLax/
 - [ ] ลากไอคอนข้ามจอที่ scale ต่างกันแล้วขนาดไม่เพี้ยน (S2)
 - [ ] id ของจอเดิมหลังรีบูต, ถอดแล้วเสียบ, สลับพอร์ต (S9) · ดูได้จาก log ของ app
 - [ ] รีสตาร์ท Explorer (Task Manager) แล้ว icon ที่ tray กลับมา
+- [ ] เปิด Transparency effects แล้วเมนู ชื่อไอคอน และกล่องแจ้งเตือนเบลอจริง · ปิดแล้วเป็นพื้นทึบ
+- [ ] "เปิดในฐานะผู้ดูแลระบบ" ขึ้น UAC แล้วเปิดได้ · กด No แล้วไม่มีข้อความ error
+- [ ] เปิด Task Manager แบบ Always on top แล้วคลิก app อื่น ไอคอนกลับขึ้นมาอยู่บน
 - [ ] รีบูตแล้ว app เปิดเองแบบเงียบ · ปิดใน Task Manager แล้วไม่เปิดเอง
 - [ ] Task Manager → ปิดโปรเซสระหว่างบันทึก แล้วเปิดใหม่ ค่าตั้งไม่เสีย
 - [ ] สลับภาษาไทย/อังกฤษทุกหน้าจอ
@@ -517,3 +524,10 @@ MinkQuickLax/
 | 2026-09-15 | เวลาและไฟล์ใน Core | ใช้ `TimeProvider` ของ .NET แทน `IClock` · ไม่ทำ `IFileSystem` แต่ test กับโฟลเดอร์ชั่วคราวจริง | `TimeProvider` + `FakeTimeProvider` ทดสอบการหน่วงบันทึกได้ตรง · การแทนที่ไฟล์แบบ atomic ควรทดสอบกับระบบไฟล์จริง |
 | 2026-09-15 | เวลาที่สำรองค่าตั้ง | ตอนโหลดถ้าไฟล์ต่างจากชุดสำรองล่าสุด · ตอนบันทึกถ้าชุดล่าสุดเก่ากว่า 1 วัน · ก่อนกู้คืนและก่อนคืนค่าทั้งหมด · กด "สำรองตอนนี้" | สำรองทุกครั้งที่บันทึกจะทำให้ 10 ชุดหมดในการลากไม่กี่ครั้ง · ไฟล์ที่อ่านไม่ได้ย้ายไปเป็น `config.unreadable-*.json` ไม่ลบทิ้ง |
 | 2026-09-15 | การชิดแนว | จับคู่กลาง↔กลาง, ขอบเดียวกัน, และขอบชนขอบ ไม่จับกลาง↔ขอบ · ระยะชนกันวัดจากขนาดหน้าต่าง (ไอคอน + 12px รอบ) | กลาง↔ขอบทำให้ดูดแรงเกินไป · วัดจากหน้าต่างทำให้ไอคอนห่างกันอย่างน้อย 24px และไม่ทับกันตอนขยาย |
+| 2026-09-15 | โปรเจกต์ Windows เป็น x64 | Platform, App, Platform.Tests ตั้ง `PlatformTarget=x64` + `RuntimeIdentifier=win-x64` | CsWin32 สร้าง API ที่มี struct ขนาดตาม CPU (`ShellExecuteEx`, `GetWindowLongPtr`) ให้ AnyCPU ไม่ได้ · app ออกเฉพาะ win-x64 อยู่แล้ว (arm64 เฟส 3) |
+| 2026-09-15 | Platform ไม่ใช้ WPF | หน้าต่างรับข้อความของระบบเขียนเองด้วย Win32 (`MessageWindow`) · icon ส่งเป็น BGRA (`IconBitmap`) ให้ App แปลงเอง | Platform test ได้โดยไม่ต้องมี Dispatcher · message-only window รับ Raw Input ส่วนหน้าต่าง top-level ที่ซ่อนไว้รับข่าวจอ/ค่าตั้ง/พลังงาน |
+| 2026-09-15 | หน้าต่างกระจกสร้างด้วยโค้ด | Tooltip, เมนู, กล่องแจ้งเตือนสร้าง visual tree ในโค้ด ใช้ style และ brush จาก `Glass.xaml` ผ่าน resource key | ต่อยอดจาก base class เดียว (`GlassSurfaceWindow`) ง่ายกว่า XAML ที่สืบทอดจาก base window · ค่าดีไซน์ยังอยู่ใน XAML/`GlassDesign.cs` |
+| 2026-09-15 | animation ตอนเปิดหน้าต่างกระจก | จาง + ขยายเฉพาะเนื้อหาข้างใน · ชื่อไอคอนขึ้นทันทีไม่เลื่อน | หน้าต่างที่ไม่ใช่ layered ใช้ `Window.Opacity` ไม่ได้ และถ้าเลื่อนเนื้อหาจะเห็นขอบเบลอว่าง |
+| 2026-09-15 | ลำดับตอนกดไอคอน | สั่งเปิด link ก่อนแล้วค่อยเล่นเด้ง | เจอบั๊ก easing ที่ทำให้ animation โยน exception ก่อนเปิด app · งานหลักต้องไม่ขึ้นกับ animation |
+| 2026-09-15 | โฟลเดอร์ข้อมูลทดสอบ | ตัวแปร `MINKQUICKLAX_DATA_DIR` ชี้โฟลเดอร์ค่าตั้งไปที่อื่นได้ | ทดสอบ app จริงโดยไม่แตะ `%AppData%` ของผู้ใช้ |
+| 2026-09-15 | ทดสอบ UI บนเครื่องผู้ใช้ | ขยับเมาส์/คลิกเฉพาะบนหน้าต่างของ app · ไม่ส่งปุ่มลัดไปหน้าต่างอื่น | สคริปต์ที่ส่ง Ctrl+W/Esc และคลิกลงหน้าต่างอื่นรบกวนงานของผู้ใช้ (ผู้ใช้กดยกเลิก) |
