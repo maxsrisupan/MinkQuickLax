@@ -40,6 +40,23 @@ public sealed class FaviconFetcherTests
         Assert.Equal(expected, FaviconFetcher.LooksLikeImage(bytes));
     }
 
+    [Theory]
+    [InlineData("https://github.com/")]
+    [InlineData("https://www.wikipedia.org/")]
+    public async Task RealSites_GiveAnIcon(string url)
+    {
+        if (Environment.GetEnvironmentVariable("MINKQUICKLAX_NETWORK_TESTS") != "1")
+        {
+            Assert.Skip("Set MINKQUICKLAX_NETWORK_TESTS=1 to run tests that reach the internet.");
+        }
+        using var fetcher = new FaviconFetcher();
+
+        var bytes = await fetcher.FetchAsync(new Uri(url), TestContext.Current.CancellationToken);
+
+        Assert.NotNull(bytes);
+        Assert.True(FaviconFetcher.LooksLikeImage(bytes));
+    }
+
     [Fact]
     public async Task NonWebAddresses_AreNotFetched()
     {
