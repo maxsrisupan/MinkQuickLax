@@ -293,7 +293,7 @@ MinkQuickLax/
 - [x] `ci.yml`: restore → build → test บน `windows-latest`
 - [x] เติมคำสั่ง build/test/run ลงใน `CLAUDE.md`
 - **ตรวจ:** `dotnet build` และ `dotnet test` ผ่าน · CI เขียว · เปิด app แล้วเห็น icon ที่ tray
-- **ผลตรวจ (2026-09-15):** build 0 warning · test ผ่าน 7/7 · เปิด app แล้ว icon ขึ้นในถาด (Windows 11 ใส่ไว้ใต้ "แสดงไอคอนที่ซ่อน") · เมนูแสดง "Exit" ตามภาษา Windows (en-US) และกดแล้ว app ปิด · RAM (private) ประมาณ 43MB · CI ดูผลที่หน้า Actions ของ repo
+- **ผลตรวจ (2026-09-15):** build 0 warning · test ผ่าน 7/7 · เปิด app แล้ว icon ขึ้นในถาด (Windows 11 ใส่ไว้ใต้ "แสดงไอคอนที่ซ่อน") · เมนูแสดง "Exit" ตามภาษา Windows (en-US) และกดแล้ว app ปิด · RAM (private) ประมาณ 43MB · CI เขียว ([run แรก](https://github.com/maxsrisupan/MinkQuickLax/actions/runs/34879173757))
 
 ### M1 · Spike: พิสูจน์ของที่เสี่ยงก่อน
 เขียนเป็นโค้ดทดลองใน branch `spike/*` แล้วบันทึกผลลงหัวข้อ 11 · ถ้าไม่ผ่านให้หยุดและเสนอทางเลือกก่อนทำต่อ
