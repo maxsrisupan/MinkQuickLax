@@ -73,6 +73,7 @@ public sealed partial class ConfigStore : IDisposable
     private AppConfig _current = AppConfig.CreateDefault();
     private long _version;
     private long _savedVersion;
+    private bool _deleted;
 
     public ConfigStore(ConfigPaths paths, TimeProvider time, ILogger<ConfigStore> logger)
     {
@@ -224,6 +225,26 @@ public sealed partial class ConfigStore : IDisposable
         Flush();
     }
 
+    /// <summary>
+    /// Deletes the settings folder, backups included, and stops saving so nothing is written back before the app exits
+    /// ("delete all data and exit", SPEC 4.8).
+    /// </summary>
+    public void DeleteAllData()
+    {
+        lock (_saveGate)
+        {
+            _saveTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            lock (_gate)
+            {
+                _deleted = true;
+            }
+            if (System.IO.Directory.Exists(_paths.Directory))
+            {
+                System.IO.Directory.Delete(_paths.Directory, recursive: true);
+            }
+        }
+    }
+
     public void Dispose() => _saveTimer.Dispose();
 
     private static DeserializedConfig ReadFile(string path)
@@ -264,7 +285,7 @@ public sealed partial class ConfigStore : IDisposable
             long version;
             lock (_gate)
             {
-                if (!force && _version == _savedVersion)
+                if (_deleted || (!force && _version == _savedVersion))
                 {
                     return;
                 }

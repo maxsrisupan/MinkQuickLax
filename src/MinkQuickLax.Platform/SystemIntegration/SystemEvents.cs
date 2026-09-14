@@ -129,6 +129,8 @@ public static unsafe class SystemSettings
 /// <summary>Lets only one copy run per user session; later copies hand their request to the first one.</summary>
 public sealed class SingleInstance : IDisposable
 {
+    private const uint AnyProcess = unchecked((uint)-1); // ASFW_ANY
+
     private readonly Mutex _mutex;
     private readonly string _pipeName;
     private readonly CancellationTokenSource _stop = new();
@@ -176,6 +178,8 @@ public sealed class SingleInstance : IDisposable
     /// <summary>Sends a command to the first instance. Returns false if it could not be reached.</summary>
     public bool Send(string command, TimeSpan timeout)
     {
+        // The copy the user just started may bring a window forward; the running copy may not, unless allowed here.
+        PInvoke.AllowSetForegroundWindow(AnyProcess);
         try
         {
             using var client = new System.IO.Pipes.NamedPipeClientStream(".", _pipeName, System.IO.Pipes.PipeDirection.Out, System.IO.Pipes.PipeOptions.CurrentUserOnly);

@@ -7,7 +7,7 @@ using MinkQuickLax.Core.Layout;
 using MinkQuickLax.Core.Model;
 using MinkQuickLax.Platform.Input;
 using MinkQuickLax.Surfaces;
-using MinkQuickLax.Styles.Glass;
+using MinkQuickLax.Styles;
 using PhysicalKeys = MinkQuickLax.Platform.Input.Keyboard;
 
 namespace MinkQuickLax.Services;

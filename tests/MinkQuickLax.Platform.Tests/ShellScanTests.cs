@@ -65,3 +65,31 @@ public sealed class FaviconFetcherTests
         Assert.Null(await fetcher.FetchAsync(new Uri("file:///C:/Windows/win.ini"), TestContext.Current.CancellationToken));
     }
 }
+
+public sealed class BrowserCatalogTests
+{
+    [Fact]
+    public void InstalledBrowsers_HaveANameAndAProgram()
+    {
+        var browsers = BrowserCatalog.List();
+
+        // Every supported Windows has Edge registered.
+        Assert.NotEmpty(browsers);
+        Assert.All(browsers, b =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(b.Name));
+            Assert.True(File.Exists(b.ExePath), b.ExePath);
+        });
+        Assert.DoesNotContain(browsers, b => b.Id.Equals("IEXPLORE.EXE", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Find_MatchesTheIdAndIgnoresUnknownOnes()
+    {
+        var first = BrowserCatalog.List()[0];
+
+        Assert.Equal(first, BrowserCatalog.Find(first.Id.ToUpperInvariant()));
+        Assert.Null(BrowserCatalog.Find("No Such Browser"));
+        Assert.Null(BrowserCatalog.Find(null));
+    }
+}

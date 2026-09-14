@@ -5,9 +5,10 @@
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Styles/Glass/Theme.Dark.xaml" />
-        <ResourceDictionary Source="Styles/Glass/Glass.xaml" />
-        <ResourceDictionary Source="Styles/Glass/Controls.xaml" />
+        <ResourceDictionary Source="Styles/Theme.Dark.xaml" />
+        <ResourceDictionary Source="Styles/Surface.xaml" />
+        <ResourceDictionary Source="Styles/Controls.xaml" />
+        <ResourceDictionary Source="Settings/SettingsStyles.xaml" />
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Application.Resources>

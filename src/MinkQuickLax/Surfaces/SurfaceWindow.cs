@@ -7,21 +7,21 @@ using System.Windows.Shell;
 using MinkQuickLax.Core.Layout;
 using MinkQuickLax.Platform.Windowing;
 using MinkQuickLax.Services;
-using MinkQuickLax.Styles.Glass;
+using MinkQuickLax.Styles;
 
 namespace MinkQuickLax.Surfaces;
 
 /// <summary>
-/// Base for blurred glass surfaces: non-layered (so acrylic works), topmost, tool window, never activated.
-/// Content is framed with the glass fill, edge and top highlight (SPEC 5.2).
+/// Base for floating surfaces: non-layered (so Glass acrylic works), topmost, tool window, never activated.
+/// Content sits on a <see cref="SurfaceFrame"/> drawn in the current style (SPEC 5.2, 5.8, 5.9).
 /// </summary>
-public abstract class GlassSurfaceWindow : Window
+public abstract class SurfaceWindow : Window
 {
     private readonly ThemeService _theme;
-    private readonly Border _frame;
+    private readonly SurfaceFrame _frame;
     private readonly ScaleTransform _scale = new(1, 1);
 
-    protected GlassSurfaceWindow(ThemeService theme, string fillResourceKey)
+    protected SurfaceWindow(ThemeService theme, string fillResourceKey)
     {
         _theme = theme;
         WindowStyle = WindowStyle.None;
@@ -41,10 +41,9 @@ public abstract class GlassSurfaceWindow : Window
             UseAeroCaptionButtons = false,
         });
 
-        _frame = new Border { Style = (Style)FindResource("Glass.Frame"), RenderTransform = _scale };
-        _frame.SetResourceReference(Border.BackgroundProperty, fillResourceKey);
-        var highlight = new Border { Style = (Style)FindResource("Glass.TopHighlight") };
-        base.Content = new Grid { Children = { _frame, highlight } };
+        _frame = new SurfaceFrame { RenderTransform = _scale };
+        _frame.SetResourceReference(SurfaceFrame.FillProperty, fillResourceKey);
+        base.Content = _frame;
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
 
         _theme.Changed += OnLookChanged;
@@ -64,6 +63,12 @@ public abstract class GlassSurfaceWindow : Window
     {
         get => _frame.Padding;
         set => _frame.Padding = value;
+    }
+
+    protected SurfaceShape Shape
+    {
+        get => _frame.Shape;
+        set => _frame.Shape = value;
     }
 
     protected virtual SurfaceBehavior Behavior => SurfaceBehavior.NoActivate;
@@ -95,7 +100,6 @@ public abstract class GlassSurfaceWindow : Window
         {
             source.CompositionTarget.BackgroundColor = Colors.Transparent;
         }
-        DwmBackdrop.SetRoundedCorners(Handle);
         ApplyLook(_theme.Current);
     }
 
@@ -119,7 +123,10 @@ public abstract class GlassSurfaceWindow : Window
 
     private void ApplyLook(Look look)
     {
-        DwmBackdrop.SetDarkFrame(Handle, look.Dark);
+        Skin.SetKind(this, look.Style);
+        DwmBackdrop.SetDarkFrame(Handle, look.SurfacesDark);
+        // Only Glass keeps the system's rounded corners and blur; the other styles draw their own shape (SPEC 5.5).
+        DwmBackdrop.SetRoundedCorners(Handle, rounded: look.Style == Core.Model.StyleSetting.Glass);
         if (!look.Blur || !DwmBackdrop.SetAcrylic(Handle, true))
         {
             DwmBackdrop.SetAcrylic(Handle, false);
@@ -137,15 +144,16 @@ public abstract class GlassSurfaceWindow : Window
 }
 
 /// <summary>The icon name shown after hovering (SPEC 4.2, 5.2). Mouse clicks pass through it.</summary>
-public sealed class TooltipWindow : GlassSurfaceWindow
+public sealed class TooltipWindow : SurfaceWindow
 {
     private readonly TextBlock _text;
 
     public TooltipWindow(ThemeService theme)
-        : base(theme, "Glass.Fill.Tooltip")
+        : base(theme, "Skin.Fill.Tooltip")
     {
-        _text = new TextBlock { Style = (Style)FindResource("Glass.Text"), FontSize = IconDesign.TooltipFontSize, MaxWidth = 360, TextTrimming = TextTrimming.CharacterEllipsis };
+        _text = new TextBlock { Style = (Style)FindResource("Skin.Text"), FontSize = IconDesign.TooltipFontSize, MaxWidth = 360, TextTrimming = TextTrimming.CharacterEllipsis };
         Body = _text;
+        Shape = SurfaceShape.Tooltip;
         BodyPadding = new Thickness(10, 4, 10, 5);
     }
 

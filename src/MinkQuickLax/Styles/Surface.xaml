@@ -1,0 +1,230 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:styles="clr-namespace:MinkQuickLax.Styles"
+                    xmlns:model="clr-namespace:MinkQuickLax.Core.Model;assembly=MinkQuickLax.Core">
+
+  <!-- SPEC 5.7: embedded OFL fonts with system fallbacks -->
+  <FontFamily x:Key="Font.Ui">pack://application:,,,/Assets/Fonts/#IBM Plex Sans Thai, Leelawadee UI, Segoe UI</FontFamily>
+  <FontFamily x:Key="Font.Display">pack://application:,,,/Assets/Fonts/#Chakra Petch, Segoe UI</FontFamily>
+  <!-- JetBrains Mono and Doto have no Thai letters: Thai falls back to IBM Plex Sans Thai. -->
+  <FontFamily x:Key="Font.Mono">pack://application:,,,/Assets/Fonts/#JetBrains Mono, pack://application:,,,/Assets/Fonts/#IBM Plex Sans Thai, Cascadia Mono, Consolas</FontFamily>
+  <FontFamily x:Key="Font.Dot">pack://application:,,,/Assets/Fonts/#Doto, pack://application:,,,/Assets/Fonts/#JetBrains Mono, pack://application:,,,/Assets/Fonts/#IBM Plex Sans Thai, Consolas</FontFamily>
+
+  <!-- Everything below is replaced by ThemeService for the current style and theme (SPEC 5). Defaults: Glass, dark. -->
+  <FontFamily x:Key="Font.Heading">pack://application:,,,/Assets/Fonts/#Chakra Petch, Segoe UI</FontFamily>
+  <FontFamily x:Key="Font.Label">pack://application:,,,/Assets/Fonts/#IBM Plex Sans Thai, Leelawadee UI, Segoe UI</FontFamily>
+  <FontFamily x:Key="Font.Number">pack://application:,,,/Assets/Fonts/#IBM Plex Sans Thai, Leelawadee UI, Segoe UI</FontFamily>
+  <FontFamily x:Key="Font.Readout">pack://application:,,,/Assets/Fonts/#JetBrains Mono, pack://application:,,,/Assets/Fonts/#IBM Plex Sans Thai, Cascadia Mono, Consolas</FontFamily>
+  <CornerRadius x:Key="Skin.Radius.Surface">8</CornerRadius>
+  <CornerRadius x:Key="Skin.Radius.Row">8</CornerRadius>
+  <CornerRadius x:Key="Skin.Radius.Field">8</CornerRadius>
+  <CornerRadius x:Key="Skin.Radius.Button">8</CornerRadius>
+  <CornerRadius x:Key="Skin.Radius.Segment">7</CornerRadius>
+  <CornerRadius x:Key="Skin.Radius.Tooltip">8</CornerRadius>
+  <sys:Double x:Key="Skin.Cut.Button">0</sys:Double>
+
+  <SolidColorBrush x:Key="Skin.Ink" Color="#F1FAF8" />
+  <SolidColorBrush x:Key="Skin.Ink2" Color="#A8F1FAF8" />
+  <SolidColorBrush x:Key="Skin.Edge" Color="#33FFFFFF" />
+  <SolidColorBrush x:Key="Skin.Highlight" Color="#52FFFFFF" />
+  <SolidColorBrush x:Key="Skin.HoverFill" Color="#42FFFFFF" />
+  <SolidColorBrush x:Key="Skin.RowHoverEdge" Color="#33FFFFFF" />
+  <SolidColorBrush x:Key="Skin.RowSelectedFill" Color="#2E5EE6FF" />
+  <SolidColorBrush x:Key="Skin.FieldFill" Color="#1FFFFFFF" />
+  <SolidColorBrush x:Key="Skin.SelectedFill" Color="#BF121E24" />
+  <SolidColorBrush x:Key="Skin.SelectedEdge" Color="#33FFFFFF" />
+  <SolidColorBrush x:Key="Skin.SelectedInk" Color="#F1FAF8" />
+  <SolidColorBrush x:Key="Skin.Track" Color="#3DF1FAF8" />
+  <SolidColorBrush x:Key="Skin.Amber" Color="#FF7250" />
+  <SolidColorBrush x:Key="Skin.ScanLines" Color="#00000000" />
+  <SolidColorBrush x:Key="Accent" Color="#5EE6FF" />
+  <SolidColorBrush x:Key="AccentInk" Color="#02141A" />
+  <SolidColorBrush x:Key="Danger" Color="#FF5A43" />
+  <SolidColorBrush x:Key="Guide" Color="#FF7250" />
+  <SolidColorBrush x:Key="Skin.Fill.Tooltip" Color="#D1121E24" />
+  <SolidColorBrush x:Key="Skin.Fill.Menu" Color="#94121E24" />
+  <SolidColorBrush x:Key="Skin.Fill.Notice" Color="#94121E24" />
+  <SolidColorBrush x:Key="Skin.Fill.Scanner" Color="#6B121E24" />
+  <SolidColorBrush x:Key="Skin.Fill.Popup" Color="#EB121E24" />
+
+  <Style x:Key="Skin.Text" TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+    <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+  </Style>
+
+  <!-- Menu row: padding 7×10, 13.5 px text, hover fill (SPEC 5.2); HUD adds an edge and a ▸ marker (SPEC 5.8). -->
+  <Style x:Key="Skin.MenuRow" TargetType="Button">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="13.5" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="Cursor" Value="Arrow" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="Bg" Padding="10,7" CornerRadius="{DynamicResource Skin.Radius.Row}" Background="Transparent" BorderThickness="1" BorderBrush="Transparent">
+            <Grid>
+              <TextBlock x:Name="Marker" Text="▸" FontSize="10" Margin="-13,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"
+                         Foreground="{DynamicResource Accent}" Visibility="Collapsed" />
+              <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="False" />
+            </Grid>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Skin.HoverFill}" />
+              <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Skin.RowHoverEdge}" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Skin.HoverFill}" />
+              <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Accent}" />
+            </Trigger>
+            <Trigger Property="styles:Skin.Kind" Value="{x:Static model:StyleSetting.Hud}">
+              <Setter TargetName="Bg" Property="Padding" Value="20,7,10,7" />
+            </Trigger>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="styles:Skin.Kind" Value="{x:Static model:StyleSetting.Hud}" />
+                <Condition Property="IsMouseOver" Value="True" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="Marker" Property="Visibility" Value="Visible" />
+            </MultiTrigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Skin.Button" TargetType="Button">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="MinWidth" Value="72" />
+    <Setter Property="Padding" Value="10,6" />
+    <Setter Property="Cursor" Value="Arrow" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="Bg" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Skin.Radius.Row}" Background="Transparent"
+                  BorderThickness="1" BorderBrush="Transparent">
+            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="False" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Skin.HoverFill}" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Accent}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- A button with a visible frame, for rows of actions in the settings window. -->
+  <Style x:Key="Skin.OutlineButton" TargetType="Button" BasedOn="{StaticResource Skin.Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="Bg" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Skin.Radius.Row}" Background="{DynamicResource Skin.FieldFill}"
+                  BorderThickness="1" BorderBrush="{DynamicResource Skin.Edge}">
+            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center" RecognizesAccessKey="False" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Skin.HoverFill}" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Accent}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Primary action: Accent fill; pill in Dot Matrix, cut corners in HUD (SPEC 5.8, 5.9). -->
+  <Style x:Key="Skin.AccentButton" TargetType="Button" BasedOn="{StaticResource Skin.Button}">
+    <Setter Property="Foreground" Value="{DynamicResource AccentInk}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Padding" Value="14,7" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <styles:CutBorder x:Name="Bg" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Skin.Radius.Button}"
+                            Cut="{DynamicResource Skin.Cut.Button}" Background="{DynamicResource Accent}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="False" />
+          </styles:CutBorder>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bg" Property="Opacity" Value="0.9" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Skin.Ink}" />
+              <Setter TargetName="Bg" Property="BorderThickness" Value="1.5" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Skin.DangerButton" TargetType="Button" BasedOn="{StaticResource Skin.Button}">
+    <Setter Property="Foreground" Value="{DynamicResource Danger}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <Style x:Key="Skin.DangerOutlineButton" TargetType="Button" BasedOn="{StaticResource Skin.OutlineButton}">
+    <Setter Property="Foreground" Value="{DynamicResource Danger}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <!-- Round 32 px button for close and similar (mockup .icon-btn); square in HUD. -->
+  <Style x:Key="Skin.IconButton" TargetType="Button">
+    <Setter Property="Width" Value="32" />
+    <Setter Property="Height" Value="32" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+    <Setter Property="Cursor" Value="Arrow" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="Bg" CornerRadius="16" Background="{DynamicResource Skin.FieldFill}" BorderThickness="1" BorderBrush="Transparent">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="False" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Skin.HoverFill}" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Accent}" />
+            </Trigger>
+            <Trigger Property="styles:Skin.Kind" Value="{x:Static model:StyleSetting.Hud}">
+              <Setter TargetName="Bg" Property="CornerRadius" Value="0" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>

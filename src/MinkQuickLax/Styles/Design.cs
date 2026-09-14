@@ -1,6 +1,6 @@
 using System.Windows.Media;
 
-namespace MinkQuickLax.Styles.Glass;
+namespace MinkQuickLax.Styles;
 
 /// <summary>Tint opacity ("a") of each glass surface (SPEC 5.2).</summary>
 public static class GlassAlpha
@@ -18,6 +18,62 @@ public static class GlassAlpha
     public const double GradientStartBoost = 0.12;
     public const double GradientMiddleOffset = 0.55;
     public const double GradientEndBoost = 0.05;
+}
+
+/// <summary>Corner radii of each style (SPEC 5.2, 5.8, 5.9, 5.10).</summary>
+public sealed record StyleRadii(double Surface, double Row, double Field, double Button, double Segment, double Tooltip)
+{
+    public static readonly StyleRadii Glass = new(Surface: 8, Row: 8, Field: 8, Button: 8, Segment: 7, Tooltip: 8);
+    public static readonly StyleRadii Hud = new(Surface: 0, Row: 0, Field: 0, Button: 0, Segment: 0, Tooltip: 0);
+    public static readonly StyleRadii Dot = new(Surface: 18, Row: 9, Field: 11, Button: 99, Segment: 99, Tooltip: 14);
+}
+
+/// <summary>HUD style (SPEC 5.8).</summary>
+public static class HudDesign
+{
+    public static readonly Color Cyan = Color.FromRgb(0x6F, 0xF3, 0xFF);
+    public static readonly Color Amber = Color.FromRgb(0xFF, 0xB2, 0x3E);
+    public static readonly Color Red = Color.FromRgb(0xFF, 0x4D, 0x6D);
+    public static readonly Color Plate = Color.FromRgb(0x03, 0x0A, 0x10);
+    public static readonly Color Ink = Color.FromRgb(0xDD, 0xF7, 0xFF);
+    public static readonly Color Ink2 = Color.FromArgb(0xA3, 0xB4, 0xDE, 0xEB);
+    public static readonly Color AccentInk = Color.FromRgb(0x02, 0x10, 0x16);
+    public static readonly Color LabelInk = Color.FromRgb(0xCF, 0xF6, 0xFF);
+
+    public const double PlateAlpha = 0.86;
+    public const double TooltipAlpha = 0.92;
+    public const double ReadoutAlpha = 0.88;
+    public const double IconPlateAlpha = 0.80;
+    public const double LabelAlpha = 0.76;
+    public const double EdgeAlpha = 0.26;
+    public const double ScanLineAlpha = 0.03;
+    public const double HoverAlpha = 0.10;
+    public const double SelectedAlpha = 0.16;
+    public const double SelectedEdgeAlpha = 0.50;
+
+    /// <summary>Corner cut of surfaces, and the cyan accents drawn at two corners.</summary>
+    public const double SurfaceCut = 10;
+    public const double CornerAccentLength = 12;
+    public const double CornerAccentThickness = 2;
+    public const double ScanLinePeriod = 3;
+}
+
+/// <summary>Dot Matrix style (SPEC 5.9).</summary>
+public static class DotDesign
+{
+    public static readonly Color LightPlate = Color.FromRgb(0xF4, 0xF4, 0xF1);
+    public static readonly Color LightInk = Color.FromRgb(0x11, 0x11, 0x11);
+    public static readonly Color LightInk2 = Color.FromRgb(0x67, 0x67, 0x63);
+    public static readonly Color LightLine = Color.FromArgb(0x21, 0, 0, 0);
+    public static readonly Color LightRed = Color.FromRgb(0xE0, 0x26, 0x1C);
+    public static readonly Color DarkPlate = Color.FromRgb(0x14, 0x14, 0x14);
+    public static readonly Color DarkInk = Color.FromRgb(0xF1, 0xF1, 0xED);
+    public static readonly Color DarkInk2 = Color.FromRgb(0x9B, 0x9B, 0x96);
+    public static readonly Color DarkLine = Color.FromArgb(0x26, 0xFF, 0xFF, 0xFF);
+    public static readonly Color DarkRed = Color.FromRgb(0xFF, 0x3B, 0x30);
+
+    public const double HoverAlpha = 0.07;
+    public const double FieldAlpha = 0.06;
 }
 
 /// <summary>Icon geometry (SPEC 5.3).</summary>

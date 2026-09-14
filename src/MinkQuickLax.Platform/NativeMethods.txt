@@ -101,3 +101,5 @@ PKEY_ItemNameDisplay
 SIGDN
 KNOWN_FOLDER_FLAG
 DWM_SYSTEMBACKDROP_TYPE
+SHLoadIndirectString
+AllowSetForegroundWindow

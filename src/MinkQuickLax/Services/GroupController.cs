@@ -232,7 +232,7 @@ public sealed partial class GroupController
         var area = PositionMapper.PlacementArea(monitor, settings.AllowOverTaskbar);
         var size = PositionMapper.WindowSize(settings.IconSize, monitor);
         var others = _placements.Windows.Where(w => w.IsVisible).Select(w => w.SquareRect).ToList();
-        var snapped = SnapEngine.Snap(cursor, size, others, area, settings.Snap, monitor.ToPixels(settings.GridSize), monitor.ToPixels(Styles.Glass.Motion.AlignThreshold)).Center;
+        var snapped = SnapEngine.Snap(cursor, size, others, area, settings.Snap, monitor.ToPixels(settings.GridSize), monitor.ToPixels(Styles.Motion.AlignThreshold)).Center;
         var center = CollisionResolver.FindFreeCenter(snapped, size, others, area, monitor.ToPixels(settings.GridSize));
         var placement = PositionMapper.WithCenter(new Placement { Type = PlacementType.Link, RefId = item.Link.Id }, center, monitor, settings.AllowOverTaskbar);
         _store.Update(c => c.RemoveLinkFromGroup(group.Id, item.Link.Id).AddPlacement(placement));

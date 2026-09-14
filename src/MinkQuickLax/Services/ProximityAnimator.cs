@@ -2,7 +2,7 @@ using System.Windows.Threading;
 using MinkQuickLax.Core.Layout;
 using MinkQuickLax.Platform.Input;
 using MinkQuickLax.Surfaces;
-using MinkQuickLax.Styles.Glass;
+using MinkQuickLax.Styles;
 
 namespace MinkQuickLax.Services;
 

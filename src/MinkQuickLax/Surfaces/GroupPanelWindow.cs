@@ -6,7 +6,7 @@ using System.Windows.Media.Animation;
 using MinkQuickLax.Core.Layout;
 using MinkQuickLax.Core.Model;
 using MinkQuickLax.Services;
-using MinkQuickLax.Styles.Glass;
+using MinkQuickLax.Styles;
 
 namespace MinkQuickLax.Surfaces;
 
@@ -31,7 +31,7 @@ public sealed class PanelItem : Border
         {
             var label = new TextBlock
             {
-                Style = (Style)FindResource("Glass.Text"),
+                Style = (Style)FindResource("Skin.Text"),
                 Text = link.Name,
                 FontSize = 11,
                 TextAlignment = TextAlignment.Center,
@@ -42,7 +42,7 @@ public sealed class PanelItem : Border
             stack.Children.Add(label);
         }
         Child = stack;
-        MouseEnter += (_, _) => SetResourceReference(BackgroundProperty, "Glass.HoverFill");
+        MouseEnter += (_, _) => SetResourceReference(BackgroundProperty, "Skin.HoverFill");
         MouseLeave += (_, _) => Background = Brushes.Transparent;
     }
 
@@ -56,19 +56,19 @@ public sealed class PanelItem : Border
 }
 
 /// <summary>An open group: its name and a grid of links, unfolding toward free space (SPEC 4.3, 5.2, 5.4).</summary>
-public sealed class GroupPanelWindow : GlassSurfaceWindow
+public sealed class GroupPanelWindow : SurfaceWindow
 {
     private readonly WrapPanel _grid;
     private readonly ScaleTransform _unfold = new(1, 1);
     private Point _origin = new(0, 0);
 
     public GroupPanelWindow(ThemeService theme, Localizer text, Group group, IReadOnlyList<Link> links, double iconSize, int columns)
-        : base(theme, "Glass.Fill.Panel")
+        : base(theme, "Skin.Fill.Panel")
     {
         Group = group;
         var title = new TextBlock
         {
-            Style = (Style)FindResource("Glass.Text"),
+            Style = (Style)FindResource("Skin.Text"),
             Text = group.Name,
             FontSize = 13,
             FontWeight = FontWeights.SemiBold,
@@ -86,14 +86,14 @@ public sealed class GroupPanelWindow : GlassSurfaceWindow
         {
             content.Children.Add(new TextBlock
             {
-                Style = (Style)FindResource("Glass.Text"),
+                Style = (Style)FindResource("Skin.Text"),
                 Text = text["Panel_Empty"],
                 FontSize = 12.5,
                 TextWrapping = TextWrapping.Wrap,
                 MaxWidth = 260,
                 Margin = new Thickness(6, 0, 6, 6),
             });
-            content.SetResourceReference(TextBlock.ForegroundProperty, "Glass.Ink2");
+            content.SetResourceReference(TextBlock.ForegroundProperty, "Skin.Ink2");
         }
         else
         {

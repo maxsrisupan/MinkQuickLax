@@ -224,4 +224,508 @@
   <data name="Tray_ToolTipHidden" xml:space="preserve">
     <value>MinkQuickLax (icons hidden)</value>
   </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Common_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Common_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Common_SameAsWindows" xml:space="preserve">
+    <value>Same as Windows</value>
+  </data>
+  <data name="Common_Browse" xml:space="preserve">
+    <value>Browse…</value>
+  </data>
+  <data name="Unit_Pixels" xml:space="preserve">
+    <value>{0} px</value>
+    <comment>{0} is a whole number of pixels.</comment>
+  </data>
+  <data name="Unit_Percent" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+  <data name="Unit_Milliseconds" xml:space="preserve">
+    <value>{0} ms</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>MinkQuickLax settings</value>
+  </data>
+  <data name="Settings_Search" xml:space="preserve">
+    <value>Search settings</value>
+  </data>
+  <data name="Settings_Reset" xml:space="preserve">
+    <value>Reset to defaults</value>
+  </data>
+  <data name="Settings_ResetConfirm" xml:space="preserve">
+    <value>Put the settings on this page back to their defaults?</value>
+  </data>
+  <data name="Settings_Advanced" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
+  <data name="Page_Links" xml:space="preserve">
+    <value>Links</value>
+  </data>
+  <data name="Page_Groups" xml:space="preserve">
+    <value>Groups</value>
+  </data>
+  <data name="Page_Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="Page_Visibility" xml:space="preserve">
+    <value>Hide and show</value>
+  </data>
+  <data name="Page_Behavior" xml:space="preserve">
+    <value>Using icons</value>
+  </data>
+  <data name="Page_Position" xml:space="preserve">
+    <value>Position</value>
+  </data>
+  <data name="Page_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Page_Data" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="Page_About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Links_Search" xml:space="preserve">
+    <value>Search links</value>
+  </data>
+  <data name="Links_AllKinds" xml:space="preserve">
+    <value>All kinds</value>
+  </data>
+  <data name="Links_NotPlaced" xml:space="preserve">
+    <value>Not placed anywhere</value>
+  </data>
+  <data name="Links_Empty" xml:space="preserve">
+    <value>No links match.</value>
+  </data>
+  <data name="Links_SelectHint" xml:space="preserve">
+    <value>Choose a link to edit it.</value>
+  </data>
+  <data name="Kind_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Kind_App" xml:space="preserve">
+    <value>Program</value>
+  </data>
+  <data name="Kind_ShellApp" xml:space="preserve">
+    <value>Start menu app</value>
+  </data>
+  <data name="Kind_File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="Kind_Folder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="Kind_Url" xml:space="preserve">
+    <value>Website</value>
+  </data>
+  <data name="Kind_Command" xml:space="preserve">
+    <value>Command</value>
+  </data>
+  <data name="Kind_MsSettings" xml:space="preserve">
+    <value>Windows settings page</value>
+  </data>
+  <data name="Link_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Link_Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="Link_TargetHint" xml:space="preserve">
+    <value>A path, web address or app ID</value>
+  </data>
+  <data name="Link_Kind" xml:space="preserve">
+    <value>Kind: {0}</value>
+    <comment>{0} is a link kind such as Program or Website.</comment>
+  </data>
+  <data name="Link_TargetMissing" xml:space="preserve">
+    <value>This target cannot be found.</value>
+  </data>
+  <data name="Link_Arguments" xml:space="preserve">
+    <value>Arguments</value>
+  </data>
+  <data name="Link_WorkingDirectory" xml:space="preserve">
+    <value>Working directory</value>
+  </data>
+  <data name="Link_RunAsAdmin" xml:space="preserve">
+    <value>Always run as administrator</value>
+  </data>
+  <data name="Link_Icon" xml:space="preserve">
+    <value>Icon</value>
+  </data>
+  <data name="Icon_Auto" xml:space="preserve">
+    <value>From the app or website</value>
+  </data>
+  <data name="Icon_File" xml:space="preserve">
+    <value>Image file</value>
+  </data>
+  <data name="Icon_Letter" xml:space="preserve">
+    <value>Letter</value>
+  </data>
+  <data name="Link_PickIcon" xml:space="preserve">
+    <value>Choose an image…</value>
+  </data>
+  <data name="Link_IconFilter" xml:space="preserve">
+    <value>Images (PNG, ICO)</value>
+  </data>
+  <data name="Link_Usage" xml:space="preserve">
+    <value>Where it is used</value>
+  </data>
+  <data name="Link_UsageIcons" xml:space="preserve">
+    <value>Icons on screen: {0}</value>
+  </data>
+  <data name="Link_UsageGroup" xml:space="preserve">
+    <value>In the group “{0}”</value>
+  </data>
+  <data name="Link_PlaceOnScreen" xml:space="preserve">
+    <value>Place on screen</value>
+  </data>
+  <data name="Groups_Empty" xml:space="preserve">
+    <value>No groups yet.</value>
+  </data>
+  <data name="Groups_SelectHint" xml:space="preserve">
+    <value>Choose a group to edit it.</value>
+  </data>
+  <data name="Group_Display" xml:space="preserve">
+    <value>Style</value>
+  </data>
+  <data name="Group_DisplayFolder" xml:space="preserve">
+    <value>Folder</value>
+  </data>
+  <data name="Group_DisplayBar" xml:space="preserve">
+    <value>Bar (coming later)</value>
+  </data>
+  <data name="Group_Columns" xml:space="preserve">
+    <value>Columns</value>
+  </data>
+  <data name="Group_ShowLabels" xml:space="preserve">
+    <value>Show link names</value>
+  </data>
+  <data name="Group_Links" xml:space="preserve">
+    <value>Links in this group</value>
+  </data>
+  <data name="Group_MoveUp" xml:space="preserve">
+    <value>Move up</value>
+  </data>
+  <data name="Group_MoveDown" xml:space="preserve">
+    <value>Move down</value>
+  </data>
+  <data name="Group_AddLink" xml:space="preserve">
+    <value>Add a link</value>
+  </data>
+  <data name="Group_NoLinks" xml:space="preserve">
+    <value>This group is empty.</value>
+  </data>
+  <data name="Group_NotPlaced" xml:space="preserve">
+    <value>This group is not on screen.</value>
+  </data>
+  <data name="Settings_Style" xml:space="preserve">
+    <value>Style</value>
+  </data>
+  <data name="Style_Hud" xml:space="preserve">
+    <value>HUD</value>
+  </data>
+  <data name="Style_Dot" xml:space="preserve">
+    <value>Dot Matrix</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Settings_IconSize" xml:space="preserve">
+    <value>Icon size</value>
+  </data>
+  <data name="Settings_IdleOpacity" xml:space="preserve">
+    <value>Opacity when not in use</value>
+  </data>
+  <data name="Settings_ProximityRadius" xml:space="preserve">
+    <value>Distance where icons get clearer</value>
+  </data>
+  <data name="Settings_ProximityRadiusHint" xml:space="preserve">
+    <value>How close the mouse comes before an icon starts to show fully</value>
+  </data>
+  <data name="Settings_Magnify" xml:space="preserve">
+    <value>Grow as the mouse comes near</value>
+  </data>
+  <data name="Settings_ShowLabels" xml:space="preserve">
+    <value>Show names under icons</value>
+  </data>
+  <data name="Settings_ReduceMotion" xml:space="preserve">
+    <value>Reduce motion</value>
+  </data>
+  <data name="Settings_Glass" xml:space="preserve">
+    <value>Glass style</value>
+  </data>
+  <data name="Settings_GlassTint" xml:space="preserve">
+    <value>Glass color</value>
+  </data>
+  <data name="Tint_Auto" xml:space="preserve">
+    <value>Follow the theme</value>
+  </data>
+  <data name="Tint_Lagoon" xml:space="preserve">
+    <value>Lagoon</value>
+  </data>
+  <data name="Tint_Ember" xml:space="preserve">
+    <value>Ember</value>
+  </data>
+  <data name="Tint_Ink" xml:space="preserve">
+    <value>Ink</value>
+  </data>
+  <data name="Settings_GlassStrength" xml:space="preserve">
+    <value>Color strength</value>
+  </data>
+  <data name="Settings_GlassBlur" xml:space="preserve">
+    <value>Blur behind</value>
+  </data>
+  <data name="Settings_GlassBlurHint" xml:space="preserve">
+    <value>Windows turns blur off when Transparency effects is off or battery saver is on.</value>
+  </data>
+  <data name="Settings_TrayClick" xml:space="preserve">
+    <value>Click the tray icon to hide or show icons</value>
+  </data>
+  <data name="Settings_TrayClickHint" xml:space="preserve">
+    <value>When off, a click opens the menu.</value>
+  </data>
+  <data name="Settings_LaunchOn" xml:space="preserve">
+    <value>Open a link with</value>
+  </data>
+  <data name="Launch_Single" xml:space="preserve">
+    <value>Single click</value>
+  </data>
+  <data name="Launch_Double" xml:space="preserve">
+    <value>Double click</value>
+  </data>
+  <data name="Settings_TooltipDelay" xml:space="preserve">
+    <value>Delay before the name appears</value>
+  </data>
+  <data name="Settings_GridSize" xml:space="preserve">
+    <value>Grid size</value>
+  </data>
+  <data name="Settings_Snap" xml:space="preserve">
+    <value>Snapping</value>
+  </data>
+  <data name="Snap_GridAndAlign" xml:space="preserve">
+    <value>Grid and other icons</value>
+  </data>
+  <data name="Snap_Grid" xml:space="preserve">
+    <value>Grid only</value>
+  </data>
+  <data name="Snap_None" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Settings_CtrlDrag" xml:space="preserve">
+    <value>Move icons with Ctrl+drag</value>
+  </data>
+  <data name="Settings_AllowOverTaskbar" xml:space="preserve">
+    <value>Allow icons over the taskbar</value>
+  </data>
+  <data name="Settings_TidyHint" xml:space="preserve">
+    <value>Line up every icon and group from the top-right corner of the main screen.</value>
+  </data>
+  <data name="Settings_ResetPositions" xml:space="preserve">
+    <value>Reset all positions…</value>
+  </data>
+  <data name="Settings_ResetPositionsHint" xml:space="preserve">
+    <value>Puts the position settings back to their defaults and lines everything up again.</value>
+  </data>
+  <data name="Settings_ResetPositionsConfirm" xml:space="preserve">
+    <value>Reset the position settings and line up every icon again?</value>
+  </data>
+  <data name="Settings_StartWithWindows" xml:space="preserve">
+    <value>Start with Windows</value>
+  </data>
+  <data name="Settings_StartWithWindowsHint" xml:space="preserve">
+    <value>Opens when you sign in, showing only the icons.</value>
+  </data>
+  <data name="Settings_StartupDisabled" xml:space="preserve">
+    <value>Turned off in Task Manager. Turning it on here turns it back on.</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Language_Th" xml:space="preserve">
+    <value>ไทย</value>
+    <comment>Always written in Thai.</comment>
+  </data>
+  <data name="Language_En" xml:space="preserve">
+    <value>English</value>
+    <comment>Always written in English.</comment>
+  </data>
+  <data name="Settings_CheckUpdates" xml:space="preserve">
+    <value>Check for updates automatically</value>
+  </data>
+  <data name="Settings_UpdateChannel" xml:space="preserve">
+    <value>Update channel</value>
+  </data>
+  <data name="Channel_Stable" xml:space="preserve">
+    <value>Stable</value>
+  </data>
+  <data name="Channel_Beta" xml:space="preserve">
+    <value>Beta</value>
+  </data>
+  <data name="Data_Backup" xml:space="preserve">
+    <value>Back up now</value>
+  </data>
+  <data name="Data_BackupHint" xml:space="preserve">
+    <value>Backups are kept in the settings folder. The newest 10 are kept.</value>
+  </data>
+  <data name="Data_BackedUp" xml:space="preserve">
+    <value>Backed up at {0}.</value>
+    <comment>{0} is a date and time.</comment>
+  </data>
+  <data name="Data_Restore" xml:space="preserve">
+    <value>Restore from a backup</value>
+  </data>
+  <data name="Data_RestoreButton" xml:space="preserve">
+    <value>Restore…</value>
+  </data>
+  <data name="Data_NoBackups" xml:space="preserve">
+    <value>No backups yet</value>
+  </data>
+  <data name="Data_RestoreConfirm" xml:space="preserve">
+    <value>Restore the backup from {0}? Your current settings are backed up first.</value>
+  </data>
+  <data name="Data_Restored" xml:space="preserve">
+    <value>Restored the backup from {0}.</value>
+  </data>
+  <data name="Data_RestoreFailed" xml:space="preserve">
+    <value>That backup cannot be read.</value>
+  </data>
+  <data name="Data_OpenFolder" xml:space="preserve">
+    <value>Open the settings folder</value>
+  </data>
+  <data name="Data_ResetAll" xml:space="preserve">
+    <value>Reset everything…</value>
+  </data>
+  <data name="Data_ResetAllHint" xml:space="preserve">
+    <value>Removes all links, groups and settings. A backup is made first.</value>
+  </data>
+  <data name="Data_ResetAllConfirm" xml:space="preserve">
+    <value>Remove all links, groups and settings? A backup is made first, so you can restore it.</value>
+  </data>
+  <data name="Data_DeleteAll" xml:space="preserve">
+    <value>Delete all data and exit…</value>
+  </data>
+  <data name="Data_DeleteAllHint" xml:space="preserve">
+    <value>Removes settings, backups and saved icons from this PC, then closes MinkQuickLax.</value>
+  </data>
+  <data name="Data_DeleteAllConfirm" xml:space="preserve">
+    <value>Delete all MinkQuickLax data on this PC, backups included, and exit? This cannot be undone.</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="About_Tagline" xml:space="preserve">
+    <value>A quick launcher whose icons float on your screen</value>
+  </data>
+  <data name="About_Manual" xml:space="preserve">
+    <value>Open the user guide</value>
+  </data>
+  <data name="About_GitHub" xml:space="preserve">
+    <value>GitHub page</value>
+  </data>
+  <data name="About_Licenses" xml:space="preserve">
+    <value>Licenses</value>
+  </data>
+  <data name="About_LicensesHint" xml:space="preserve">
+    <value>MinkQuickLax is free and open source under the MIT License, and uses the components below.</value>
+  </data>
+  <data name="About_OpenLicenses" xml:space="preserve">
+    <value>Open license files</value>
+  </data>
+  <data name="About_CopyInfo" xml:space="preserve">
+    <value>Copy info for a bug report</value>
+  </data>
+  <data name="About_CopyInfoHint" xml:space="preserve">
+    <value>App and Windows versions, screens, DPI and the last 200 log lines.</value>
+  </data>
+  <data name="About_Copied" xml:space="preserve">
+    <value>Copied</value>
+  </data>
+  <data name="Search_IconSize" xml:space="preserve">
+    <value>size big small bigger smaller</value>
+  </data>
+  <data name="Search_IdleOpacity" xml:space="preserve">
+    <value>transparent transparency fade</value>
+  </data>
+  <data name="Search_Theme" xml:space="preserve">
+    <value>dark light mode</value>
+  </data>
+  <data name="Search_ReduceMotion" xml:space="preserve">
+    <value>animation</value>
+  </data>
+  <data name="Search_StartWithWindows" xml:space="preserve">
+    <value>startup boot sign in login</value>
+  </data>
+  <data name="Search_Language" xml:space="preserve">
+    <value>thai english</value>
+  </data>
+  <data name="Search_Backup" xml:space="preserve">
+    <value>restore save</value>
+  </data>
+  <data name="Search_GlassBlur" xml:space="preserve">
+    <value>acrylic transparency</value>
+  </data>
+  <data name="Search_Snap" xml:space="preserve">
+    <value>align magnet</value>
+  </data>
+  <data name="Search_TrayClick" xml:space="preserve">
+    <value>notification area</value>
+  </data>
+  <data name="Search_LaunchOn" xml:space="preserve">
+    <value>double click</value>
+  </data>
+  <data name="Search_CopyInfo" xml:space="preserve">
+    <value>bug report diagnostics log</value>
+  </data>
+  <data name="Link_Browser" xml:space="preserve">
+    <value>Open with</value>
+  </data>
+  <data name="Browser_Default" xml:space="preserve">
+    <value>Default browser</value>
+  </data>
+  <data name="Link_BrowserMissing" xml:space="preserve">
+    <value>“{0}” is no longer installed, so the default browser opens this link.</value>
+    <comment>{0} is the browser name or its registry id.</comment>
+  </data>
+  <data name="Style_Glass" xml:space="preserve">
+    <value>Glass</value>
+  </data>
+  <data name="Style_HudNote" xml:space="preserve">
+    <value>A hologram at rest; true colors, lock-on brackets and details when the mouse comes near.</value>
+  </data>
+  <data name="Style_DotNote" xml:space="preserve">
+    <value>Icons are made of dots at rest; the dots grow into the full picture as the mouse comes near.</value>
+  </data>
+  <data name="Style_GlassNote" xml:space="preserve">
+    <value>Frosted glass that lets the desktop show through.</value>
+  </data>
+  <data name="Settings_HudAlwaysDark" xml:space="preserve">
+    <value>HUD always uses dark colors.</value>
+  </data>
+  <data name="Settings_GroupIcons" xml:space="preserve">
+    <value>Icons</value>
+  </data>
+  <data name="Settings_GroupMotion" xml:space="preserve">
+    <value>Motion</value>
+  </data>
+  <data name="Settings_GroupUpdates" xml:space="preserve">
+    <value>Updates</value>
+  </data>
+  <data name="Settings_Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="Settings_SearchNothing" xml:space="preserve">
+    <value>No setting matches.</value>
+  </data>
 </root>

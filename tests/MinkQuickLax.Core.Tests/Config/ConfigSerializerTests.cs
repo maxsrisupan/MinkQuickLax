@@ -21,7 +21,7 @@ public sealed class ConfigSerializerTests
               "runAsAdmin": false,
               "icon": { "source": "auto" }
             },
-            { "id": "l2", "name": "GitHub", "kind": "url", "target": "https://github.com", "icon": { "source": "favicon" } }
+            { "id": "l2", "name": "GitHub", "kind": "url", "target": "https://github.com", "icon": { "source": "favicon" }, "browser": "Google Chrome" }
           ],
           "groups": [
             { "id": "g1", "name": "งาน", "display": "folder", "columns": 4, "showLabels": true,
@@ -53,6 +53,8 @@ public sealed class ConfigSerializerTests
         Assert.Equal(2, config.Links.Count);
         Assert.Equal(LinkKind.App, config.Links[0].Kind);
         Assert.Equal(IconSourceKind.Favicon, config.Links[1].Icon.Source);
+        Assert.Null(config.Links[0].Browser);
+        Assert.Equal("Google Chrome", config.Links[1].Browser);
         Assert.Equal("งาน", config.Groups[0].Name);
         Assert.Equal(["0b9f3c1e8a2d4f6b9c7e5a3d1f2b4c6e", "l2"], config.Groups[0].LinkIds);
         Assert.Equal(0.92, config.Placements[0].X);

@@ -34,6 +34,9 @@ public sealed record Link
     public bool RunAsAdmin { get; set; }
     public IconSpec Icon { get; set; } = new();
 
+    /// <summary>For web links: the browser to open with, as its StartMenuInternet key name. Null means the Windows default browser.</summary>
+    public string? Browser { get; set; }
+
     [JsonExtensionData]
     public Dictionary<string, JsonElement>? Extra { get; set; }
 }

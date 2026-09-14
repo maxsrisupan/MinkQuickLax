@@ -276,6 +276,23 @@ public sealed class ConfigStoreTests : IDisposable
     }
 
     [Fact]
+    public void DeleteAllData_RemovesTheFolderAndNeverWritesItBack()
+    {
+        using var store = NewStore();
+        store.Load();
+        store.Update(AddLink("one"));
+        store.BackupNow();
+        store.Update(AddLink("two"));
+
+        store.DeleteAllData();
+        _time.Advance(TimeSpan.FromSeconds(5));
+        store.Update(AddLink("three"));
+        store.Flush();
+
+        Assert.False(Directory.Exists(_paths.Directory));
+    }
+
+    [Fact]
     public void NewerSchemaFile_KeepsUnknownFieldsWhenSaved()
     {
         WriteConfig("""{ "schemaVersion": 9, "fromTheFuture": { "x": 1 }, "links": [] }""");

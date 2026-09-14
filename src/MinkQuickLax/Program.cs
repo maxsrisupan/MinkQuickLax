@@ -18,7 +18,7 @@ internal static class Program
         if (!instance.IsFirst)
         {
             // SPEC 7: a second launch asks the running copy to show its settings, then quits.
-            instance.Send("show-settings", TimeSpan.FromSeconds(3));
+            instance.Send("show-settings", TimeSpan.FromSeconds(10));
             return 0;
         }
 

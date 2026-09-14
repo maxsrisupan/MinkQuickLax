@@ -1,0 +1,125 @@
+<UserControl x:Class="MinkQuickLax.Settings.Pages.GroupsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:s="clr-namespace:MinkQuickLax.Services"
+             xmlns:settings="clr-namespace:MinkQuickLax.Settings"
+             xmlns:model="clr-namespace:MinkQuickLax.Core.Model;assembly=MinkQuickLax.Core">
+  <Grid Margin="28,0,20,20">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="260" />
+      <ColumnDefinition Width="20" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <TextBlock Grid.ColumnSpan="3" Style="{StaticResource Settings.PageTitle}" Text="{s:Text Page_Groups}" />
+    <Button Grid.Column="2" Style="{StaticResource Skin.AccentButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,80,0"
+            Content="{s:Text Menu_NewGroup}" Command="{Binding NewCommand}" WindowChrome.IsHitTestVisibleInChrome="True" />
+
+    <DockPanel Grid.Row="1" Grid.Column="0">
+      <TextBlock DockPanel.Dock="Top" Style="{StaticResource Settings.Hint}" Margin="4,8" Text="{s:Text Groups_Empty}"
+                 Visibility="{Binding Groups.Count, Converter={x:Static settings:VisibleWhenConverter.Inverted}}" />
+      <ListBox ItemsSource="{Binding Groups}" SelectedItem="{Binding Selected}" Background="Transparent" BorderThickness="0"
+               ItemContainerStyle="{StaticResource Skin.ListItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+               AutomationProperties.Name="{s:Text Page_Groups}">
+        <ListBox.ItemTemplate>
+          <DataTemplate DataType="settings:GroupRow">
+            <Grid Margin="0,6" AutomationProperties.Name="{Binding Name}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Style="{StaticResource Skin.Text}" FontSize="13.5" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+              <TextBlock Grid.Column="1" Style="{StaticResource Settings.Hint}" FontFamily="{DynamicResource Font.Number}" Margin="8,0,0,0" Text="{Binding Count}" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </DockPanel>
+    <Border Grid.Row="1" Grid.Column="1" Width="1" HorizontalAlignment="Center" Background="{DynamicResource Skin.Edge}" />
+
+    <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource Settings.Hint}" FontSize="13.5" Margin="0,6" Text="{s:Text Groups_SelectHint}"
+               Visibility="{Binding HasSelection, Converter={x:Static settings:VisibleWhenConverter.Inverted}}" />
+    <ScrollViewer Grid.Row="1" Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False"
+                  Visibility="{Binding HasSelection, Converter={x:Static settings:VisibleWhenConverter.Instance}}">
+      <StackPanel Margin="0,0,10,0">
+        <Border Margin="0,0,0,10" Padding="12,8" CornerRadius="{DynamicResource Skin.Radius.Row}" Background="{DynamicResource Skin.FieldFill}"
+                Visibility="{Binding IsPlaced, Converter={x:Static settings:VisibleWhenConverter.Inverted}}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Style="{StaticResource Skin.Text}" FontSize="13" VerticalAlignment="Center" TextWrapping="Wrap" Text="{s:Text Group_NotPlaced}" />
+            <Button Grid.Column="1" Style="{StaticResource Skin.OutlineButton}" Margin="10,0,0,0" Content="{s:Text Link_PlaceOnScreen}" Command="{Binding PlaceOnScreenCommand}" />
+          </Grid>
+        </Border>
+
+        <TextBlock Style="{StaticResource Settings.Label}" Margin="0,0,0,4" Text="{s:Text Link_Name}" />
+        <TextBox Style="{StaticResource Skin.TextBox}" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{s:Text Link_Name}" />
+
+        <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Group_Display}" />
+        <Border Style="{StaticResource Skin.SegmentTrack}" HorizontalAlignment="Left">
+          <StackPanel Orientation="Horizontal">
+            <RadioButton Style="{StaticResource Skin.Segment}" GroupName="display" Content="{s:Text Group_DisplayFolder}" IsChecked="True" />
+            <RadioButton Style="{StaticResource Skin.Segment}" GroupName="display" Content="{s:Text Group_DisplayBar}" IsEnabled="False" />
+          </StackPanel>
+        </Border>
+
+        <settings:SettingRow Layout="Stacked" Margin="0,14,0,8" HeaderText="{s:Text Group_Columns}" ValueText="{Binding Columns}">
+          <Slider Style="{StaticResource Skin.Slider}" TickFrequency="1" IsSnapToTickEnabled="True" SmallChange="1" LargeChange="2"
+                  Minimum="{x:Static settings:SliderLimits.GroupColumnsMin}" Maximum="{x:Static settings:SliderLimits.GroupColumnsMax}"
+                  Value="{Binding Columns}" AutomationProperties.Name="{s:Text Group_Columns}" />
+        </settings:SettingRow>
+        <settings:SettingRow HeaderText="{s:Text Group_ShowLabels}">
+          <CheckBox Style="{StaticResource Skin.Switch}" IsChecked="{Binding ShowLabels}" AutomationProperties.Name="{s:Text Group_ShowLabels}" />
+        </settings:SettingRow>
+
+        <TextBlock Style="{StaticResource Settings.Label}" Margin="0,8,0,4" Text="{s:Text Group_Links}" />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <Border CornerRadius="{DynamicResource Skin.Radius.Field}" BorderThickness="1" BorderBrush="{DynamicResource Skin.Edge}" Padding="4" MinHeight="96">
+            <Grid>
+              <ListBox ItemsSource="{Binding Links}" SelectedItem="{Binding SelectedLink}" Background="Transparent" BorderThickness="0" MaxHeight="300"
+                       ItemContainerStyle="{StaticResource Skin.ListItem}" AutomationProperties.Name="{s:Text Group_Links}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate DataType="settings:GroupLinkRow">
+                    <StackPanel Orientation="Horizontal" Margin="0,2" AutomationProperties.Name="{Binding Name}">
+                      <Image Width="22" Height="22" Source="{Binding Icon}" RenderOptions.BitmapScalingMode="HighQuality" />
+                      <TextBlock Style="{StaticResource Skin.Text}" FontSize="13" Margin="10,0,0,0" VerticalAlignment="Center" Text="{Binding Name}" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <TextBlock Style="{StaticResource Settings.Hint}" Margin="8" Text="{s:Text Group_NoLinks}"
+                         Visibility="{Binding Links.Count, Converter={x:Static settings:VisibleWhenConverter.Inverted}}" />
+            </Grid>
+          </Border>
+          <StackPanel Grid.Column="1" Margin="8,0,0,0">
+            <Button Style="{StaticResource Skin.OutlineButton}" MinWidth="0" Margin="0,0,0,4" Content="↑" ToolTip="{s:Text Group_MoveUp}"
+                    AutomationProperties.Name="{s:Text Group_MoveUp}" Command="{Binding MoveUpCommand}" />
+            <Button Style="{StaticResource Skin.OutlineButton}" MinWidth="0" Margin="0,0,0,4" Content="↓" ToolTip="{s:Text Group_MoveDown}"
+                    AutomationProperties.Name="{s:Text Group_MoveDown}" Command="{Binding MoveDownCommand}" />
+            <Button Style="{StaticResource Skin.OutlineButton}" MinWidth="0" Content="✕" ToolTip="{s:Text Menu_RemoveFromGroup}"
+                    AutomationProperties.Name="{s:Text Menu_RemoveFromGroup}" Command="{Binding RemoveLinkCommand}" />
+          </StackPanel>
+        </Grid>
+
+        <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Group_AddLink}" />
+        <StackPanel Orientation="Horizontal">
+          <ComboBox Style="{StaticResource Skin.ComboBox}" MinWidth="240" ItemsSource="{Binding AvailableLinks}" SelectedItem="{Binding LinkToAdd}"
+                    DisplayMemberPath="Name" AutomationProperties.Name="{s:Text Group_AddLink}" />
+          <Button Style="{StaticResource Skin.OutlineButton}" Margin="8,0,0,0" Content="{s:Text Group_AddLink}" Command="{Binding AddLinkCommand}" />
+        </StackPanel>
+
+        <Button Style="{StaticResource Skin.DangerOutlineButton}" HorizontalAlignment="Left" Margin="0,22,0,0" Content="{s:Text Menu_DeleteGroup}" Command="{Binding DeleteCommand}" />
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

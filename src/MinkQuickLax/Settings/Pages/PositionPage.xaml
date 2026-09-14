@@ -1,0 +1,56 @@
+<UserControl x:Class="MinkQuickLax.Settings.Pages.PositionPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:s="clr-namespace:MinkQuickLax.Services"
+             xmlns:settings="clr-namespace:MinkQuickLax.Settings"
+             xmlns:model="clr-namespace:MinkQuickLax.Core.Model;assembly=MinkQuickLax.Core">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+    <StackPanel Margin="28,0,28,28" MaxWidth="760">
+      <TextBlock Style="{StaticResource Settings.PageTitle}" Text="{s:Text Page_Position}" />
+
+      <StackPanel Style="{StaticResource Settings.Group}">
+        <settings:SettingRow Layout="Stacked" settings:SearchAnchor.Id="GridSize" HeaderText="{s:Text Settings_GridSize}" ValueText="{Binding GridSizeText}">
+          <Slider Style="{StaticResource Skin.Slider}" TickFrequency="4" IsSnapToTickEnabled="True" SmallChange="4" LargeChange="8"
+                  Minimum="{x:Static settings:SliderLimits.GridSizeMin}" Maximum="{x:Static settings:SliderLimits.GridSizeMax}"
+                  Value="{Binding GridSize}" AutomationProperties.Name="{s:Text Settings_GridSize}" />
+        </settings:SettingRow>
+      </StackPanel>
+
+      <StackPanel Style="{StaticResource Settings.Group}" settings:SearchAnchor.Id="Snap">
+        <settings:SettingsGroupHeader Text="{s:Text Settings_Snap}" />
+        <Border Style="{StaticResource Skin.SegmentTrack}">
+          <UniformGrid Rows="1">
+            <RadioButton Style="{StaticResource Skin.Segment}" GroupName="snap" Content="{s:Text Snap_GridAndAlign}"
+                         IsChecked="{Binding Snap, Converter={x:Static settings:EnumIsConverter.Instance}, ConverterParameter={x:Static model:SnapMode.GridAndAlign}}" />
+            <RadioButton Style="{StaticResource Skin.Segment}" GroupName="snap" Content="{s:Text Snap_Grid}"
+                         IsChecked="{Binding Snap, Converter={x:Static settings:EnumIsConverter.Instance}, ConverterParameter={x:Static model:SnapMode.Grid}}" />
+            <RadioButton Style="{StaticResource Skin.Segment}" GroupName="snap" Content="{s:Text Snap_None}"
+                         IsChecked="{Binding Snap, Converter={x:Static settings:EnumIsConverter.Instance}, ConverterParameter={x:Static model:SnapMode.None}}" />
+          </UniformGrid>
+        </Border>
+      </StackPanel>
+
+      <StackPanel Style="{StaticResource Settings.Group}">
+        <settings:SettingRow settings:SearchAnchor.Id="CtrlDrag" HeaderText="{s:Text Settings_CtrlDrag}">
+          <CheckBox Style="{StaticResource Skin.Switch}" IsChecked="{Binding CtrlDragMove}" AutomationProperties.Name="{s:Text Settings_CtrlDrag}" />
+        </settings:SettingRow>
+        <settings:SettingRow settings:SearchAnchor.Id="Tidy" HeaderText="{s:Text Tray_Tidy}" Hint="{s:Text Settings_TidyHint}">
+          <Button Style="{StaticResource Skin.OutlineButton}" Content="{s:Text Tray_Tidy}" Command="{Binding TidyCommand}" />
+        </settings:SettingRow>
+        <settings:SettingRow settings:SearchAnchor.Id="ResetPositions" HeaderText="{s:Text Settings_ResetPositions}" Hint="{s:Text Settings_ResetPositionsHint}">
+          <Button Style="{StaticResource Skin.OutlineButton}" Content="{s:Text Settings_ResetPositions}" Command="{Binding ResetPositionsCommand}" />
+        </settings:SettingRow>
+      </StackPanel>
+
+      <Expander Style="{StaticResource Skin.Expander}" Margin="0,0,0,22" Header="{s:Text Settings_Advanced}" settings:SearchAnchor.Id="AllowOverTaskbar"
+                AutomationProperties.Name="{s:Text Settings_Advanced}">
+        <settings:SettingRow HeaderText="{s:Text Settings_AllowOverTaskbar}" Margin="20,0,0,0">
+          <CheckBox Style="{StaticResource Skin.Switch}" IsChecked="{Binding AllowOverTaskbar}" AutomationProperties.Name="{s:Text Settings_AllowOverTaskbar}" />
+        </settings:SettingRow>
+      </Expander>
+
+      <Button Style="{StaticResource Skin.OutlineButton}" HorizontalAlignment="Left" Content="{s:Text Settings_Reset}"
+              Command="{Binding ResetCommand}" CommandParameter="{x:Static model:SettingsSection.Position}" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

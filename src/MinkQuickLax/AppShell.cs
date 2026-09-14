@@ -26,6 +26,8 @@ public sealed partial class AppShell
     private readonly Scanner.ScannerService _scanner;
     private readonly TrayController _tray;
     private readonly SingleInstance _instance;
+    private readonly Settings.SettingsService _settings;
+    private readonly StartupRegistration _startup;
     private readonly ILogger<AppShell> _logger;
 
     public AppShell(
@@ -40,6 +42,8 @@ public sealed partial class AppShell
         Scanner.ScannerService scanner,
         TrayController tray,
         SingleInstance instance,
+        Settings.SettingsService settings,
+        StartupRegistration startup,
         ILogger<AppShell> logger)
     {
         _application = application;
@@ -54,6 +58,8 @@ public sealed partial class AppShell
         _arrange.AddRequested = () => _scanner.Show();
         _tray = tray;
         _instance = instance;
+        _settings = settings;
+        _startup = startup;
         _logger = logger;
     }
 
@@ -63,6 +69,10 @@ public sealed partial class AppShell
     public void Start(bool launchedAtStartup)
     {
         LogStarting(_logger, launchedAtStartup, AppVersion);
+        // Listen first, so a copy started while this one is still starting is not turned away; the command runs once
+        // startup below has finished, because it is queued on the same dispatcher.
+        _instance.CommandReceived += command => _application.Dispatcher.BeginInvoke(() => OnCommand(command));
+        _instance.Listen();
         ApplySettings(_store.Current.Settings);
         _store.Changed += (_, e) =>
         {
@@ -74,6 +84,7 @@ public sealed partial class AppShell
         _systemEvents.SettingsChanged += () => _theme.Apply(_store.Current.Settings, SystemSettings.Read());
 
         _placements.Start();
+        RegisterStartupOnFirstRun();
         // SPEC 4.12 / PLAN 3.1 step 6: nothing to show yet, so help the user pick apps (not when started at sign-in).
         if (!launchedAtStartup && _store.Current.Links.Count == 0)
         {
@@ -88,8 +99,6 @@ public sealed partial class AppShell
                 : _text["Notice_ConfigReset"]);
         }
 
-        _instance.CommandReceived += command => _application.Dispatcher.BeginInvoke(() => OnCommand(command));
-        _instance.Listen();
         GC.KeepAlive(_actions);
     }
 
@@ -117,9 +126,27 @@ public sealed partial class AppShell
     private void OnCommand(string command)
     {
         LogCommand(_logger, command);
-        // Another copy was started: make sure the icons are visible. The settings window opens here from M7.
+        // SPEC 7: another copy was started, so show the icons and the settings window.
         _placements.SetHidden(false);
+        _settings.Show();
     }
+
+    /// <summary>
+    /// SPEC 4.10: starting with Windows is on by default and registered the first time the app runs. Only installed
+    /// copies do this, so a development build never adds itself to the Run key; a choice made in Task Manager is kept.
+    /// </summary>
+    private void RegisterStartupOnFirstRun()
+    {
+        if (LoadResult is not { IsFirstRun: true } || !AppInfo.IsInstalled || _startup.Read() != StartupState.Off)
+        {
+            return;
+        }
+        _startup.Enable(AppInfo.ExePath);
+        LogStartupRegistered(_logger, AppInfo.ExePath);
+    }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Registered to start with Windows: {Path}")]
+    private static partial void LogStartupRegistered(ILogger logger, string path);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Starting MinkQuickLax {Version} (at sign-in: {AtStartup})")]
     private static partial void LogStarting(ILogger logger, bool atStartup, string version);

@@ -1,0 +1,96 @@
+<styles:StyledWindow x:Class="MinkQuickLax.Settings.SettingsWindow"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:s="clr-namespace:MinkQuickLax.Services"
+                     xmlns:styles="clr-namespace:MinkQuickLax.Styles"
+                     xmlns:settings="clr-namespace:MinkQuickLax.Settings"
+                     Title="{s:Text Settings_Title}"
+                     Width="1000" Height="720" MinWidth="780" MinHeight="520"
+                     WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
+                     Icon="pack://application:,,,/Assets/AppIcon.ico">
+  <Window.Resources>
+    <Style TargetType="ScrollBar" BasedOn="{StaticResource Skin.ScrollBar}" />
+  </Window.Resources>
+
+  <!-- SPEC 4.8: a plate in the current style, like the mockup's inspector panel. -->
+  <styles:SurfaceFrame Fill="{DynamicResource Skin.Fill.Scanner}">
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="232" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+
+      <!-- Sections -->
+      <DockPanel Grid.Column="0" Margin="16,14,10,16">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="4,0,0,12">
+          <Image Source="pack://application:,,,/Assets/AppIcon.ico" Width="22" Height="22" RenderOptions.BitmapScalingMode="HighQuality" />
+          <TextBlock Style="{StaticResource Skin.Text}" FontFamily="{DynamicResource Font.Heading}" FontSize="16" FontWeight="SemiBold"
+                     Margin="10,0,0,0" VerticalAlignment="Center" Text="{s:Text Tray_Settings}" />
+        </StackPanel>
+
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+          <TextBox x:Name="SearchBox" Style="{StaticResource Skin.TextBox}" Tag="{s:Text Settings_Search}"
+                   WindowChrome.IsHitTestVisibleInChrome="True" AutomationProperties.Name="{s:Text Settings_Search}" />
+          <Popup x:Name="SearchPopup" PlacementTarget="{Binding ElementName=SearchBox}" Placement="Bottom" VerticalOffset="4"
+                 AllowsTransparency="True" StaysOpen="False" Focusable="False">
+            <styles:SurfaceFrame Fill="{DynamicResource Skin.Fill.Popup}" Shape="Tooltip" Padding="4" Width="320">
+              <Grid>
+                <ListBox x:Name="SearchResults" Background="Transparent" BorderThickness="0" MaxHeight="360"
+                         ItemContainerStyle="{StaticResource Skin.ListItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         AutomationProperties.Name="{s:Text Settings_Search}">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate DataType="settings:SettingsSearchResult">
+                      <TextBlock Style="{StaticResource Skin.Text}" FontSize="13" Margin="0,3" TextTrimming="CharacterEllipsis" Text="{Binding Text}" />
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock x:Name="SearchNothing" Style="{StaticResource Skin.Text}" Foreground="{DynamicResource Skin.Ink2}" FontSize="13"
+                           Margin="10,8" Text="{s:Text Settings_SearchNothing}" Visibility="Collapsed" />
+              </Grid>
+            </styles:SurfaceFrame>
+          </Popup>
+        </Grid>
+
+        <RadioButton DockPanel.Dock="Bottom" Style="{StaticResource Skin.NavItem}" GroupName="nav" Content="{s:Text Page_About}"
+                     Tag="{x:Static settings:SettingsPage.About}" Checked="OnNavChecked" />
+        <StackPanel x:Name="Nav">
+          <RadioButton Style="{StaticResource Skin.NavItem}" GroupName="nav" Content="{s:Text Page_Links}" Tag="{x:Static settings:SettingsPage.Links}" Checked="OnNavChecked" />
+          <RadioButton Style="{StaticResource Skin.NavItem}" GroupName="nav" Content="{s:Text Page_Groups}" Tag="{x:Static settings:SettingsPage.Groups}" Checked="OnNavChecked" />
+          <RadioButton Style="{StaticResource Skin.NavItem}" GroupName="nav" Content="{s:Text Page_Appearance}" Tag="{x:Static settings:SettingsPage.Appearance}" Checked="OnNavChecked" />
+          <RadioButton Style="{StaticResource Skin.NavItem}" GroupName="nav" Content="{s:Text Page_Visibility}" Tag="{x:Static settings:SettingsPage.Visibility}" Checked="OnNavChecked" />
+          <RadioButton Style="{StaticResource Skin.NavItem}" GroupName="nav" Content="{s:Text Page_Behavior}" Tag="{x:Static settings:SettingsPage.Behavior}" Checked="OnNavChecked" />
+          <RadioButton Style="{StaticResource Skin.NavItem}" GroupName="nav" Content="{s:Text Page_Position}" Tag="{x:Static settings:SettingsPage.Position}" Checked="OnNavChecked" />
+          <RadioButton Style="{StaticResource Skin.NavItem}" GroupName="nav" Content="{s:Text Page_General}" Tag="{x:Static settings:SettingsPage.General}" Checked="OnNavChecked" />
+          <RadioButton Style="{StaticResource Skin.NavItem}" GroupName="nav" Content="{s:Text Page_Data}" Tag="{x:Static settings:SettingsPage.Data}" Checked="OnNavChecked" />
+        </StackPanel>
+      </DockPanel>
+      <Border Grid.Column="0" Width="1" HorizontalAlignment="Right" Margin="0,16" Background="{DynamicResource Skin.Edge}" />
+
+      <!-- The chosen section -->
+      <Grid Grid.Column="1">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0" Panel.ZIndex="1">
+          <Button Style="{StaticResource Skin.IconButton}" Margin="0,0,6,0" Content="–" Click="OnMinimize"
+                  WindowChrome.IsHitTestVisibleInChrome="True" AutomationProperties.Name="{s:Text Settings_Minimize}" />
+          <Button Style="{StaticResource Skin.IconButton}" Content="✕" Click="OnCloseClicked"
+                  WindowChrome.IsHitTestVisibleInChrome="True" AutomationProperties.Name="{s:Text Common_Close}" />
+        </StackPanel>
+        <ContentControl x:Name="PageHost" Margin="0,18,0,0" Focusable="False" />
+      </Grid>
+
+      <!-- Confirmations stay inside the window, in the same style -->
+      <Grid x:Name="DialogLayer" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#59000000">
+        <styles:SurfaceFrame Fill="{DynamicResource Skin.Fill.Popup}" Width="440" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="22,18">
+          <StackPanel>
+            <TextBlock x:Name="DialogTitle" Style="{StaticResource Skin.Text}" FontFamily="{DynamicResource Font.Heading}" FontSize="17" FontWeight="SemiBold"
+                       TextWrapping="Wrap" Margin="0,0,0,8" />
+            <TextBlock x:Name="DialogMessage" Style="{StaticResource Skin.Text}" FontSize="13.5" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+              <Button x:Name="DialogCancel" Style="{StaticResource Skin.OutlineButton}" Content="{s:Text Common_Cancel}" Click="OnDialogCancel" />
+              <Button x:Name="DialogConfirm" Style="{StaticResource Skin.AccentButton}" Margin="8,0,0,0" Click="OnDialogConfirm" />
+            </StackPanel>
+          </StackPanel>
+        </styles:SurfaceFrame>
+      </Grid>
+    </Grid>
+  </styles:SurfaceFrame>
+</styles:StyledWindow>

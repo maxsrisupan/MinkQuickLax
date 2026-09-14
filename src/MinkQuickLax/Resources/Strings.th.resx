@@ -213,4 +213,502 @@
   <data name="Tray_ToolTipHidden" xml:space="preserve">
     <value>MinkQuickLax (ซ่อนอยู่)</value>
   </data>
+  <data name="Common_Edit" xml:space="preserve">
+    <value>แก้ไข</value>
+  </data>
+  <data name="Common_On" xml:space="preserve">
+    <value>เปิด</value>
+  </data>
+  <data name="Common_Off" xml:space="preserve">
+    <value>ปิด</value>
+  </data>
+  <data name="Common_SameAsWindows" xml:space="preserve">
+    <value>ตาม Windows</value>
+  </data>
+  <data name="Common_Browse" xml:space="preserve">
+    <value>เลือก…</value>
+  </data>
+  <data name="Unit_Pixels" xml:space="preserve">
+    <value>{0} px</value>
+  </data>
+  <data name="Unit_Percent" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+  <data name="Unit_Milliseconds" xml:space="preserve">
+    <value>{0} ms</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>ตั้งค่า MinkQuickLax</value>
+  </data>
+  <data name="Settings_Search" xml:space="preserve">
+    <value>ค้นหาค่าตั้ง</value>
+  </data>
+  <data name="Settings_Reset" xml:space="preserve">
+    <value>คืนค่าเริ่มต้น</value>
+  </data>
+  <data name="Settings_ResetConfirm" xml:space="preserve">
+    <value>คืนค่าตั้งในหน้านี้เป็นค่าเริ่มต้นไหม?</value>
+  </data>
+  <data name="Settings_Advanced" xml:space="preserve">
+    <value>ขั้นสูง</value>
+  </data>
+  <data name="Page_Links" xml:space="preserve">
+    <value>Link</value>
+  </data>
+  <data name="Page_Groups" xml:space="preserve">
+    <value>กลุ่ม</value>
+  </data>
+  <data name="Page_Appearance" xml:space="preserve">
+    <value>หน้าตา</value>
+  </data>
+  <data name="Page_Visibility" xml:space="preserve">
+    <value>ซ่อน/แสดง</value>
+  </data>
+  <data name="Page_Behavior" xml:space="preserve">
+    <value>การใช้งาน</value>
+  </data>
+  <data name="Page_Position" xml:space="preserve">
+    <value>ตำแหน่ง</value>
+  </data>
+  <data name="Page_General" xml:space="preserve">
+    <value>ทั่วไป</value>
+  </data>
+  <data name="Page_Data" xml:space="preserve">
+    <value>ข้อมูล</value>
+  </data>
+  <data name="Page_About" xml:space="preserve">
+    <value>เกี่ยวกับ</value>
+  </data>
+  <data name="Links_Search" xml:space="preserve">
+    <value>ค้นหา link</value>
+  </data>
+  <data name="Links_AllKinds" xml:space="preserve">
+    <value>ทุกประเภท</value>
+  </data>
+  <data name="Links_NotPlaced" xml:space="preserve">
+    <value>ยังไม่ได้วางไว้ที่ไหน</value>
+  </data>
+  <data name="Links_Empty" xml:space="preserve">
+    <value>ไม่มี link ที่ตรงกัน</value>
+  </data>
+  <data name="Links_SelectHint" xml:space="preserve">
+    <value>เลือก link เพื่อแก้ไข</value>
+  </data>
+  <data name="Kind_Unknown" xml:space="preserve">
+    <value>ไม่รู้จัก</value>
+  </data>
+  <data name="Kind_App" xml:space="preserve">
+    <value>โปรแกรม</value>
+  </data>
+  <data name="Kind_ShellApp" xml:space="preserve">
+    <value>app จาก Start</value>
+  </data>
+  <data name="Kind_File" xml:space="preserve">
+    <value>ไฟล์</value>
+  </data>
+  <data name="Kind_Folder" xml:space="preserve">
+    <value>โฟลเดอร์</value>
+  </data>
+  <data name="Kind_Url" xml:space="preserve">
+    <value>เว็บ</value>
+  </data>
+  <data name="Kind_Command" xml:space="preserve">
+    <value>คำสั่ง</value>
+  </data>
+  <data name="Kind_MsSettings" xml:space="preserve">
+    <value>หน้าตั้งค่า Windows</value>
+  </data>
+  <data name="Link_Name" xml:space="preserve">
+    <value>ชื่อ</value>
+  </data>
+  <data name="Link_Target" xml:space="preserve">
+    <value>เป้าหมาย</value>
+  </data>
+  <data name="Link_TargetHint" xml:space="preserve">
+    <value>path, ที่อยู่เว็บ หรือ ID ของ app</value>
+  </data>
+  <data name="Link_Kind" xml:space="preserve">
+    <value>ประเภท: {0}</value>
+  </data>
+  <data name="Link_TargetMissing" xml:space="preserve">
+    <value>ไม่พบเป้าหมายนี้</value>
+  </data>
+  <data name="Link_Arguments" xml:space="preserve">
+    <value>argument</value>
+  </data>
+  <data name="Link_WorkingDirectory" xml:space="preserve">
+    <value>working directory</value>
+  </data>
+  <data name="Link_RunAsAdmin" xml:space="preserve">
+    <value>เปิดในฐานะผู้ดูแลระบบทุกครั้ง</value>
+  </data>
+  <data name="Link_Icon" xml:space="preserve">
+    <value>icon</value>
+  </data>
+  <data name="Icon_Auto" xml:space="preserve">
+    <value>จาก app หรือเว็บ</value>
+  </data>
+  <data name="Icon_File" xml:space="preserve">
+    <value>ไฟล์รูป</value>
+  </data>
+  <data name="Icon_Letter" xml:space="preserve">
+    <value>ตัวอักษร</value>
+  </data>
+  <data name="Link_PickIcon" xml:space="preserve">
+    <value>เลือกรูป…</value>
+  </data>
+  <data name="Link_IconFilter" xml:space="preserve">
+    <value>รูป (PNG, ICO)</value>
+  </data>
+  <data name="Link_Usage" xml:space="preserve">
+    <value>วางอยู่ที่ไหน</value>
+  </data>
+  <data name="Link_UsageIcons" xml:space="preserve">
+    <value>ไอคอนบนจอ: {0}</value>
+  </data>
+  <data name="Link_UsageGroup" xml:space="preserve">
+    <value>อยู่ในกลุ่ม “{0}”</value>
+  </data>
+  <data name="Link_PlaceOnScreen" xml:space="preserve">
+    <value>วางบนจอ</value>
+  </data>
+  <data name="Groups_Empty" xml:space="preserve">
+    <value>ยังไม่มีกลุ่ม</value>
+  </data>
+  <data name="Groups_SelectHint" xml:space="preserve">
+    <value>เลือกกลุ่มเพื่อแก้ไข</value>
+  </data>
+  <data name="Group_Display" xml:space="preserve">
+    <value>แบบ</value>
+  </data>
+  <data name="Group_DisplayFolder" xml:space="preserve">
+    <value>โฟลเดอร์</value>
+  </data>
+  <data name="Group_DisplayBar" xml:space="preserve">
+    <value>แถบ (มาในรุ่นถัดไป)</value>
+  </data>
+  <data name="Group_Columns" xml:space="preserve">
+    <value>จำนวนคอลัมน์</value>
+  </data>
+  <data name="Group_ShowLabels" xml:space="preserve">
+    <value>แสดงชื่อ link</value>
+  </data>
+  <data name="Group_Links" xml:space="preserve">
+    <value>link ในกลุ่มนี้</value>
+  </data>
+  <data name="Group_MoveUp" xml:space="preserve">
+    <value>เลื่อนขึ้น</value>
+  </data>
+  <data name="Group_MoveDown" xml:space="preserve">
+    <value>เลื่อนลง</value>
+  </data>
+  <data name="Group_AddLink" xml:space="preserve">
+    <value>เพิ่ม link</value>
+  </data>
+  <data name="Group_NoLinks" xml:space="preserve">
+    <value>กลุ่มนี้ยังว่าง</value>
+  </data>
+  <data name="Group_NotPlaced" xml:space="preserve">
+    <value>กลุ่มนี้ไม่ได้อยู่บนจอ</value>
+  </data>
+  <data name="Settings_Style" xml:space="preserve">
+    <value>สไตล์</value>
+  </data>
+  <data name="Style_Hud" xml:space="preserve">
+    <value>HUD</value>
+  </data>
+  <data name="Style_Dot" xml:space="preserve">
+    <value>Dot Matrix</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>ธีม</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>สว่าง</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>มืด</value>
+  </data>
+  <data name="Settings_IconSize" xml:space="preserve">
+    <value>ขนาดไอคอน</value>
+  </data>
+  <data name="Settings_IdleOpacity" xml:space="preserve">
+    <value>ความทึบตอนไม่ได้ใช้</value>
+  </data>
+  <data name="Settings_ProximityRadius" xml:space="preserve">
+    <value>ระยะที่เริ่มชัดขึ้น</value>
+  </data>
+  <data name="Settings_ProximityRadiusHint" xml:space="preserve">
+    <value>เมาส์เข้าใกล้แค่ไหนไอคอนจึงเริ่มชัดขึ้น</value>
+  </data>
+  <data name="Settings_Magnify" xml:space="preserve">
+    <value>ขยายตามเมาส์</value>
+  </data>
+  <data name="Settings_ShowLabels" xml:space="preserve">
+    <value>แสดงชื่อใต้ไอคอน</value>
+  </data>
+  <data name="Settings_ReduceMotion" xml:space="preserve">
+    <value>ลดภาพเคลื่อนไหว</value>
+  </data>
+  <data name="Settings_Glass" xml:space="preserve">
+    <value>ค่าของสไตล์ Glass</value>
+  </data>
+  <data name="Settings_GlassTint" xml:space="preserve">
+    <value>สีกระจก</value>
+  </data>
+  <data name="Tint_Auto" xml:space="preserve">
+    <value>ตามธีม</value>
+  </data>
+  <data name="Tint_Lagoon" xml:space="preserve">
+    <value>Lagoon</value>
+  </data>
+  <data name="Tint_Ember" xml:space="preserve">
+    <value>Ember</value>
+  </data>
+  <data name="Tint_Ink" xml:space="preserve">
+    <value>Ink</value>
+  </data>
+  <data name="Settings_GlassStrength" xml:space="preserve">
+    <value>ความทึบของสี</value>
+  </data>
+  <data name="Settings_GlassBlur" xml:space="preserve">
+    <value>เบลอข้างหลัง</value>
+  </data>
+  <data name="Settings_GlassBlurHint" xml:space="preserve">
+    <value>Windows จะไม่เบลอเมื่อปิด Transparency effects หรือเปิดโหมดประหยัดแบต</value>
+  </data>
+  <data name="Settings_TrayClick" xml:space="preserve">
+    <value>คลิก icon ที่ tray เพื่อซ่อน/แสดง</value>
+  </data>
+  <data name="Settings_TrayClickHint" xml:space="preserve">
+    <value>ถ้าปิด การคลิกจะเปิดเมนูแทน</value>
+  </data>
+  <data name="Settings_LaunchOn" xml:space="preserve">
+    <value>เปิด link ด้วย</value>
+  </data>
+  <data name="Launch_Single" xml:space="preserve">
+    <value>คลิกเดียว</value>
+  </data>
+  <data name="Launch_Double" xml:space="preserve">
+    <value>ดับเบิลคลิก</value>
+  </data>
+  <data name="Settings_TooltipDelay" xml:space="preserve">
+    <value>เวลาชี้ค้างก่อนชื่อขึ้น</value>
+  </data>
+  <data name="Settings_GridSize" xml:space="preserve">
+    <value>ขนาดกริด</value>
+  </data>
+  <data name="Settings_Snap" xml:space="preserve">
+    <value>การชิด</value>
+  </data>
+  <data name="Snap_GridAndAlign" xml:space="preserve">
+    <value>กริดและแนว</value>
+  </data>
+  <data name="Snap_Grid" xml:space="preserve">
+    <value>กริด</value>
+  </data>
+  <data name="Snap_None" xml:space="preserve">
+    <value>ไม่ชิด</value>
+  </data>
+  <data name="Settings_CtrlDrag" xml:space="preserve">
+    <value>Ctrl+ลากเพื่อย้าย</value>
+  </data>
+  <data name="Settings_AllowOverTaskbar" xml:space="preserve">
+    <value>วางทับ taskbar ได้</value>
+  </data>
+  <data name="Settings_TidyHint" xml:space="preserve">
+    <value>เรียงไอคอนและกลุ่มทั้งหมดชิดมุมขวาบนของจอหลัก</value>
+  </data>
+  <data name="Settings_ResetPositions" xml:space="preserve">
+    <value>คืนตำแหน่งทั้งหมด…</value>
+  </data>
+  <data name="Settings_ResetPositionsHint" xml:space="preserve">
+    <value>คืนค่าตั้งเรื่องตำแหน่งเป็นค่าเริ่มต้น แล้วเรียงทุกชิ้นใหม่</value>
+  </data>
+  <data name="Settings_ResetPositionsConfirm" xml:space="preserve">
+    <value>คืนค่าตั้งเรื่องตำแหน่ง แล้วเรียงไอคอนทั้งหมดใหม่ไหม?</value>
+  </data>
+  <data name="Settings_StartWithWindows" xml:space="preserve">
+    <value>เปิดพร้อม Windows</value>
+  </data>
+  <data name="Settings_StartWithWindowsHint" xml:space="preserve">
+    <value>เปิดตอนเข้าสู่ระบบ แสดงแค่ไอคอน</value>
+  </data>
+  <data name="Settings_StartupDisabled" xml:space="preserve">
+    <value>ถูกปิดไว้ใน Task Manager ถ้าเปิดตรงนี้จะเปิดกลับให้</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>ภาษา</value>
+  </data>
+  <data name="Language_Th" xml:space="preserve">
+    <value>ไทย</value>
+  </data>
+  <data name="Language_En" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Settings_CheckUpdates" xml:space="preserve">
+    <value>ตรวจหาอัปเดตอัตโนมัติ</value>
+  </data>
+  <data name="Settings_UpdateChannel" xml:space="preserve">
+    <value>ช่องทางอัปเดต</value>
+  </data>
+  <data name="Channel_Stable" xml:space="preserve">
+    <value>ปกติ</value>
+  </data>
+  <data name="Channel_Beta" xml:space="preserve">
+    <value>ทดลอง</value>
+  </data>
+  <data name="Data_Backup" xml:space="preserve">
+    <value>สำรองตอนนี้</value>
+  </data>
+  <data name="Data_BackupHint" xml:space="preserve">
+    <value>ไฟล์สำรองอยู่ในโฟลเดอร์ค่าตั้ง เก็บ 10 ชุดล่าสุด</value>
+  </data>
+  <data name="Data_BackedUp" xml:space="preserve">
+    <value>สำรองแล้วเมื่อ {0}</value>
+  </data>
+  <data name="Data_Restore" xml:space="preserve">
+    <value>กู้คืนจากไฟล์สำรอง</value>
+  </data>
+  <data name="Data_RestoreButton" xml:space="preserve">
+    <value>กู้คืน…</value>
+  </data>
+  <data name="Data_NoBackups" xml:space="preserve">
+    <value>ยังไม่มีไฟล์สำรอง</value>
+  </data>
+  <data name="Data_RestoreConfirm" xml:space="preserve">
+    <value>กู้คืนไฟล์สำรองเมื่อ {0} ไหม? ค่าตั้งตอนนี้จะถูกสำรองไว้ก่อน</value>
+  </data>
+  <data name="Data_Restored" xml:space="preserve">
+    <value>กู้คืนไฟล์สำรองเมื่อ {0} แล้ว</value>
+  </data>
+  <data name="Data_RestoreFailed" xml:space="preserve">
+    <value>อ่านไฟล์สำรองนี้ไม่ได้</value>
+  </data>
+  <data name="Data_OpenFolder" xml:space="preserve">
+    <value>เปิดโฟลเดอร์ค่าตั้ง</value>
+  </data>
+  <data name="Data_ResetAll" xml:space="preserve">
+    <value>คืนค่าทั้งหมด…</value>
+  </data>
+  <data name="Data_ResetAllHint" xml:space="preserve">
+    <value>ลบ link กลุ่ม และค่าตั้งทั้งหมด โดยสำรองไว้ก่อน</value>
+  </data>
+  <data name="Data_ResetAllConfirm" xml:space="preserve">
+    <value>ลบ link กลุ่ม และค่าตั้งทั้งหมดไหม? จะสำรองไว้ก่อนเพื่อกู้คืนได้</value>
+  </data>
+  <data name="Data_DeleteAll" xml:space="preserve">
+    <value>ลบข้อมูลทั้งหมดและออก…</value>
+  </data>
+  <data name="Data_DeleteAllHint" xml:space="preserve">
+    <value>ลบค่าตั้ง ไฟล์สำรอง และ icon ที่เก็บไว้ในเครื่องนี้ แล้วปิด MinkQuickLax</value>
+  </data>
+  <data name="Data_DeleteAllConfirm" xml:space="preserve">
+    <value>ลบข้อมูลทั้งหมดของ MinkQuickLax ในเครื่องนี้ รวมไฟล์สำรอง แล้วออกไหม? ย้อนกลับไม่ได้</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>เวอร์ชัน {0}</value>
+  </data>
+  <data name="About_Tagline" xml:space="preserve">
+    <value>quick launcher ที่มีไอคอนลอยอยู่บนจอ</value>
+  </data>
+  <data name="About_Manual" xml:space="preserve">
+    <value>เปิดคู่มือ</value>
+  </data>
+  <data name="About_GitHub" xml:space="preserve">
+    <value>หน้า GitHub</value>
+  </data>
+  <data name="About_Licenses" xml:space="preserve">
+    <value>สัญญาอนุญาต</value>
+  </data>
+  <data name="About_LicensesHint" xml:space="preserve">
+    <value>MinkQuickLax เป็นซอฟต์แวร์ฟรีและ open source ภายใต้สัญญาอนุญาต MIT และใช้ส่วนประกอบตามรายการด้านล่าง</value>
+  </data>
+  <data name="About_OpenLicenses" xml:space="preserve">
+    <value>เปิดไฟล์สัญญาอนุญาต</value>
+  </data>
+  <data name="About_CopyInfo" xml:space="preserve">
+    <value>คัดลอกข้อมูลสำหรับแจ้งปัญหา</value>
+  </data>
+  <data name="About_CopyInfoHint" xml:space="preserve">
+    <value>เวอร์ชัน app และ Windows, จอ, DPI และ log ล่าสุด 200 บรรทัด</value>
+  </data>
+  <data name="About_Copied" xml:space="preserve">
+    <value>คัดลอกแล้ว</value>
+  </data>
+  <data name="Search_IconSize" xml:space="preserve">
+    <value>ใหญ่ เล็ก</value>
+  </data>
+  <data name="Search_IdleOpacity" xml:space="preserve">
+    <value>โปร่งใส จาง</value>
+  </data>
+  <data name="Search_Theme" xml:space="preserve">
+    <value>มืด สว่าง โหมด</value>
+  </data>
+  <data name="Search_ReduceMotion" xml:space="preserve">
+    <value>แอนิเมชัน อนิเมชัน</value>
+  </data>
+  <data name="Search_StartWithWindows" xml:space="preserve">
+    <value>เปิดเครื่อง บูต เข้าสู่ระบบ startup</value>
+  </data>
+  <data name="Search_Language" xml:space="preserve">
+    <value>ไทย อังกฤษ</value>
+  </data>
+  <data name="Search_Backup" xml:space="preserve">
+    <value>กู้คืน บันทึก</value>
+  </data>
+  <data name="Search_GlassBlur" xml:space="preserve">
+    <value>อะคริลิก โปร่งใส</value>
+  </data>
+  <data name="Search_Snap" xml:space="preserve">
+    <value>แนว ดูด</value>
+  </data>
+  <data name="Search_TrayClick" xml:space="preserve">
+    <value>ถาด taskbar</value>
+  </data>
+  <data name="Search_LaunchOn" xml:space="preserve">
+    <value>ดับเบิล</value>
+  </data>
+  <data name="Search_CopyInfo" xml:space="preserve">
+    <value>แจ้งบั๊ก log</value>
+  </data>
+  <data name="Link_Browser" xml:space="preserve">
+    <value>เปิดด้วย</value>
+  </data>
+  <data name="Browser_Default" xml:space="preserve">
+    <value>browser หลักของ Windows</value>
+  </data>
+  <data name="Link_BrowserMissing" xml:space="preserve">
+    <value>ไม่พบ “{0}” ในเครื่องแล้ว จึงเปิดด้วย browser หลักแทน</value>
+  </data>
+  <data name="Style_Glass" xml:space="preserve">
+    <value>Glass</value>
+  </data>
+  <data name="Style_HudNote" xml:space="preserve">
+    <value>โฮโลแกรมตอนพัก สีจริงเมื่อเมาส์เข้าใกล้ ชี้แล้วขึ้นวงเล็บล็อกเป้าและข้อมูล</value>
+  </data>
+  <data name="Style_DotNote" xml:space="preserve">
+    <value>ไอคอนเป็นเม็ดจุดตอนพัก จุดขยายจนเต็มเมื่อเมาส์เข้าใกล้</value>
+  </data>
+  <data name="Style_GlassNote" xml:space="preserve">
+    <value>กระจกฝ้าที่มองเห็นพื้นหลังรำไร</value>
+  </data>
+  <data name="Settings_HudAlwaysDark" xml:space="preserve">
+    <value>HUD ใช้สีมืดเสมอ</value>
+  </data>
+  <data name="Settings_GroupIcons" xml:space="preserve">
+    <value>ไอคอน</value>
+  </data>
+  <data name="Settings_GroupMotion" xml:space="preserve">
+    <value>การเคลื่อนไหว</value>
+  </data>
+  <data name="Settings_GroupUpdates" xml:space="preserve">
+    <value>อัปเดต</value>
+  </data>
+  <data name="Settings_Minimize" xml:space="preserve">
+    <value>ย่อหน้าต่าง</value>
+  </data>
+  <data name="Settings_SearchNothing" xml:space="preserve">
+    <value>ไม่พบค่าตั้งที่ตรงกัน</value>
+  </data>
 </root>

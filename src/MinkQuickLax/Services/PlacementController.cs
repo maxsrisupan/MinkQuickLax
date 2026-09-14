@@ -159,7 +159,7 @@ public sealed partial class PlacementController : IDisposable
         var i = 0;
         foreach (var window in OrderedWindows())
         {
-            window.AnimateVisibility(!hidden, Styles.Glass.Motion.HideShowStagger * i++, _theme.Current.ReduceMotion);
+            window.AnimateVisibility(!hidden, Styles.Motion.HideShowStagger * i++, _theme.Current.ReduceMotion);
         }
         _topmost.Enabled = !hidden;
         HiddenChanged?.Invoke(hidden);
@@ -318,7 +318,7 @@ public sealed partial class PlacementController : IDisposable
                 {
                     if (popIndex >= 0)
                     {
-                        window.PlayPopIn(Styles.Glass.Motion.AddPopStagger * popIndex, _theme.Current.ReduceMotion);
+                        window.PlayPopIn(Styles.Motion.AddPopStagger * popIndex, _theme.Current.ReduceMotion);
                     }
                     window.Show();
                 }
@@ -387,7 +387,7 @@ public sealed partial class PlacementController : IDisposable
         var position = PositionMapper.ToScreen(placement, settings.IconSize, _monitors, settings.AllowOverTaskbar);
         if (_slideNextMoves && window.IsVisible && window.SquareRect.Width == position.Rect.Width)
         {
-            _mover.Animate(window, position.Rect, position.Monitor.Dpi, Styles.Glass.Motion.Tidy);
+            _mover.Animate(window, position.Rect, position.Monitor.Dpi, Styles.Motion.Tidy);
         }
         else
         {

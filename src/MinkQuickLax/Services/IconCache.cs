@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Extensions.Logging;
 using MinkQuickLax.Core.Model;
 using MinkQuickLax.Platform.Shell;
-using MinkQuickLax.Styles.Glass;
+using MinkQuickLax.Styles;
 
 namespace MinkQuickLax.Services;
 

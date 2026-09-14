@@ -7,7 +7,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using MinkQuickLax.Core.Layout;
 using MinkQuickLax.Platform.Windowing;
-using MinkQuickLax.Styles.Glass;
+using MinkQuickLax.Styles;
 
 namespace MinkQuickLax.Surfaces;
 
@@ -67,8 +67,8 @@ public sealed class IconWindow : Window
             previews.Children.Add(preview);
         }
         _folder = new Border { BorderThickness = new Thickness(1), Child = previews, Visibility = Visibility.Collapsed };
-        _folder.SetResourceReference(Border.BackgroundProperty, "Glass.Fill.Folder");
-        _folder.SetResourceReference(Border.BorderBrushProperty, "Glass.Edge");
+        _folder.SetResourceReference(Border.BackgroundProperty, "Skin.Fill.Folder");
+        _folder.SetResourceReference(Border.BorderBrushProperty, "Skin.Edge");
 
         _missingBadge = new Border
         {

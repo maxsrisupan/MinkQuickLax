@@ -79,15 +79,24 @@ public static unsafe class DwmBackdrop
     /// <summary>Windows 11 22H2 (build 22621) or later: blur is offered (SPEC 2, 5.5).</summary>
     public static bool IsBlurSupported => OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22621);
 
-    /// <summary>Rounded 8 px corners on Windows 11; no effect on Windows 10.</summary>
-    public static void SetRoundedCorners(nint hwnd)
+    // DWMWA_COLOR_NONE: no system border line around the window.
+    private const uint ColorNone = 0xFFFFFFFE;
+    private const uint ColorDefault = 0xFFFFFFFF;
+
+    /// <summary>
+    /// Windows 11 frame: rounded 8 px corners with the system border, or square corners with no border so the content
+    /// can draw its own shape (HUD cut corners, Dot Matrix plates). No effect on Windows 10.
+    /// </summary>
+    public static void SetRoundedCorners(nint hwnd, bool rounded = true)
     {
         if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
         {
             return;
         }
-        var preference = (int)DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND;
+        var preference = (int)(rounded ? DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND : DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_DONOTROUND);
         PInvoke.DwmSetWindowAttribute((HWND)hwnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(int));
+        var border = rounded ? ColorDefault : ColorNone;
+        PInvoke.DwmSetWindowAttribute((HWND)hwnd, DWMWINDOWATTRIBUTE.DWMWA_BORDER_COLOR, &border, sizeof(uint));
     }
 
     /// <summary>System acrylic for normal windows that can be active (the scanner). Returns false when unsupported.</summary>

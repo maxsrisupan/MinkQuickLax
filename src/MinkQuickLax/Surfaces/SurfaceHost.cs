@@ -16,7 +16,7 @@ public sealed class SurfaceHost : IDisposable
     private readonly MouseProximityTracker _tracker;
     private readonly EscapeKeyWatcher _escape;
     private TooltipWindow? _tooltip;
-    private GlassSurfaceWindow? _popup;
+    private SurfaceWindow? _popup;
     private PixelRect _keepOpenArea;
 
     public SurfaceHost(ThemeService theme, IMonitorProvider monitors, MouseProximityTracker tracker, EscapeKeyWatcher escape)
@@ -44,7 +44,7 @@ public sealed class SurfaceHost : IDisposable
     {
         HideTooltip();
         var area = PositionMapper.MonitorAt(at, _monitors.GetMonitors()).WorkArea;
-        Open(new GlassMenuWindow(_theme, header, entries), size => GlassSurfaceWindow.PlaceAtPointer(at, size, area));
+        Open(new MenuWindow(_theme, header, entries), size => SurfaceWindow.PlaceAtPointer(at, size, area));
     }
 
     /// <summary>Shows a notice beside <paramref name="anchor"/> (an icon, or the cursor for the tray).</summary>
@@ -64,7 +64,7 @@ public sealed class SurfaceHost : IDisposable
     }
 
     /// <summary>The open popup (menu, notice or group panel), if any.</summary>
-    public GlassSurfaceWindow? Popup => _popup is { IsVisible: true } popup ? popup : null;
+    public SurfaceWindow? Popup => _popup is { IsVisible: true } popup ? popup : null;
 
     /// <summary>Opens a group panel beside its folder. Clicks inside the folder or panel do not close it.</summary>
     public void ShowPanel(GroupPanelWindow panel, PixelRect folder)
@@ -95,7 +95,7 @@ public sealed class SurfaceHost : IDisposable
         _tooltip?.Close();
     }
 
-    private void Open(GlassSurfaceWindow window, Func<PixelSize, PixelPoint> place)
+    private void Open(SurfaceWindow window, Func<PixelSize, PixelPoint> place)
     {
         ClosePopup();
         _popup = window;

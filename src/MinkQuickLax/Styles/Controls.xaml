@@ -1,0 +1,559 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:styles="clr-namespace:MinkQuickLax.Styles"
+                    xmlns:model="clr-namespace:MinkQuickLax.Core.Model;assembly=MinkQuickLax.Core">
+
+  <!-- Inputs on style plates (scanner, settings: SPEC 5.10). Colors, corners and fonts come from ThemeService resources;
+       shape details that differ by style switch on the inherited styles:Skin.Kind. -->
+
+  <Style x:Key="Skin.FocusVisual">
+    <Setter Property="Control.Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Rectangle Margin="-2" Stroke="{DynamicResource Accent}" StrokeThickness="1.5" SnapsToDevicePixels="True" />
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Skin.TextBox" TargetType="TextBox">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="13.5" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+    <Setter Property="CaretBrush" Value="{DynamicResource Skin.Ink}" />
+    <Setter Property="SelectionBrush" Value="{DynamicResource Accent}" />
+    <Setter Property="Background" Value="{DynamicResource Skin.FieldFill}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Skin.Edge}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="8,3" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="TextBox">
+          <Border x:Name="Frame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource Skin.Radius.Field}" SnapsToDevicePixels="True">
+            <Grid>
+              <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" />
+              <TextBlock x:Name="Hint" Text="{TemplateBinding Tag}" Margin="{TemplateBinding Padding}" Padding="2,0"
+                         VerticalAlignment="Center" Foreground="{DynamicResource Skin.Ink2}" IsHitTestVisible="False" Visibility="Collapsed" />
+            </Grid>
+          </Border>
+          <ControlTemplate.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="Text" Value="" />
+                <Condition Property="IsKeyboardFocused" Value="False" />
+              </MultiTrigger.Conditions>
+              <Setter TargetName="Hint" Property="Visibility" Value="Visible" />
+            </MultiTrigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Frame" Property="BorderBrush" Value="{DynamicResource Accent}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.5" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- A name that looks like plain text until clicked, for renaming rows in place. -->
+  <Style x:Key="Skin.InlineTextBox" TargetType="TextBox" BasedOn="{StaticResource Skin.TextBox}">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Padding" Value="4,3" />
+  </Style>
+
+  <Style x:Key="Skin.CheckBox" TargetType="CheckBox">
+    <Setter Property="Focusable" Value="True" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="13.5" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Skin.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <StackPanel Orientation="Horizontal" Background="Transparent">
+            <Border x:Name="Box" Width="18" Height="18" CornerRadius="5" BorderThickness="1.5" VerticalAlignment="Center"
+                    BorderBrush="{DynamicResource Skin.Ink2}" Background="Transparent">
+              <Path x:Name="Tick" Data="M3,9 L7,13 L15,4" Stroke="{DynamicResource AccentInk}" StrokeThickness="2" Visibility="Collapsed" />
+            </Border>
+            <ContentPresenter x:Name="Label" Margin="10,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="False" />
+          </StackPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="Content" Value="{x:Null}">
+              <Setter TargetName="Label" Property="Visibility" Value="Collapsed" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Box" Property="Background" Value="{DynamicResource Accent}" />
+              <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Accent}" />
+              <Setter TargetName="Tick" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="styles:Skin.Kind" Value="{x:Static model:StyleSetting.Hud}">
+              <Setter TargetName="Box" Property="CornerRadius" Value="0" />
+            </Trigger>
+            <Trigger Property="styles:Skin.Kind" Value="{x:Static model:StyleSetting.Dot}">
+              <Setter TargetName="Box" Property="CornerRadius" Value="9" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.4" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Segmented choice (mockup .seg): a track with one selected cell. Put Skin.Segment radio buttons inside. -->
+  <Style x:Key="Skin.SegmentTrack" TargetType="Border">
+    <Setter Property="CornerRadius" Value="{DynamicResource Skin.Radius.Segment}" />
+    <Setter Property="Padding" Value="3" />
+    <Setter Property="Background" Value="{DynamicResource Skin.FieldFill}" />
+  </Style>
+
+  <Style x:Key="Skin.Segment" TargetType="RadioButton">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink2}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Padding" Value="10,5" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Skin.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Border x:Name="Pill" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Skin.Radius.Segment}" Background="Transparent"
+                  BorderThickness="1" BorderBrush="Transparent">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="False" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Pill" Property="Background" Value="{DynamicResource Skin.SelectedFill}" />
+              <Setter TargetName="Pill" Property="BorderBrush" Value="{DynamicResource Skin.SelectedEdge}" />
+              <Setter Property="Foreground" Value="{DynamicResource Skin.SelectedInk}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- A larger segment with a picture above its name: the style chooser (SPEC 5.10). Put the picture in Tag. -->
+  <Style x:Key="Skin.PictureSegment" TargetType="RadioButton" BasedOn="{StaticResource Skin.Segment}">
+    <Setter Property="Padding" Value="6,10,6,8" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Border x:Name="Pill" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Skin.Radius.Row}" Background="Transparent"
+                  BorderThickness="1" BorderBrush="Transparent">
+            <StackPanel HorizontalAlignment="Center">
+              <ContentControl Content="{TemplateBinding Tag}" Width="22" Height="22" HorizontalAlignment="Center" Focusable="False" />
+              <ContentPresenter Margin="0,6,0,0" HorizontalAlignment="Center" RecognizesAccessKey="False" />
+            </StackPanel>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Pill" Property="Background" Value="{DynamicResource Skin.SelectedFill}" />
+              <Setter TargetName="Pill" Property="BorderBrush" Value="{DynamicResource Accent}" />
+              <Setter Property="Foreground" Value="{DynamicResource Skin.SelectedInk}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Glass color swatch: a 30 px disc (color in Tag) with its name under it; the chosen one gets an Accent ring. -->
+  <Style x:Key="Skin.Swatch" TargetType="RadioButton">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink2}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Skin.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <StackPanel Background="Transparent" Margin="2">
+            <Grid Width="38" Height="38" HorizontalAlignment="Center">
+              <Ellipse x:Name="Ring" Stroke="{DynamicResource Accent}" StrokeThickness="2" Visibility="Hidden" />
+              <Ellipse Width="30" Height="30" Fill="{TemplateBinding Tag}" Stroke="{DynamicResource Skin.Edge}" StrokeThickness="1" />
+            </Grid>
+            <ContentPresenter Margin="0,3,0,0" HorizontalAlignment="Center" RecognizesAccessKey="False" />
+          </StackPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Ring" Property="Visibility" Value="Visible" />
+              <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Switch (mockup .switch): 36×20 track, 14 px knob that springs 16 px across; square in HUD, pill in Dot Matrix. -->
+  <Style x:Key="Skin.Switch" TargetType="CheckBox">
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Skin.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="CheckBox">
+          <Border x:Name="Track" Width="36" Height="20" CornerRadius="4" Background="{DynamicResource Skin.Track}">
+            <Border x:Name="Knob" Width="14" Height="14" CornerRadius="2" HorizontalAlignment="Left" Margin="3,0,0,0"
+                    Background="{DynamicResource Skin.Ink}">
+              <Border.RenderTransform>
+                <TranslateTransform x:Name="Slide" />
+              </Border.RenderTransform>
+            </Border>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Track" Property="Background" Value="{DynamicResource Accent}" />
+              <Setter TargetName="Knob" Property="Background" Value="{DynamicResource AccentInk}" />
+              <Trigger.EnterActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="Slide" Storyboard.TargetProperty="X" To="16" Duration="0:0:0.3"
+                                     EasingFunction="{x:Static styles:Motion.Spring}" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <BeginStoryboard>
+                  <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="Slide" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.3"
+                                     EasingFunction="{x:Static styles:Motion.Spring}" />
+                  </Storyboard>
+                </BeginStoryboard>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="styles:Skin.Kind" Value="{x:Static model:StyleSetting.Hud}">
+              <Setter TargetName="Track" Property="CornerRadius" Value="0" />
+              <Setter TargetName="Knob" Property="CornerRadius" Value="0" />
+            </Trigger>
+            <Trigger Property="styles:Skin.Kind" Value="{x:Static model:StyleSetting.Dot}">
+              <Setter TargetName="Track" Property="CornerRadius" Value="10" />
+              <Setter TargetName="Knob" Property="CornerRadius" Value="7" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Slider: thin track filled with Accent up to the thumb. -->
+  <Style x:Key="Skin.SliderThumb" TargetType="Thumb">
+    <Setter Property="Width" Value="14" />
+    <Setter Property="Height" Value="14" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Thumb">
+          <Border x:Name="Dot" CornerRadius="7" Background="{DynamicResource Accent}" BorderBrush="{DynamicResource AccentInk}" BorderThickness="2" />
+          <ControlTemplate.Triggers>
+            <Trigger Property="styles:Skin.Kind" Value="{x:Static model:StyleSetting.Hud}">
+              <Setter TargetName="Dot" Property="CornerRadius" Value="0" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Skin.SliderStep" TargetType="RepeatButton">
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="IsTabStop" Value="False" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RepeatButton">
+          <Border Background="Transparent" Height="14">
+            <Border Height="4" CornerRadius="2" Background="{TemplateBinding Background}" VerticalAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Skin.Slider" TargetType="Slider">
+    <Setter Property="IsMoveToPointEnabled" Value="True" />
+    <Setter Property="FocusVisualStyle" Value="{StaticResource Skin.FocusVisual}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Slider">
+          <Track x:Name="PART_Track" Height="18">
+            <Track.DecreaseRepeatButton>
+              <RepeatButton Style="{StaticResource Skin.SliderStep}" Background="{DynamicResource Accent}" Command="Slider.DecreaseLarge" />
+            </Track.DecreaseRepeatButton>
+            <Track.IncreaseRepeatButton>
+              <RepeatButton Style="{StaticResource Skin.SliderStep}" Background="{DynamicResource Skin.Track}" Command="Slider.IncreaseLarge" />
+            </Track.IncreaseRepeatButton>
+            <Track.Thumb>
+              <Thumb Style="{StaticResource Skin.SliderThumb}" />
+            </Track.Thumb>
+          </Track>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Skin.ComboBoxItem" TargetType="ComboBoxItem">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ComboBoxItem">
+          <Border x:Name="Row" Padding="10,6" CornerRadius="{DynamicResource Skin.Radius.Row}" Background="Transparent">
+            <ContentPresenter RecognizesAccessKey="False" />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsHighlighted" Value="True">
+              <Setter TargetName="Row" Property="Background" Value="{DynamicResource Skin.HoverFill}" />
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+              <Setter TargetName="Row" Property="Background" Value="{DynamicResource Skin.RowSelectedFill}" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Skin.ComboBox" TargetType="ComboBox">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="MaxDropDownHeight" Value="320" />
+    <Setter Property="ItemContainerStyle" Value="{StaticResource Skin.ComboBoxItem}" />
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ComboBox">
+          <Grid>
+            <ToggleButton x:Name="Toggle" Focusable="False" ClickMode="Press"
+                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+              <ToggleButton.Template>
+                <ControlTemplate TargetType="ToggleButton">
+                  <Border x:Name="Frame" Background="{DynamicResource Skin.FieldFill}" BorderBrush="{DynamicResource Skin.Edge}" BorderThickness="1"
+                          CornerRadius="{DynamicResource Skin.Radius.Field}">
+                    <Path Data="M0,0 L4,4 L8,0" Stroke="{DynamicResource Skin.Ink2}" StrokeThickness="1.5" HorizontalAlignment="Right"
+                          VerticalAlignment="Center" Margin="0,0,11,0" />
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                      <Setter TargetName="Frame" Property="Background" Value="{DynamicResource Skin.HoverFill}" />
+                    </Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </ToggleButton.Template>
+            </ToggleButton>
+            <Border x:Name="FocusRing" BorderBrush="{DynamicResource Accent}" BorderThickness="1" CornerRadius="{DynamicResource Skin.Radius.Field}"
+                    Visibility="Collapsed" IsHitTestVisible="False" />
+            <ContentPresenter Margin="10,0,30,0" VerticalAlignment="Center" IsHitTestVisible="False"
+                              Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                              ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" />
+            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True"
+                   Focusable="False" PopupAnimation="Fade" VerticalOffset="4">
+              <styles:SurfaceFrame Fill="{DynamicResource Skin.Fill.Popup}" Shape="Tooltip" Padding="4"
+                                   MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                   MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                  <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                </ScrollViewer>
+              </styles:SurfaceFrame>
+            </Popup>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+              <Setter TargetName="FocusRing" Property="Visibility" Value="Visible" />
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="Skin.Tag" TargetType="Border">
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Padding" Value="6,1" />
+    <Setter Property="Background" Value="{DynamicResource Skin.FieldFill}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style x:Key="Skin.ListItem" TargetType="ListBoxItem">
+    <!-- Screen readers read the row's Name (SPEC 6); every list on the plates binds items that have one. -->
+    <Setter Property="AutomationProperties.Name" Value="{Binding Name}" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ListBoxItem">
+          <Border x:Name="Row" CornerRadius="{DynamicResource Skin.Radius.Row}" Padding="8,4" Background="Transparent" BorderThickness="1" BorderBrush="Transparent">
+            <ContentPresenter />
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Row" Property="Background" Value="{DynamicResource Skin.FieldFill}" />
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+              <Setter TargetName="Row" Property="Background" Value="{DynamicResource Skin.RowSelectedFill}" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Row" Property="BorderBrush" Value="{DynamicResource Accent}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Left navigation of the settings window: a list of radio buttons with an Accent bar on the chosen one. -->
+  <Style x:Key="Skin.NavItem" TargetType="RadioButton">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="13.5" />
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink2}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+    <Setter Property="Margin" Value="0,1" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="RadioButton">
+          <Border x:Name="Row" Padding="12,8" CornerRadius="{DynamicResource Skin.Radius.Row}" Background="Transparent" BorderThickness="1" BorderBrush="Transparent">
+            <Grid>
+              <Border x:Name="Bar" Width="3" Margin="-9,2,0,2" HorizontalAlignment="Left" Background="{DynamicResource Accent}" CornerRadius="1.5" Visibility="Hidden" />
+              <ContentPresenter VerticalAlignment="Center" RecognizesAccessKey="False" />
+            </Grid>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="Row" Property="Background" Value="{DynamicResource Skin.FieldFill}" />
+              <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="Row" Property="Background" Value="{DynamicResource Skin.HoverFill}" />
+              <Setter TargetName="Bar" Property="Visibility" Value="Visible" />
+              <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+              <Setter TargetName="Row" Property="BorderBrush" Value="{DynamicResource Accent}" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Folded "Advanced" section. -->
+  <Style x:Key="Skin.Expander" TargetType="Expander">
+    <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Ui}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Expander">
+          <StackPanel>
+            <ToggleButton x:Name="Header" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                          Cursor="Hand" FocusVisualStyle="{StaticResource Skin.FocusVisual}">
+              <ToggleButton.Template>
+                <ControlTemplate TargetType="ToggleButton">
+                  <StackPanel Orientation="Horizontal" Background="Transparent">
+                    <Path x:Name="Chevron" Data="M0,0 L4,4 L0,8" Stroke="{DynamicResource Skin.Ink2}" StrokeThickness="1.5" VerticalAlignment="Center"
+                          RenderTransformOrigin="0.5,0.5" Margin="2,0,8,0">
+                      <Path.RenderTransform>
+                        <RotateTransform x:Name="Turn" />
+                      </Path.RenderTransform>
+                    </Path>
+                    <ContentPresenter Content="{Binding Header, RelativeSource={RelativeSource AncestorType=Expander}}" VerticalAlignment="Center" />
+                  </StackPanel>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsChecked" Value="True">
+                      <Setter TargetName="Chevron" Property="RenderTransform">
+                        <Setter.Value>
+                          <RotateTransform Angle="90" />
+                        </Setter.Value>
+                      </Setter>
+                    </Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate>
+              </ToggleButton.Template>
+            </ToggleButton>
+            <ContentPresenter x:Name="Body" Margin="0,8,0,0" Visibility="Collapsed" />
+          </StackPanel>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsExpanded" Value="True">
+              <Setter TargetName="Body" Property="Visibility" Value="Visible" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Thin scroll bar that does not fight with the plate. -->
+  <Style x:Key="Skin.ScrollThumb" TargetType="Thumb">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Thumb">
+          <Border CornerRadius="3" Background="{DynamicResource Skin.Ink2}" Opacity="0.45" />
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style TargetType="ScrollBar" x:Key="Skin.ScrollBar">
+    <Setter Property="Width" Value="6" />
+    <Setter Property="MinWidth" Value="6" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ScrollBar">
+          <Track x:Name="PART_Track" IsDirectionReversed="True">
+            <Track.Thumb>
+              <Thumb Style="{StaticResource Skin.ScrollThumb}" />
+            </Track.Thumb>
+          </Track>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Style.Triggers>
+      <Trigger Property="Orientation" Value="Horizontal">
+        <Setter Property="Height" Value="6" />
+        <Setter Property="MinHeight" Value="6" />
+        <Setter Property="Width" Value="Auto" />
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="ScrollBar">
+              <Track x:Name="PART_Track">
+                <Track.Thumb>
+                  <Thumb Style="{StaticResource Skin.ScrollThumb}" />
+                </Track.Thumb>
+              </Track>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
+</ResourceDictionary>

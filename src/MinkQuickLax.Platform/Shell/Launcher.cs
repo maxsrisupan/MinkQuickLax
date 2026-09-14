@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using MinkQuickLax.Core.Launch;
 using MinkQuickLax.Core.Model;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -66,6 +67,11 @@ public static unsafe class Launcher
 
     public static LaunchResult Open(Link link, bool asAdmin = false)
     {
+        // SPEC 4.1: a web link can name its browser; when that browser is gone, the default one opens it instead.
+        if (link.Kind == LinkKind.Url && BrowserCatalog.Find(link.Browser) is { } browser && BrowserCommand.UrlArgument(link.Target) is { } argument)
+        {
+            return ShellExecute(browser.ExePath, argument, null, null);
+        }
         var (file, parameters) = link.Kind switch
         {
             LinkKind.ShellApp => (AppsFolderPrefix + link.Target, ""),

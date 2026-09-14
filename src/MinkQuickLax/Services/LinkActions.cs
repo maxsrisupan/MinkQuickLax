@@ -19,10 +19,12 @@ public sealed partial class LinkActions
     private readonly ILogger<LinkActions> _logger;
 
     private readonly ArrangeController _arrange;
+    private readonly Settings.SettingsService _settings;
 
-    public LinkActions(ConfigStore store, PlacementController placements, ArrangeController arrange, GroupController groups, SurfaceHost surfaces, ThemeService theme, Localizer text, ILogger<LinkActions> logger)
+    public LinkActions(ConfigStore store, PlacementController placements, ArrangeController arrange, GroupController groups, SurfaceHost surfaces, ThemeService theme, Localizer text, Settings.SettingsService settings, ILogger<LinkActions> logger)
     {
         _store = store;
+        _settings = settings;
         _placements = placements;
         _arrange = arrange;
         _surfaces = surfaces;
@@ -82,8 +84,7 @@ public sealed partial class LinkActions
         entries.Add(MenuSeparator.Instance);
         entries.Add(new MenuCommand(_text["Menu_PlaceAgain"], () => _store.Update(c => c.AddPlacement(_placements.PlacementNextTo(placement)))));
         entries.Add(new MenuCommand(_text["Menu_AddToGroup"], () => ShowAddToGroupMenu(link, placement)));
-        // The link editor opens the settings window (M7).
-        entries.Add(new MenuCommand(_text["Menu_Edit"], () => { }, IsEnabled: false));
+        entries.Add(new MenuCommand(_text["Menu_Edit"], () => _settings.ShowLink(link.Id)));
         entries.Add(new MenuCommand(_text["Menu_Arrange"], _arrange.Enter, IsEnabled: !_arrange.IsArranging));
         entries.Add(MenuSeparator.Instance);
         entries.Add(new MenuCommand(_text["Menu_RemoveFromScreen"], () => _store.Update(c => c.RemovePlacement(placement.Id))));
@@ -120,8 +121,7 @@ public sealed partial class LinkActions
     {
         IReadOnlyList<MenuEntry> entries =
         [
-            // The group editor lives in the settings window (M7).
-            new MenuCommand(_text["Menu_EditGroup"], () => { }, IsEnabled: false),
+            new MenuCommand(_text["Menu_EditGroup"], () => _settings.ShowGroup(group.Id)),
             new MenuCommand(_text["Menu_Arrange"], _arrange.Enter, IsEnabled: !_arrange.IsArranging),
             MenuSeparator.Instance,
             new MenuCommand(_text["Menu_RemoveFromScreen"], () => _store.Update(c => c.RemovePlacement(placement.Id))),
@@ -143,7 +143,7 @@ public sealed partial class LinkActions
         }
         entries.Add(MenuSeparator.Instance);
         entries.Add(new MenuCommand(_text["Menu_RemoveFromGroup"], () => _store.Update(c => c.RemoveLinkFromGroup(group.Id, link.Id))));
-        entries.Add(new MenuCommand(_text["Menu_Edit"], () => { }, IsEnabled: false));
+        entries.Add(new MenuCommand(_text["Menu_Edit"], () => _settings.ShowLink(link.Id)));
         entries.Add(MenuSeparator.Instance);
         entries.Add(new MenuCommand(_text["Menu_DeleteLink"], () => ConfirmDelete(folder, link), IsDanger: true));
         _surfaces.ShowMenu(MouseProximityTracker.CursorPosition(), link.Name, entries);
@@ -191,6 +191,7 @@ public sealed partial class LinkActions
         _surfaces.ShowNotice(window.IconRect, Format("Notice_NotFound", link.Name),
         [
             new NoticeButton(_text["Common_Close"]),
+            new NoticeButton(_text["Common_Edit"], () => _settings.ShowLink(link.Id)),
             new NoticeButton(_text["Menu_DeleteLink"], () => ConfirmDelete(window, link), IsDanger: true),
         ]);
     }

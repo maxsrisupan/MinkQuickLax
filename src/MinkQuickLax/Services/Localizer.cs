@@ -29,6 +29,11 @@ public sealed class Localizer : INotifyPropertyChanged
 
     public string this[string key] => _resources.GetString(key, Culture) ?? key;
 
+    /// <summary>The text for <paramref name="key"/> in a given language, or an empty string when there is none.</summary>
+    public string Get(string key, CultureInfo culture) => _resources.GetString(key, culture) ?? "";
+
+    public string Format(string key, params object?[] args) => string.Format(Culture, this[key], args);
+
     public void SetCulture(CultureInfo culture)
     {
         Culture = culture;

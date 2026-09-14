@@ -1,0 +1,53 @@
+<UserControl x:Class="MinkQuickLax.Settings.Pages.DataPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:s="clr-namespace:MinkQuickLax.Services"
+             xmlns:settings="clr-namespace:MinkQuickLax.Settings">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+    <StackPanel Margin="28,0,28,28" MaxWidth="760">
+      <TextBlock Style="{StaticResource Settings.PageTitle}" Text="{s:Text Page_Data}" />
+
+      <Border Margin="0,0,0,16" Padding="12,8" CornerRadius="{DynamicResource Skin.Radius.Row}" Background="{DynamicResource Skin.FieldFill}"
+              Visibility="{Binding Message, Converter={x:Static settings:VisibleWhenConverter.Instance}}">
+        <TextBlock FontSize="13" TextWrapping="Wrap" Text="{Binding Message}">
+          <TextBlock.Style>
+            <Style TargetType="TextBlock" BasedOn="{StaticResource Skin.Text}">
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding MessageIsError}" Value="True">
+                  <Setter Property="Foreground" Value="{DynamicResource Danger}" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </TextBlock.Style>
+        </TextBlock>
+      </Border>
+
+      <StackPanel Style="{StaticResource Settings.Group}">
+        <settings:SettingRow settings:SearchAnchor.Id="Backup" HeaderText="{s:Text Data_Backup}" Hint="{s:Text Data_BackupHint}">
+          <Button Style="{StaticResource Skin.OutlineButton}" Content="{s:Text Data_Backup}" Command="{Binding BackupNowCommand}" />
+        </settings:SettingRow>
+        <settings:SettingRow settings:SearchAnchor.Id="Restore" HeaderText="{s:Text Data_Restore}">
+          <StackPanel Orientation="Horizontal">
+            <ComboBox Style="{StaticResource Skin.ComboBox}" MinWidth="190" MaxWidth="260" ItemsSource="{Binding Backups}" SelectedItem="{Binding SelectedBackup}"
+                      DisplayMemberPath="Text" IsEnabled="{Binding HasBackups}" AutomationProperties.Name="{s:Text Data_Restore}" />
+            <Button Style="{StaticResource Skin.OutlineButton}" Margin="8,0,0,0" Content="{s:Text Data_RestoreButton}" Command="{Binding RestoreCommand}" />
+          </StackPanel>
+        </settings:SettingRow>
+        <TextBlock Style="{StaticResource Settings.Hint}" Margin="0,-6,0,10" Text="{s:Text Data_NoBackups}"
+                   Visibility="{Binding HasBackups, Converter={x:Static settings:VisibleWhenConverter.Inverted}}" />
+        <settings:SettingRow settings:SearchAnchor.Id="OpenFolder" HeaderText="{s:Text Data_OpenFolder}">
+          <Button Style="{StaticResource Skin.OutlineButton}" Content="{s:Text Data_OpenFolder}" Command="{Binding OpenFolderCommand}" />
+        </settings:SettingRow>
+      </StackPanel>
+
+      <StackPanel Style="{StaticResource Settings.Group}">
+        <settings:SettingRow settings:SearchAnchor.Id="ResetAll" HeaderText="{s:Text Data_ResetAll}" Hint="{s:Text Data_ResetAllHint}">
+          <Button Style="{StaticResource Skin.OutlineButton}" Content="{s:Text Data_ResetAll}" Command="{Binding ResetAllCommand}" />
+        </settings:SettingRow>
+        <settings:SettingRow settings:SearchAnchor.Id="DeleteAll" HeaderText="{s:Text Data_DeleteAll}" Hint="{s:Text Data_DeleteAllHint}">
+          <Button Style="{StaticResource Skin.DangerOutlineButton}" Content="{s:Text Data_DeleteAll}" Command="{Binding DeleteAllCommand}" />
+        </settings:SettingRow>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

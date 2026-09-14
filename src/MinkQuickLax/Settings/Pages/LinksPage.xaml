@@ -1,0 +1,170 @@
+<UserControl x:Class="MinkQuickLax.Settings.Pages.LinksPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:s="clr-namespace:MinkQuickLax.Services"
+             xmlns:settings="clr-namespace:MinkQuickLax.Settings">
+  <Grid Margin="28,0,20,20">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="300" />
+      <ColumnDefinition Width="20" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <TextBlock Grid.ColumnSpan="3" Style="{StaticResource Settings.PageTitle}" Text="{s:Text Page_Links}" />
+    <Button Grid.Column="2" Style="{StaticResource Skin.AccentButton}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,80,0"
+            Content="{s:Text Tray_AddFromPc}" Command="{Binding AddFromPcCommand}" WindowChrome.IsHitTestVisibleInChrome="True" />
+
+    <!-- The list -->
+    <DockPanel Grid.Row="1" Grid.Column="0">
+      <TextBox DockPanel.Dock="Top" Style="{StaticResource Skin.TextBox}" Tag="{s:Text Links_Search}"
+               Text="{Binding Query, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{s:Text Links_Search}" />
+      <Grid DockPanel.Dock="Top" Margin="0,8,0,8">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <ComboBox Style="{StaticResource Skin.ComboBox}" SelectedIndex="{Binding KindFilter}" AutomationProperties.Name="{s:Text Links_AllKinds}">
+          <ComboBoxItem Content="{s:Text Links_AllKinds}" />
+          <ComboBoxItem Content="{s:Text Kind_App}" />
+          <ComboBoxItem Content="{s:Text Kind_ShellApp}" />
+          <ComboBoxItem Content="{s:Text Kind_File}" />
+          <ComboBoxItem Content="{s:Text Kind_Folder}" />
+          <ComboBoxItem Content="{s:Text Kind_Url}" />
+        </ComboBox>
+        <CheckBox Grid.Column="1" Style="{StaticResource Skin.CheckBox}" Margin="10,0,0,0" FontSize="12.5" Content="{s:Text Links_NotPlaced}" IsChecked="{Binding OnlyNotPlaced}" />
+      </Grid>
+      <TextBlock DockPanel.Dock="Top" Style="{StaticResource Settings.Hint}" Margin="4,8" Text="{s:Text Links_Empty}"
+                 Visibility="{Binding IsEmpty, Converter={x:Static settings:VisibleWhenConverter.Instance}}" />
+      <ListBox ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected}" Background="Transparent" BorderThickness="0"
+               ItemContainerStyle="{StaticResource Skin.ListItem}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+               VirtualizingPanel.IsVirtualizing="True" AutomationProperties.Name="{s:Text Page_Links}">
+        <ListBox.ItemTemplate>
+          <DataTemplate DataType="settings:LinkRow">
+            <Grid Margin="0,3" AutomationProperties.Name="{Binding Name}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Image Width="30" Height="30" Source="{Binding Icon}" RenderOptions.BitmapScalingMode="HighQuality" />
+              <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                <TextBlock Style="{StaticResource Skin.Text}" FontSize="13.5" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                <TextBlock Style="{StaticResource Settings.Hint}" FontSize="11.5" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text="{Binding KindText}" />
+              </StackPanel>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </DockPanel>
+    <Border Grid.Row="1" Grid.Column="1" Width="1" HorizontalAlignment="Center" Background="{DynamicResource Skin.Edge}" />
+
+    <!-- The editor -->
+    <TextBlock Grid.Row="1" Grid.Column="2" Style="{StaticResource Settings.Hint}" FontSize="13.5" Margin="0,6" Text="{s:Text Links_SelectHint}"
+               Visibility="{Binding Editor, Converter={x:Static settings:VisibleWhenConverter.Inverted}}" />
+    <ScrollViewer Grid.Row="1" Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False"
+                  DataContext="{Binding Editor}" Visibility="{Binding Converter={x:Static settings:VisibleWhenConverter.Instance}}">
+      <StackPanel Margin="0,0,10,0">
+        <Grid Margin="0,0,0,6">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Image Width="48" Height="48" Source="{Binding Preview}" RenderOptions.BitmapScalingMode="HighQuality" />
+          <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+            <TextBlock Style="{StaticResource Skin.Text}" FontFamily="{DynamicResource Font.Heading}" FontSize="18" FontWeight="SemiBold"
+                       TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+            <TextBlock Style="{StaticResource Settings.Hint}" Text="{Binding KindText}" />
+          </StackPanel>
+        </Grid>
+
+        <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Link_Name}" />
+        <TextBox Style="{StaticResource Skin.TextBox}" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="{s:Text Link_Name}" />
+
+        <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Link_Target}" />
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBox Style="{StaticResource Skin.TextBox}" Text="{Binding Target, UpdateSourceTrigger=LostFocus}" Tag="{s:Text Link_TargetHint}"
+                   KeyDown="OnCommitOnEnter" AutomationProperties.Name="{s:Text Link_Target}" />
+          <Button Grid.Column="1" Style="{StaticResource Skin.OutlineButton}" MinWidth="0" Margin="6,0,0,0" Content="{s:Text Scanner_PickFile}" Command="{Binding BrowseFileCommand}" />
+          <Button Grid.Column="2" Style="{StaticResource Skin.OutlineButton}" MinWidth="0" Margin="4,0,0,0" Content="{s:Text Scanner_PickFolder}" Command="{Binding BrowseFolderCommand}" />
+        </Grid>
+        <TextBlock Style="{StaticResource Settings.Hint}" Foreground="{DynamicResource Danger}" Margin="2,4,0,0" Text="{s:Text Link_TargetMissing}"
+                   Visibility="{Binding TargetMissing, Converter={x:Static settings:VisibleWhenConverter.Instance}}" />
+
+        <!-- SPEC 4.1: web links choose their browser. -->
+        <StackPanel Visibility="{Binding IsWebLink, Converter={x:Static settings:VisibleWhenConverter.Instance}}">
+          <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Link_Browser}" />
+          <ComboBox Style="{StaticResource Skin.ComboBox}" HorizontalAlignment="Left" MinWidth="260" ItemsSource="{Binding Browsers}"
+                    SelectedItem="{Binding Browser}" AutomationProperties.Name="{s:Text Link_Browser}">
+            <ComboBox.ItemTemplate>
+              <DataTemplate DataType="s:BrowserChoice">
+                <StackPanel Orientation="Horizontal">
+                  <Image Width="18" Height="18" Margin="0,0,8,0" Source="{Binding Icon}" RenderOptions.BitmapScalingMode="HighQuality" />
+                  <TextBlock Style="{StaticResource Skin.Text}" VerticalAlignment="Center" Text="{Binding Name}" />
+                </StackPanel>
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <TextBlock Style="{StaticResource Settings.Hint}" Foreground="{DynamicResource Skin.Amber}" Margin="2,4,0,0" Text="{Binding BrowserMissingText}"
+                     Visibility="{Binding BrowserMissingText, Converter={x:Static settings:VisibleWhenConverter.Instance}}" />
+        </StackPanel>
+
+        <StackPanel Visibility="{Binding IsWebLink, Converter={x:Static settings:VisibleWhenConverter.Inverted}}">
+          <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Link_Arguments}" />
+          <TextBox Style="{StaticResource Skin.TextBox}" Text="{Binding Arguments, UpdateSourceTrigger=LostFocus}" KeyDown="OnCommitOnEnter" AutomationProperties.Name="{s:Text Link_Arguments}" />
+
+          <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Link_WorkingDirectory}" />
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox Style="{StaticResource Skin.TextBox}" Text="{Binding WorkingDirectory, UpdateSourceTrigger=LostFocus}" KeyDown="OnCommitOnEnter"
+                     AutomationProperties.Name="{s:Text Link_WorkingDirectory}" />
+            <Button Grid.Column="1" Style="{StaticResource Skin.OutlineButton}" MinWidth="0" Margin="6,0,0,0" Content="{s:Text Common_Browse}" Command="{Binding BrowseWorkingDirectoryCommand}" />
+          </Grid>
+
+          <CheckBox Style="{StaticResource Skin.CheckBox}" Margin="0,12,0,0" Content="{s:Text Link_RunAsAdmin}" IsChecked="{Binding RunAsAdmin}" IsEnabled="{Binding CanRunAsAdmin}" />
+        </StackPanel>
+
+        <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Link_Icon}" />
+        <StackPanel Orientation="Horizontal">
+          <Border Style="{StaticResource Skin.SegmentTrack}">
+            <StackPanel Orientation="Horizontal">
+              <RadioButton Style="{StaticResource Skin.Segment}" GroupName="icon" Content="{s:Text Icon_Auto}"
+                           IsChecked="{Binding IconChoice, Converter={x:Static settings:EnumIsConverter.Instance}, ConverterParameter={x:Static settings:IconChoice.Auto}}" />
+              <RadioButton Style="{StaticResource Skin.Segment}" GroupName="icon" Content="{s:Text Icon_File}"
+                           IsChecked="{Binding IconChoice, Converter={x:Static settings:EnumIsConverter.Instance}, ConverterParameter={x:Static settings:IconChoice.File}}" />
+              <RadioButton Style="{StaticResource Skin.Segment}" GroupName="icon" Content="{s:Text Icon_Letter}"
+                           IsChecked="{Binding IconChoice, Converter={x:Static settings:EnumIsConverter.Instance}, ConverterParameter={x:Static settings:IconChoice.Letter}}" />
+            </StackPanel>
+          </Border>
+          <Button Style="{StaticResource Skin.OutlineButton}" Margin="8,0,0,0" Content="{s:Text Link_PickIcon}" Command="{Binding PickIconCommand}" />
+        </StackPanel>
+        <TextBlock Style="{StaticResource Settings.Hint}" Margin="2,4,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Text="{Binding IconPath}" />
+
+        <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Link_Usage}" />
+        <ItemsControl ItemsSource="{Binding Usage}" Focusable="False">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Style="{StaticResource Skin.Text}" FontSize="13" Margin="0,2" Text="{Binding}" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <WrapPanel Margin="0,18,0,0">
+          <Button Style="{StaticResource Skin.OutlineButton}" Margin="0,0,8,8" Content="{s:Text Menu_Open}" Command="{Binding OpenCommand}" />
+          <Button Style="{StaticResource Skin.OutlineButton}" Margin="0,0,8,8" Content="{s:Text Link_PlaceOnScreen}" Command="{Binding PlaceOnScreenCommand}" />
+          <Button Style="{StaticResource Skin.DangerOutlineButton}" Margin="0,0,8,8" Content="{s:Text Menu_DeleteLink}" Command="{Binding DeleteCommand}" />
+        </WrapPanel>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

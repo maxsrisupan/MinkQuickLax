@@ -5,7 +5,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using MinkQuickLax.Core.Layout;
 using MinkQuickLax.Platform.Windowing;
-using MinkQuickLax.Styles.Glass;
+using MinkQuickLax.Styles;
 
 namespace MinkQuickLax.Surfaces;
 
@@ -89,10 +89,10 @@ public sealed class DragReadoutWindow : OverlayWindow
         SizeToContent = SizeToContent.WidthAndHeight;
         _text = new TextBlock { FontSize = 11 };
         _text.SetResourceReference(TextBlock.FontFamilyProperty, "Font.Mono");
-        _text.SetResourceReference(TextBlock.ForegroundProperty, "Glass.Ink");
+        _text.SetResourceReference(TextBlock.ForegroundProperty, "Skin.Ink");
         var frame = new Border { CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Padding = new Thickness(8, 3, 8, 3), Child = _text };
-        frame.SetResourceReference(Border.BackgroundProperty, "Glass.Fill.Readout");
-        frame.SetResourceReference(Border.BorderBrushProperty, "Glass.Edge");
+        frame.SetResourceReference(Border.BackgroundProperty, "Skin.Fill.Readout");
+        frame.SetResourceReference(Border.BorderBrushProperty, "Skin.Edge");
         Content = frame;
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
     }

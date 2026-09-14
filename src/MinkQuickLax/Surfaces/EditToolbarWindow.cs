@@ -7,7 +7,7 @@ using System.Windows.Shapes;
 using MinkQuickLax.Core.Layout;
 using MinkQuickLax.Platform.Windowing;
 using MinkQuickLax.Services;
-using MinkQuickLax.Styles.Glass;
+using MinkQuickLax.Styles;
 
 namespace MinkQuickLax.Surfaces;
 
@@ -15,26 +15,26 @@ namespace MinkQuickLax.Surfaces;
 /// Toolbar at the top of the screen in edit mode (SPEC 4.4, 5.2): add, tidy up, cancel, done. It takes focus so the
 /// keyboard shortcuts work; it still stays out of the taskbar and Alt+Tab.
 /// </summary>
-public sealed class EditToolbarWindow : GlassSurfaceWindow
+public sealed class EditToolbarWindow : SurfaceWindow
 {
     private readonly TranslateTransform _slide = new();
 
     public EditToolbarWindow(ThemeService theme, Localizer text, Action add, bool canAdd, Action tidy, Action cancel, Action done)
-        : base(theme, "Glass.Fill.Panel")
+        : base(theme, "Skin.Fill.Panel")
     {
         ShowActivated = true;
         Focusable = true;
         var dot = new Ellipse { Width = 7, Height = 7, Margin = new Thickness(6, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
-        dot.SetResourceReference(Shape.FillProperty, "Guide");
-        var title = new TextBlock { Style = (Style)FindResource("Glass.Text"), Text = text["Arrange_Title"], FontSize = 13, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0) };
+        dot.SetResourceReference(System.Windows.Shapes.Shape.FillProperty, "Guide");
+        var title = new TextBlock { Style = (Style)FindResource("Skin.Text"), Text = text["Arrange_Title"], FontSize = 13, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0) };
 
         var row = new StackPanel { Orientation = Orientation.Horizontal, RenderTransform = _slide };
         row.Children.Add(dot);
         row.Children.Add(title);
-        row.Children.Add(MakeButton("Glass.Button", text["Arrange_Add"], add, canAdd));
-        row.Children.Add(MakeButton("Glass.Button", text["Arrange_Tidy"], tidy, true));
-        row.Children.Add(MakeButton("Glass.Button", text["Arrange_Cancel"], cancel, true));
-        row.Children.Add(MakeButton("Glass.AccentButton", text["Arrange_Done"], done, true));
+        row.Children.Add(MakeButton("Skin.Button", text["Arrange_Add"], add, canAdd));
+        row.Children.Add(MakeButton("Skin.Button", text["Arrange_Tidy"], tidy, true));
+        row.Children.Add(MakeButton("Skin.Button", text["Arrange_Cancel"], cancel, true));
+        row.Children.Add(MakeButton("Skin.AccentButton", text["Arrange_Done"], done, true));
         Body = row;
         BodyPadding = new Thickness(6);
     }

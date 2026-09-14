@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Media.Animation;
 
-namespace MinkQuickLax.Styles.Glass;
+namespace MinkQuickLax.Styles;
 
 /// <summary>CSS-style cubic-bezier easing for WPF animations.</summary>
 public sealed class CubicBezierEase : EasingFunctionBase

@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Windows.Media;
 using MinkQuickLax.Core.Layout;
-using MinkQuickLax.Styles.Glass;
+using MinkQuickLax.Styles;
 using MinkQuickLax.Surfaces;
 
 namespace MinkQuickLax.Services;

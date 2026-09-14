@@ -15,7 +15,6 @@
     <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageVersion Include="SharpVectors.Wpf" Version="1.8.6" />
     <PackageVersion Include="Velopack" Version="1.2.0" />
-    <PackageVersion Include="WPF-UI" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup Label="Core">
