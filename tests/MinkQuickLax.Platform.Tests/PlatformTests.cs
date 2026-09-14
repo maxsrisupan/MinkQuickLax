@@ -153,8 +153,18 @@ public sealed class SingleInstanceTests
     {
         var name = "MinkQuickLax.Tests." + Guid.NewGuid().ToString("N");
         var received = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var firstReady = new TaskCompletionSource<SingleInstance>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var finished = new ManualResetEventSlim();
 
-        using var first = await Task.Factory.StartNew(() => SingleInstance.Acquire(name), CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        // The mutex belongs to the thread that took it, so that thread must stay alive like the app's UI thread does.
+        var owner = new Thread(() =>
+        {
+            using var instance = SingleInstance.Acquire(name);
+            firstReady.SetResult(instance);
+            finished.Wait();
+        });
+        owner.Start();
+        var first = await firstReady.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
         Assert.True(first.IsFirst);
         first.CommandReceived += command => received.TrySetResult(command);
         first.Listen();
@@ -168,5 +178,7 @@ public sealed class SingleInstanceTests
 
         Assert.True(sent);
         Assert.Equal("show-settings", await received.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
+        finished.Set();
+        owner.Join();
     }
 }

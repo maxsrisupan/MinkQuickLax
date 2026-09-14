@@ -21,6 +21,7 @@ public sealed partial class AppShell
     private readonly Localizer _text;
     private readonly SystemEvents _systemEvents;
     private readonly PlacementController _placements;
+    private readonly ArrangeController _arrange;
     private readonly LinkActions _actions;
     private readonly TrayController _tray;
     private readonly SingleInstance _instance;
@@ -33,6 +34,7 @@ public sealed partial class AppShell
         Localizer text,
         SystemEvents systemEvents,
         PlacementController placements,
+        ArrangeController arrange,
         LinkActions actions,
         TrayController tray,
         SingleInstance instance,
@@ -44,6 +46,7 @@ public sealed partial class AppShell
         _text = text;
         _systemEvents = systemEvents;
         _placements = placements;
+        _arrange = arrange;
         _actions = actions;
         _tray = tray;
         _instance = instance;
@@ -84,6 +87,8 @@ public sealed partial class AppShell
     public void Stop()
     {
         LogStopping(_logger);
+        _arrange.Done();
+        _arrange.Dispose();
         _tray.Dispose();
         _placements.Dispose();
         _store.Flush();

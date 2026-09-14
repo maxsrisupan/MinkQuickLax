@@ -1,0 +1,423 @@
+using System.Globalization;
+using System.Windows.Input;
+using Microsoft.Extensions.Logging;
+using MinkQuickLax.Core.Abstractions;
+using MinkQuickLax.Core.Config;
+using MinkQuickLax.Core.Layout;
+using MinkQuickLax.Core.Model;
+using MinkQuickLax.Platform.Input;
+using MinkQuickLax.Surfaces;
+using MinkQuickLax.Styles.Glass;
+using PhysicalKeys = MinkQuickLax.Platform.Input.Keyboard;
+
+namespace MinkQuickLax.Services;
+
+/// <summary>
+/// Clicks, drags and edit mode (SPEC 4.2, 4.4): in use mode a click opens the link and Ctrl+drag moves the icon;
+/// in edit mode icons wiggle, drag with grid/alignment snapping and guides, avoid overlapping on drop, and changes
+/// can be undone, redone or cancelled all at once.
+/// </summary>
+public sealed partial class ArrangeController : IDisposable
+{
+    private const double DragThresholdDip = 4;
+
+    private readonly ConfigStore _store;
+    private readonly PlacementController _placements;
+    private readonly SurfaceHost _surfaces;
+    private readonly ThemeService _theme;
+    private readonly Localizer _text;
+    private readonly ILogger<ArrangeController> _logger;
+    private readonly UndoHistory<AppConfig> _undo = new();
+    private readonly GuideWindow _verticalGuide = new(vertical: true);
+    private readonly GuideWindow _horizontalGuide = new(vertical: false);
+    private readonly DragReadoutWindow _readout = new();
+    private AppConfig? _entrySnapshot;
+    private EditToolbarWindow? _toolbar;
+    private string? _selectedId;
+
+    // Current press / drag.
+    private IconWindow? _pressed;
+    private PixelPoint _pressPoint;
+    private PixelPoint _grabOffset;
+    private bool _doubleClick;
+    private bool _dragging;
+    private AppConfig? _beforeDrag;
+    private MonitorInfo? _dragMonitor;
+    private PixelPoint _dragCenter;
+
+    public ArrangeController(ConfigStore store, PlacementController placements, SurfaceHost surfaces, ThemeService theme, Localizer text, ILogger<ArrangeController> logger)
+    {
+        _store = store;
+        _placements = placements;
+        _surfaces = surfaces;
+        _theme = theme;
+        _text = text;
+        _logger = logger;
+        _placements.WindowCreated += Hook;
+        _placements.WindowRemoved += OnWindowRemoved;
+        _placements.HiddenChanged += hidden =>
+        {
+            if (hidden && IsArranging)
+            {
+                Done();
+            }
+        };
+    }
+
+    public bool IsArranging { get; private set; }
+
+    /// <summary>"Add" on the toolbar; wired up when adding links exists (M5).</summary>
+    public Action? AddRequested { get; set; }
+
+    public void Enter()
+    {
+        if (IsArranging)
+        {
+            _toolbar?.Activate();
+            return;
+        }
+        _placements.SetHidden(false);
+        _surfaces.ClosePopup();
+        IsArranging = true;
+        _entrySnapshot = _store.Current;
+        _undo.Clear();
+        _placements.SetArranging(true);
+
+        var monitors = _placements.Monitors;
+        var primary = PositionMapper.Primary(monitors);
+        _toolbar = new EditToolbarWindow(_theme, _text, () => AddRequested?.Invoke(), AddRequested is not null, Tidy, Cancel, Done);
+        _toolbar.KeyPressed += OnKey;
+        _toolbar.ShowOn(primary.WorkArea, primary.Scale);
+        LogEntered(_logger);
+    }
+
+    /// <summary>Keeps the changes and leaves edit mode.</summary>
+    public void Done() => Exit(restore: false);
+
+    /// <summary>Restores everything as it was before edit mode and leaves it.</summary>
+    public void Cancel() => Exit(restore: true);
+
+    public void Tidy()
+    {
+        Record();
+        _placements.Tidy();
+    }
+
+    public void Dispose()
+    {
+        _placements.WindowCreated -= Hook;
+        _placements.WindowRemoved -= OnWindowRemoved;
+        _toolbar?.Close();
+        _verticalGuide.Close();
+        _horizontalGuide.Close();
+        _readout.Close();
+    }
+
+    private void Exit(bool restore)
+    {
+        if (!IsArranging)
+        {
+            return;
+        }
+        if (restore && _entrySnapshot is { } snapshot)
+        {
+            _store.Update(_ => snapshot);
+        }
+        IsArranging = false;
+        _entrySnapshot = null;
+        _undo.Clear();
+        _selectedId = null;
+        _placements.SetArranging(false);
+        var toolbar = _toolbar;
+        _toolbar = null;
+        toolbar?.Close();
+        LogExited(_logger, restore);
+    }
+
+    private void Hook(IconWindow window)
+    {
+        window.Pressed += OnPressed;
+        window.PointerMoved += OnPointerMoved;
+        window.Released += OnReleased;
+        window.CaptureLost += OnCaptureLost;
+    }
+
+    private void OnWindowRemoved(IconWindow window)
+    {
+        if (ReferenceEquals(_pressed, window))
+        {
+            EndDragVisuals(window);
+            _pressed = null;
+            _dragging = false;
+        }
+        if (_selectedId == window.PlacementId)
+        {
+            _selectedId = null;
+        }
+    }
+
+    private void OnPressed(IconWindow window, int clickCount)
+    {
+        _pressed = window;
+        _pressPoint = MouseProximityTracker.CursorPosition();
+        _grabOffset = new PixelPoint(_pressPoint.X - window.SquareRect.Center.X, _pressPoint.Y - window.SquareRect.Center.Y);
+        _doubleClick = clickCount >= 2;
+        _dragging = false;
+        window.BeginCapture();
+        if (IsArranging)
+        {
+            Select(window.PlacementId);
+        }
+    }
+
+    private void OnPointerMoved(IconWindow window)
+    {
+        if (!ReferenceEquals(_pressed, window))
+        {
+            return;
+        }
+        var cursor = MouseProximityTracker.CursorPosition();
+        if (!_dragging)
+        {
+            var scale = PositionMapper.MonitorAt(cursor, _placements.Monitors).Scale;
+            var mayDrag = IsArranging || (_store.Current.Settings.CtrlDragMove && PhysicalKeys.IsCtrlDown);
+            if (!mayDrag || cursor.DistanceTo(_pressPoint) < DragThresholdDip * scale)
+            {
+                return;
+            }
+            StartDrag(window);
+        }
+        UpdateDrag(window, cursor);
+    }
+
+    private void OnReleased(IconWindow window)
+    {
+        if (!ReferenceEquals(_pressed, window))
+        {
+            return;
+        }
+        _pressed = null;
+        window.EndCapture();
+        if (_dragging)
+        {
+            Drop(window);
+            _toolbar?.TakeKeyboardFocus();
+            return;
+        }
+        if (IsArranging)
+        {
+            _toolbar?.TakeKeyboardFocus();
+            return;
+        }
+        // Like a button: moving away before letting go cancels the click.
+        var cursor = MouseProximityTracker.CursorPosition();
+        var scale = PositionMapper.MonitorAt(cursor, _placements.Monitors).Scale;
+        if (!window.SquareRect.Contains(cursor) || cursor.DistanceTo(_pressPoint) >= DragThresholdDip * scale)
+        {
+            return;
+        }
+        var onDoubleClick = _store.Current.Settings.LaunchOn == LaunchTrigger.DoubleClick;
+        if (!onDoubleClick || _doubleClick)
+        {
+            _placements.RequestLaunch(window);
+        }
+    }
+
+    private void OnCaptureLost(IconWindow window)
+    {
+        // Losing capture mid-drag (another app grabbed the mouse): keep the icon where it is now.
+        if (ReferenceEquals(_pressed, window) && _dragging)
+        {
+            _pressed = null;
+            Drop(window);
+        }
+    }
+
+    private void StartDrag(IconWindow window)
+    {
+        _dragging = true;
+        _beforeDrag = _store.Current;
+        _surfaces.HideTooltip();
+        _surfaces.ClosePopup();
+        window.SetLifted(true);
+        LogDragStarted(_logger, window.PlacementId, IsArranging);
+    }
+
+    private void UpdateDrag(IconWindow window, PixelPoint cursor)
+    {
+        var settings = _store.Current.Settings;
+        var monitors = _placements.Monitors;
+        var monitor = PositionMapper.MonitorAt(cursor, monitors);
+        var area = PositionMapper.PlacementArea(monitor, settings.AllowOverTaskbar);
+        var size = PositionMapper.WindowSize(settings.IconSize, monitor);
+        var desired = new PixelPoint(cursor.X - _grabOffset.X, cursor.Y - _grabOffset.Y);
+        var others = OtherRects(window, monitor);
+        var snap = SnapEngine.Snap(desired, size, others, area, settings.Snap, monitor.ToPixels(settings.GridSize), monitor.ToPixels(Motion.AlignThreshold));
+
+        _dragMonitor = monitor;
+        _dragCenter = snap.Center;
+        window.MoveTo(PixelRect.FromCenter(snap.Center, size), monitor.Dpi);
+
+        ShowGuide(_verticalGuide, snap.Guides.FirstOrDefault(g => g.Vertical), monitor.Scale);
+        ShowGuide(_horizontalGuide, snap.Guides.FirstOrDefault(g => !g.Vertical), monitor.Scale);
+        var text = string.Format(CultureInfo.InvariantCulture, _text["Readout_Position"], snap.Center.X - area.Left, snap.Center.Y - area.Top);
+        _readout.ShowAt(text, cursor, monitor.Bounds, monitor.Scale);
+    }
+
+    private void Drop(IconWindow window)
+    {
+        _dragging = false;
+        EndDragVisuals(window);
+        if (_dragMonitor is not { } monitor || _store.Current.FindPlacement(window.PlacementId) is not { } placement)
+        {
+            return;
+        }
+        var settings = _store.Current.Settings;
+        var area = PositionMapper.PlacementArea(monitor, settings.AllowOverTaskbar);
+        var size = PositionMapper.WindowSize(settings.IconSize, monitor);
+        var center = CollisionResolver.FindFreeCenter(_dragCenter, size, OtherRects(window, monitor), area, monitor.ToPixels(settings.GridSize));
+        window.MoveTo(PixelRect.FromCenter(center, size), monitor.Dpi);
+
+        if (IsArranging && _beforeDrag is { } before)
+        {
+            _undo.Push(before);
+        }
+        _store.Update(c => c.UpdatePlacement(PositionMapper.WithCenter(placement, center, monitor, settings.AllowOverTaskbar)));
+        _beforeDrag = null;
+        _dragMonitor = null;
+        LogDropped(_logger, window.PlacementId, center.X, center.Y);
+    }
+
+    private void EndDragVisuals(IconWindow window)
+    {
+        window.SetLifted(false);
+        _verticalGuide.Hide();
+        _horizontalGuide.Hide();
+        _readout.Hide();
+        if (IsArranging)
+        {
+            window.SetArranging(true, 0, _theme.Current.ReduceMotion);
+        }
+    }
+
+    private List<PixelRect> OtherRects(IconWindow dragged, MonitorInfo monitor) =>
+        _placements.Windows
+            .Where(w => !ReferenceEquals(w, dragged) && w.IsVisible && w.SquareRect.IntersectsWith(monitor.Bounds))
+            .Select(w => w.SquareRect)
+            .ToList();
+
+    private static void ShowGuide(GuideWindow window, GuideLine? line, double scale)
+    {
+        if (line is null)
+        {
+            window.Hide();
+        }
+        else
+        {
+            window.ShowLine(line, scale);
+        }
+    }
+
+    private void Select(string? placementId)
+    {
+        _selectedId = placementId;
+        foreach (var window in _placements.Windows)
+        {
+            window.SetSelected(window.PlacementId == placementId);
+        }
+    }
+
+    private void OnKey(Key key, ModifierKeys modifiers)
+    {
+        var ctrl = modifiers.HasFlag(ModifierKeys.Control);
+        var shift = modifiers.HasFlag(ModifierKeys.Shift);
+        LogKey(_logger, key, modifiers, _selectedId);
+        switch (key)
+        {
+            case Key.Left: Nudge(-1, 0, shift); break;
+            case Key.Right: Nudge(1, 0, shift); break;
+            case Key.Up: Nudge(0, -1, shift); break;
+            case Key.Down: Nudge(0, 1, shift); break;
+            case Key.Delete: RemoveSelected(); break;
+            case Key.Z when ctrl && shift: Redo(); break;
+            case Key.Z when ctrl: Undo(); break;
+            case Key.Y when ctrl: Redo(); break;
+            case Key.Enter: Done(); break;
+        }
+    }
+
+    /// <summary>Arrow keys: one grid step, or one pixel with Shift (SPEC 4.4).</summary>
+    private void Nudge(int dx, int dy, bool fine)
+    {
+        var config = _store.Current;
+        if (_selectedId is null || config.FindPlacement(_selectedId) is not { } placement)
+        {
+            return;
+        }
+        var settings = config.Settings;
+        var position = PositionMapper.ToScreen(placement, settings.IconSize, _placements.Monitors, settings.AllowOverTaskbar);
+        var monitor = position.Monitor;
+        var step = fine ? 1 : monitor.ToPixels(settings.GridSize);
+        var area = PositionMapper.PlacementArea(monitor, settings.AllowOverTaskbar);
+        var moved = position.Rect.Offset(dx * step, dy * step).MoveInside(area);
+        if (moved == position.Rect)
+        {
+            return;
+        }
+        Record();
+        _store.Update(c => c.UpdatePlacement(PositionMapper.WithCenter(placement, moved.Center, monitor, settings.AllowOverTaskbar)));
+        _placements.WindowFor(placement.Id)?.SetSelected(true);
+    }
+
+    private void RemoveSelected()
+    {
+        if (_selectedId is not { } id || _store.Current.FindPlacement(id) is null)
+        {
+            return;
+        }
+        Record();
+        _selectedId = null;
+        _store.Update(c => c.RemovePlacement(id));
+    }
+
+    private void Undo()
+    {
+        if (_undo.TryUndo(_store.Current, out var previous))
+        {
+            _store.Update(_ => previous);
+            Select(_selectedId);
+        }
+    }
+
+    private void Redo()
+    {
+        if (_undo.TryRedo(_store.Current, out var next))
+        {
+            _store.Update(_ => next);
+            Select(_selectedId);
+        }
+    }
+
+    private void Record()
+    {
+        if (IsArranging)
+        {
+            _undo.Push(_store.Current);
+        }
+    }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Edit mode on")]
+    private static partial void LogEntered(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Edit mode off (cancelled: {Cancelled})")]
+    private static partial void LogExited(ILogger logger, bool cancelled);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Drag started {Id} (edit mode: {Arranging})")]
+    private static partial void LogDragStarted(ILogger logger, string id, bool arranging);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Edit mode key {Key} {Modifiers} (selected: {Selected})")]
+    private static partial void LogKey(ILogger logger, Key key, ModifierKeys modifiers, string? selected);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Dropped {Id} at {X},{Y}")]
+    private static partial void LogDropped(ILogger logger, string id, int x, int y);
+}

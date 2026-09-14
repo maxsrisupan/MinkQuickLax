@@ -19,10 +19,13 @@ public sealed class TrayController : IDisposable
     private readonly SurfaceHost _surfaces;
     private readonly Localizer _text;
 
-    public TrayController(ConfigStore store, PlacementController placements, SurfaceHost surfaces, Localizer text)
+    private readonly ArrangeController _arrange;
+
+    public TrayController(ConfigStore store, PlacementController placements, ArrangeController arrange, SurfaceHost surfaces, Localizer text)
     {
         _store = store;
         _placements = placements;
+        _arrange = arrange;
         _surfaces = surfaces;
         _text = text;
 
@@ -69,8 +72,8 @@ public sealed class TrayController : IDisposable
         [
             // Adding apps (M5), arranging (M4), settings (M7), the manual (M9) and updates (M10) arrive later.
             new MenuCommand(_text["Tray_AddFromPc"], () => { }, IsEnabled: false),
-            new MenuCommand(_text["Tray_Arrange"], () => { }, IsEnabled: false),
-            new MenuCommand(_text["Tray_Tidy"], _placements.Tidy),
+            new MenuCommand(_text["Tray_Arrange"], _arrange.Enter, IsEnabled: !_arrange.IsArranging),
+            new MenuCommand(_text["Tray_Tidy"], _arrange.IsArranging ? _arrange.Tidy : _placements.Tidy),
             MenuSeparator.Instance,
             new MenuCommand(_placements.IsHidden ? _text["Tray_Show"] : _text["Tray_Hide"], _placements.ToggleHidden),
             MenuSeparator.Instance,

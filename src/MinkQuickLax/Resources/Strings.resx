@@ -12,6 +12,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Arrange_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Arrange_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+    <comment>Edit toolbar: undo everything done since edit mode started.</comment>
+  </data>
+  <data name="Arrange_Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="Arrange_Tidy" xml:space="preserve">
+    <value>Tidy up</value>
+  </data>
+  <data name="Arrange_Title" xml:space="preserve">
+    <value>Arranging icons</value>
+  </data>
+  <data name="Readout_Position" xml:space="preserve">
+    <value>{0}, {1}</value>
+    <comment>Coordinates shown while dragging: x, y in pixels from the top-left of the work area.</comment>
+  </data>
   <data name="Common_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>

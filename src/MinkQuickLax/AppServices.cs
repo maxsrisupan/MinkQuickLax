@@ -40,6 +40,7 @@ public static class AppServices
         builder.Services.AddSingleton<IconCache>();
         builder.Services.AddSingleton<SurfaceHost>();
         builder.Services.AddSingleton<PlacementController>();
+        builder.Services.AddSingleton<ArrangeController>();
         builder.Services.AddSingleton<LinkActions>();
         builder.Services.AddSingleton<TrayController>();
         builder.Services.AddSingleton<AppShell>();
@@ -48,7 +49,8 @@ public static class AppServices
 
     public static Serilog.ILogger CreateLogger() =>
         new LoggerConfiguration()
-            .MinimumLevel.Information()
+            // MINKQUICKLAX_DEBUG=1 turns on detailed logs for troubleshooting.
+            .MinimumLevel.Is(Environment.GetEnvironmentVariable("MINKQUICKLAX_DEBUG") == "1" ? Serilog.Events.LogEventLevel.Debug : Serilog.Events.LogEventLevel.Information)
             .WriteTo.File(
                 Path.Combine(LogDirectory, "log-.txt"),
                 rollingInterval: RollingInterval.Day,

@@ -13,7 +13,8 @@ namespace MinkQuickLax.Surfaces;
 
 /// <summary>
 /// One floating icon (SPEC 4.2, 5.3). A layered, software-rendered, topmost tool window that never takes
-/// focus; transparent margins let clicks pass through.
+/// focus; transparent margins let clicks pass through. Mouse input is reported to a controller, which
+/// decides between launching, selecting and dragging.
 /// </summary>
 public sealed class IconWindow : Window
 {
@@ -21,15 +22,19 @@ public sealed class IconWindow : Window
     private readonly Image _image;
     private readonly Border _ripple;
     private readonly ScaleTransform _rippleScale = new(1, 1);
+    private readonly Border _selection;
     private readonly Border _missingBadge;
     private readonly Grid _badgeHost;
     private readonly TextBlock _label;
     private readonly ScaleTransform _scale = new(1, 1);
+    private readonly ScaleTransform _lift = new(1, 1);
+    private readonly RotateTransform _jiggle = new();
     private readonly TranslateTransform _hop = new();
     private readonly DropShadowEffect _shadow = new() { Direction = 270 };
     private double _iconSize = 48;
-    private bool _pressed;
+    private bool _showLabel;
     private double _proximityOpacity = 1;
+    private double _restShadowOpacity;
 
     public IconWindow(string placementId)
     {
@@ -48,6 +53,8 @@ public sealed class IconWindow : Window
         _image = new Image { Stretch = Stretch.Uniform };
         RenderOptions.SetBitmapScalingMode(_image, BitmapScalingMode.HighQuality);
         _ripple = new Border { BorderBrush = Brushes.White, BorderThickness = new Thickness(2), Opacity = 0, RenderTransform = _rippleScale, RenderTransformOrigin = new Point(0.5, 0.5), IsHitTestVisible = false };
+        _selection = new Border { BorderThickness = new Thickness(2), Margin = new Thickness(-5), Visibility = Visibility.Collapsed, IsHitTestVisible = false };
+        _selection.SetResourceReference(Border.BorderBrushProperty, "Accent");
         _missingBadge = new Border
         {
             Width = 18,
@@ -68,9 +75,9 @@ public sealed class IconWindow : Window
             HorizontalAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, IconDesign.WindowMargin, 0, 0),
             RenderTransformOrigin = new Point(0.5, 0.5),
-            RenderTransform = new TransformGroup { Children = { _scale, _hop } },
+            RenderTransform = new TransformGroup { Children = { _scale, _lift, _jiggle, _hop } },
             Background = Brushes.Transparent,
-            Children = { _image, _ripple },
+            Children = { _image, _ripple, _selection },
         };
         var shadowHost = new Grid { Effect = _shadow, Children = { _iconHost } };
 
@@ -88,25 +95,7 @@ public sealed class IconWindow : Window
         };
         _label.SetResourceReference(TextBlock.FontFamilyProperty, "Font.Ui");
 
-        _badgeHost = BadgeHost();
-        Content = new Grid { Children = { shadowHost, _badgeHost, _label } };
-        TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
-
-        _iconHost.MouseLeftButtonDown += OnLeftDown;
-        _iconHost.MouseLeftButtonUp += OnLeftUp;
-        _iconHost.MouseRightButtonUp += (_, e) =>
-        {
-            e.Handled = true;
-            MenuRequested?.Invoke(this);
-        };
-        _iconHost.MouseEnter += (_, _) => HoverChanged?.Invoke(this, true);
-        _iconHost.MouseLeave += (_, _) =>
-        {
-            _pressed = false;
-            HoverChanged?.Invoke(this, false);
-        };
-
-        Grid BadgeHost() => new()
+        _badgeHost = new Grid
         {
             VerticalAlignment = VerticalAlignment.Top,
             HorizontalAlignment = HorizontalAlignment.Center,
@@ -114,10 +103,38 @@ public sealed class IconWindow : Window
             Children = { _missingBadge },
             IsHitTestVisible = false,
         };
+        Content = new Grid { Children = { shadowHost, _badgeHost, _label } };
+        TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
+
+        _iconHost.MouseLeftButtonDown += (_, e) =>
+        {
+            e.Handled = true;
+            Pressed?.Invoke(this, e.ClickCount);
+        };
+        _iconHost.MouseMove += (_, _) => PointerMoved?.Invoke(this);
+        _iconHost.MouseLeftButtonUp += (_, e) =>
+        {
+            e.Handled = true;
+            Released?.Invoke(this);
+        };
+        _iconHost.LostMouseCapture += (_, _) => CaptureLost?.Invoke(this);
+        _iconHost.MouseRightButtonUp += (_, e) =>
+        {
+            e.Handled = true;
+            MenuRequested?.Invoke(this);
+        };
+        _iconHost.MouseEnter += (_, _) => HoverChanged?.Invoke(this, true);
+        _iconHost.MouseLeave += (_, _) => HoverChanged?.Invoke(this, false);
     }
 
-    /// <summary>The icon was clicked (single or double, depending on <see cref="LaunchOnDoubleClick"/>).</summary>
-    public event Action<IconWindow>? LaunchRequested;
+    /// <summary>Left button went down on the icon; the argument is the click count (2 for a double click).</summary>
+    public event Action<IconWindow, int>? Pressed;
+
+    public event Action<IconWindow>? PointerMoved;
+
+    public event Action<IconWindow>? Released;
+
+    public event Action<IconWindow>? CaptureLost;
 
     public event Action<IconWindow>? MenuRequested;
 
@@ -126,8 +143,6 @@ public sealed class IconWindow : Window
     public string PlacementId { get; }
 
     public nint Handle { get; private set; }
-
-    public bool LaunchOnDoubleClick { get; set; }
 
     public bool IsTargetMissing { get; private set; }
 
@@ -143,27 +158,34 @@ public sealed class IconWindow : Window
     /// <summary>Where the icon itself is, in physical pixels (the window minus its margins and label).</summary>
     public PixelRect IconRect { get; private set; }
 
+    /// <summary>The square icon area plus its margins: what snapping and collisions use.</summary>
+    public PixelRect SquareRect { get; private set; }
+
     public void SetImage(ImageSource image) => _image.Source = image;
 
     public void SetAppearance(double iconSizeDip, bool showLabel, string label, bool darkTileShadow)
     {
         _iconSize = iconSizeDip;
+        _showLabel = showLabel;
         _iconHost.Width = iconSizeDip;
         _iconHost.Height = iconSizeDip;
         _badgeHost.Width = iconSizeDip;
         _badgeHost.Height = iconSizeDip;
-        _ripple.CornerRadius = new CornerRadius(iconSizeDip * IconDesign.CornerRatio);
+        var corner = iconSizeDip * IconDesign.CornerRatio;
+        _ripple.CornerRadius = new CornerRadius(corner);
+        _selection.CornerRadius = new CornerRadius(corner + 4);
 
         // SPEC 5.1 TileShadow: light y 6 blur 14 45%; dark y 8 blur 18 70%.
         _shadow.ShadowDepth = darkTileShadow ? 8 : 6;
         _shadow.BlurRadius = darkTileShadow ? 18 : 14;
-        _shadow.Opacity = darkTileShadow ? 0.7 : 0.45;
+        _restShadowOpacity = darkTileShadow ? 0.7 : 0.45;
+        _shadow.Opacity = _restShadowOpacity;
         _shadow.Color = darkTileShadow ? Colors.Black : Color.FromRgb(0x08, 0x1E, 0x1E);
 
         _label.Text = label;
-        _label.Visibility = showLabel ? Visibility.Visible : Visibility.Collapsed;
         _label.Width = iconSizeDip + IconDesign.LabelExtraWidth;
         _label.Margin = new Thickness(0, IconDesign.WindowMargin + iconSizeDip + IconDesign.LabelGap, 0, 0);
+        _label.Visibility = showLabel ? Visibility.Visible : Visibility.Collapsed;
 
         Width = iconSizeDip + 2 * IconDesign.WindowMargin;
         Height = WindowHeightDip(iconSizeDip, showLabel);
@@ -182,10 +204,10 @@ public sealed class IconWindow : Window
     }
 
     /// <summary>Places the window so the square icon area is <paramref name="squareRect"/> (physical pixels).</summary>
-    public void MoveTo(PixelRect squareRect, int monitorDpi, bool showLabel)
+    public void MoveTo(PixelRect squareRect, int monitorDpi)
     {
         var scale = monitorDpi / 96.0;
-        var height = (int)Math.Round(WindowHeightDip(_iconSize, showLabel) * scale);
+        var height = (int)Math.Round(WindowHeightDip(_iconSize, _showLabel) * scale);
         var rect = new PixelRect(squareRect.Left, squareRect.Top, squareRect.Right, squareRect.Top + height);
         WindowStyles.SetBounds(Handle, rect);
         if (WindowStyles.GetDpi(Handle) != monitorDpi)
@@ -195,8 +217,13 @@ public sealed class IconWindow : Window
         }
         var margin = (int)Math.Round(IconDesign.WindowMargin * scale);
         var icon = (int)Math.Round(_iconSize * scale);
+        SquareRect = squareRect;
         IconRect = new PixelRect(rect.Left + margin, rect.Top + margin, rect.Left + margin + icon, rect.Top + margin + icon);
     }
+
+    public bool BeginCapture() => _iconHost.CaptureMouse();
+
+    public void EndCapture() => _iconHost.ReleaseMouseCapture();
 
     public void SetProximity(double opacity, double scale)
     {
@@ -204,6 +231,40 @@ public sealed class IconWindow : Window
         _scale.ScaleX = scale;
         _scale.ScaleY = scale;
         ApplyOpacity();
+    }
+
+    /// <summary>Edit mode: tilt back and forth, each icon starting at a different point (SPEC 5.4). Labels hide.</summary>
+    public void SetArranging(bool arranging, double phase, bool reduceMotion)
+    {
+        _label.Visibility = !arranging && _showLabel ? Visibility.Visible : Visibility.Collapsed;
+        if (!arranging || reduceMotion)
+        {
+            _jiggle.BeginAnimation(RotateTransform.AngleProperty, null);
+            _jiggle.Angle = 0;
+            return;
+        }
+        var wobble = new DoubleAnimation(-Motion.JiggleAngle, Motion.JiggleAngle, Motion.Jiggle)
+        {
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut },
+        };
+        var clock = wobble.CreateClock();
+        clock.Controller!.SeekAlignedToLastTick(TimeSpan.FromMilliseconds(Motion.Jiggle.TotalMilliseconds * 2 * phase), TimeSeekOrigin.BeginTime);
+        _jiggle.ApplyAnimationClock(RotateTransform.AngleProperty, clock);
+    }
+
+    public void SetSelected(bool selected) =>
+        _selection.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
+
+    /// <summary>While dragging: 1.12× and a deeper shadow (SPEC 5.4).</summary>
+    public void SetLifted(bool lifted)
+    {
+        var scale = lifted ? Motion.DragScale : 1;
+        _lift.ScaleX = scale;
+        _lift.ScaleY = scale;
+        _shadow.Opacity = lifted ? Math.Min(1, _restShadowOpacity + 0.2) : _restShadowOpacity;
+        _jiggle.Angle = 0;
     }
 
     public void PlayLaunch(bool reduceMotion)
@@ -226,7 +287,7 @@ public sealed class IconWindow : Window
         _ripple.BeginAnimation(OpacityProperty, new DoubleAnimation(0.9, 0, Motion.LaunchRipple) { EasingFunction = Motion.Out });
     }
 
-    /// <summary>Fades and shrinks to 80% (hide) or back (show) after <paramref name="delay"/> (SPEC 4.5, 5.4).</summary>
+    /// <summary>Fades out (hide) or in (show) after <paramref name="delay"/> (SPEC 4.5, 5.4).</summary>
     public void AnimateVisibility(bool visible, TimeSpan delay, bool reduceMotion)
     {
         if (visible && !IsVisible)
@@ -236,6 +297,7 @@ public sealed class IconWindow : Window
         }
         if (reduceMotion)
         {
+            BeginAnimation(OpacityProperty, null);
             Opacity = visible ? 1 : 0;
             if (!visible)
             {
@@ -271,25 +333,4 @@ public sealed class IconWindow : Window
 
     private void ApplyOpacity() =>
         _iconHost.Opacity = _proximityOpacity * (IsTargetMissing ? IconDesign.MissingOpacity : 1);
-
-    private void OnLeftDown(object sender, MouseButtonEventArgs e)
-    {
-        e.Handled = true;
-        _pressed = true;
-        if (LaunchOnDoubleClick && e.ClickCount == 2)
-        {
-            _pressed = false;
-            LaunchRequested?.Invoke(this);
-        }
-    }
-
-    private void OnLeftUp(object sender, MouseButtonEventArgs e)
-    {
-        e.Handled = true;
-        if (_pressed && !LaunchOnDoubleClick)
-        {
-            LaunchRequested?.Invoke(this);
-        }
-        _pressed = false;
-    }
 }

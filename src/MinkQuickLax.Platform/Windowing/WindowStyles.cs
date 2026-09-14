@@ -43,6 +43,11 @@ public static class WindowStyles
         PInvoke.SetWindowPos((HWND)hwnd, HWND.Null, rect.Left, rect.Top, rect.Width, rect.Height,
             SET_WINDOW_POS_FLAGS.SWP_NOZORDER | SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE | SET_WINDOW_POS_FLAGS.SWP_NOOWNERZORDER);
 
+    /// <summary>Moves in physical pixels, keeping the size.</summary>
+    public static void SetPosition(nint hwnd, int x, int y) =>
+        PInvoke.SetWindowPos((HWND)hwnd, HWND.Null, x, y, 0, 0,
+            SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOZORDER | SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE | SET_WINDOW_POS_FLAGS.SWP_NOOWNERZORDER);
+
     public static void BringToTopmost(nint hwnd) =>
         PInvoke.SetWindowPos((HWND)hwnd, new HWND(-1) /* HWND_TOPMOST */, 0, 0, 0, 0,
             SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE | SET_WINDOW_POS_FLAGS.SWP_NOOWNERZORDER);

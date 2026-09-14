@@ -91,6 +91,18 @@ public sealed class ConfigSerializerTests
     }
 
     [Fact]
+    public void ThaiAndSymbols_StayReadableInTheFile()
+    {
+        var config = AppConfig.CreateDefault() with { Links = [new Link { Id = "a", Name = "ที่ทำงาน & บ้าน", Kind = LinkKind.Folder, Target = @"D:\งาน" }] };
+
+        var json = ConfigSerializer.Serialize(config);
+
+        Assert.Contains("\"name\": \"ที่ทำงาน & บ้าน\"", json, StringComparison.Ordinal);
+        Assert.Contains("\"quickSearch\": \"Win+Alt+Q\"", json, StringComparison.Ordinal);
+        Assert.Equal("ที่ทำงาน & บ้าน", ConfigSerializer.Deserialize(json).Config.Links[0].Name);
+    }
+
+    [Fact]
     public void UnknownFields_ArePreservedAtEveryLevel()
     {
         const string Json = """

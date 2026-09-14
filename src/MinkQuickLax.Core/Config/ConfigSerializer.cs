@@ -32,8 +32,14 @@ public static class ConfigSerializer
         AllowTrailingCommas = true,
     };
 
+    // Keep Thai names and symbols readable in the file; it is never embedded in HTML.
+    private static readonly ConfigJsonContext Writer = new(new JsonSerializerOptions(ConfigJsonContext.Default.Options)
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+    });
+
     public static string Serialize(AppConfig config) =>
-        JsonSerializer.Serialize(config, ConfigJsonContext.Default.AppConfig);
+        JsonSerializer.Serialize(config, Writer.AppConfig);
 
     /// <exception cref="ConfigFormatException">The text is not a JSON object that maps to a config.</exception>
     public static DeserializedConfig Deserialize(string json)

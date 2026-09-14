@@ -24,6 +24,8 @@ public sealed partial class PlacementController : IDisposable
     private readonly ThemeService _theme;
     private readonly SurfaceHost _surfaces;
     private readonly ProximityAnimator _animator;
+    private readonly WindowMover _mover = new();
+    private bool _slideNextMoves;
     private readonly ILogger<PlacementController> _logger;
     private readonly Dictionary<string, IconWindow> _windows = new(StringComparer.Ordinal);
     private readonly DispatcherTimer _displayDebounce;
@@ -82,7 +84,36 @@ public sealed partial class PlacementController : IDisposable
         Sync(_store.Current);
     }
 
+    /// <summary>A window was created for a placement (the arrange controller hooks its mouse input).</summary>
+    public event Action<IconWindow>? WindowCreated;
+
+    public event Action<IconWindow>? WindowRemoved;
+
+    public IReadOnlyCollection<IconWindow> Windows => _windows.Values;
+
+    public IReadOnlyList<MonitorInfo> Monitors => _monitors;
+
+    /// <summary>Edit mode: icons wiggle, labels and tooltips are hidden.</summary>
+    public bool IsArranging { get; private set; }
+
     public IconWindow? WindowFor(string placementId) => _windows.GetValueOrDefault(placementId);
+
+    public void SetArranging(bool arranging)
+    {
+        IsArranging = arranging;
+        _tooltipTimer.Stop();
+        _surfaces.HideTooltip();
+        var i = 0;
+        foreach (var window in OrderedWindows())
+        {
+            // Spread the starting points so the icons do not wiggle in step.
+            window.SetArranging(arranging, (i++ * 0.37) % 1, _theme.Current.ReduceMotion);
+            window.SetSelected(false);
+        }
+    }
+
+    /// <summary>A click that should open the link (decided by the arrange controller).</summary>
+    public void RequestLaunch(IconWindow window) => WithLink(window, (link, _) => LaunchRequested?.Invoke(window, link));
 
     public void ToggleHidden() => SetHidden(!IsHidden);
 
@@ -112,10 +143,18 @@ public sealed partial class PlacementController : IDisposable
         var area = PositionMapper.PlacementArea(primary, config.Settings.AllowOverTaskbar);
         var cell = PositionMapper.WindowSize(config.Settings.IconSize, primary);
         var slots = TidyLayout.Slots(config.Placements.Count, cell, area, primary.ToPixels(config.Settings.GridSize));
-        _store.Update(c => c with
+        _slideNextMoves = !_theme.Current.ReduceMotion;
+        try
         {
-            Placements = [.. c.Placements.Select((p, index) => PositionMapper.WithCenter(p, slots[index], primary, c.Settings.AllowOverTaskbar))],
-        });
+            _store.Update(c => c with
+            {
+                Placements = [.. c.Placements.Select((p, index) => PositionMapper.WithCenter(p, slots[index], primary, c.Settings.AllowOverTaskbar))],
+            });
+        }
+        finally
+        {
+            _slideNextMoves = false;
+        }
     }
 
     /// <summary>A free spot next to an existing placement, for "place another copy".</summary>
@@ -125,7 +164,7 @@ public sealed partial class PlacementController : IDisposable
         var position = PositionMapper.ToScreen(original, settings.IconSize, _monitors, settings.AllowOverTaskbar);
         var monitor = position.Monitor;
         var area = PositionMapper.PlacementArea(monitor, settings.AllowOverTaskbar);
-        var occupied = _windows.Values.Select(w => SquareRect(w)).ToList();
+        var occupied = _windows.Values.Select(w => w.SquareRect).ToList();
         var desired = position.Center.Offset(position.Rect.Width, 0);
         var center = CollisionResolver.FindFreeCenter(desired, position.Rect.Size, occupied, area, monitor.ToPixels(settings.GridSize));
         return PositionMapper.WithCenter(new Placement { Type = PlacementType.Link, RefId = original.RefId }, center, monitor, settings.AllowOverTaskbar);
@@ -180,6 +219,7 @@ public sealed partial class PlacementController : IDisposable
                 _hovered = null;
                 _surfaces.HideTooltip();
             }
+            WindowRemoved?.Invoke(window);
             window.Close();
         }
 
@@ -197,7 +237,10 @@ public sealed partial class PlacementController : IDisposable
             if (isNew || linkChanged || settingsChanged)
             {
                 window!.SetAppearance(settings.IconSize, settings.ShowLabels, link.Name, _theme.Current.Dark);
-                window.LaunchOnDoubleClick = settings.LaunchOn == LaunchTrigger.DoubleClick;
+                if (IsArranging)
+                {
+                    window.SetArranging(true, 0, _theme.Current.ReduceMotion);
+                }
             }
             if (isNew || linkChanged)
             {
@@ -230,9 +273,9 @@ public sealed partial class PlacementController : IDisposable
         _windows[placementId] = window;
         // Creates the HWND so styles are applied before the first Show.
         new System.Windows.Interop.WindowInteropHelper(window).EnsureHandle();
-        window.LaunchRequested += w => WithLink(w, (link, _) => LaunchRequested?.Invoke(w, link));
         window.MenuRequested += w => WithLink(w, (link, placement) => MenuRequested?.Invoke(w, link, placement));
         window.HoverChanged += OnHoverChanged;
+        WindowCreated?.Invoke(window);
         return window;
     }
 
@@ -254,7 +297,15 @@ public sealed partial class PlacementController : IDisposable
             return;
         }
         var position = PositionMapper.ToScreen(placement, settings.IconSize, _monitors, settings.AllowOverTaskbar);
-        window.MoveTo(position.Rect, position.Monitor.Dpi, settings.ShowLabels);
+        if (_slideNextMoves && window.IsVisible && window.SquareRect.Width == position.Rect.Width)
+        {
+            _mover.Animate(window, position.Rect, position.Monitor.Dpi, Styles.Glass.Motion.Tidy);
+        }
+        else
+        {
+            _mover.Cancel(window);
+            window.MoveTo(position.Rect, position.Monitor.Dpi);
+        }
         if (position.IsFallback)
         {
             LogFallback(_logger, placement.Id, placement.Monitor);
@@ -305,7 +356,7 @@ public sealed partial class PlacementController : IDisposable
         {
             _hovered = window;
             var settings = _store.Current.Settings;
-            if (settings.ShowLabels)
+            if (settings.ShowLabels || IsArranging)
             {
                 return;
             }
@@ -336,13 +387,6 @@ public sealed partial class PlacementController : IDisposable
 
     private IEnumerable<IconWindow> OrderedWindows() =>
         _store.Current.Placements.Select(p => _windows.GetValueOrDefault(p.Id)).OfType<IconWindow>();
-
-    private static PixelRect SquareRect(IconWindow window)
-    {
-        var icon = window.IconRect;
-        var margin = (int)Math.Round(Styles.Glass.IconDesign.WindowMargin * icon.Width / Math.Max(window.Width - 2 * Styles.Glass.IconDesign.WindowMargin, 1));
-        return new PixelRect(icon.Left - margin, icon.Top - margin, icon.Right + margin, icon.Bottom + margin);
-    }
 
     private void LogMonitors()
     {

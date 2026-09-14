@@ -70,6 +70,15 @@ public static class Motion
     public static readonly TimeSpan HideShow = TimeSpan.FromMilliseconds(280);
     public static readonly TimeSpan HideShowStagger = TimeSpan.FromMilliseconds(14);
     public const double HiddenScale = 0.8;
+    public static readonly TimeSpan Jiggle = TimeSpan.FromMilliseconds(260);
+    public const double JiggleAngle = 1.6;
+    public const double DragScale = 1.12;
+    public static readonly TimeSpan ToolbarIn = TimeSpan.FromMilliseconds(450);
+    public const double ToolbarTopGap = 14;
+    public const double AlignThreshold = 8;
+    public const double ReadoutOffset = 18;
+    public const double GuideDash = 6;
+    public const double GuideGap = 5;
     public static readonly TimeSpan Tidy = TimeSpan.FromMilliseconds(550);
     public static readonly TimeSpan AddPop = TimeSpan.FromMilliseconds(600);
     public static readonly TimeSpan AddPopStagger = TimeSpan.FromMilliseconds(90);

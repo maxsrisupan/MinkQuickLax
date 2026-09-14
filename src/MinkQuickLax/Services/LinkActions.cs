@@ -18,10 +18,13 @@ public sealed partial class LinkActions
     private readonly Localizer _text;
     private readonly ILogger<LinkActions> _logger;
 
-    public LinkActions(ConfigStore store, PlacementController placements, SurfaceHost surfaces, ThemeService theme, Localizer text, ILogger<LinkActions> logger)
+    private readonly ArrangeController _arrange;
+
+    public LinkActions(ConfigStore store, PlacementController placements, ArrangeController arrange, SurfaceHost surfaces, ThemeService theme, Localizer text, ILogger<LinkActions> logger)
     {
         _store = store;
         _placements = placements;
+        _arrange = arrange;
         _surfaces = surfaces;
         _theme = theme;
         _text = text;
@@ -75,10 +78,10 @@ public sealed partial class LinkActions
         }
         entries.Add(MenuSeparator.Instance);
         entries.Add(new MenuCommand(_text["Menu_PlaceAgain"], () => _store.Update(c => c.AddPlacement(_placements.PlacementNextTo(placement)))));
-        // Groups (M6), the link editor (M7) and arrange mode (M4) are wired up in later milestones.
+        // Groups (M6) and the link editor (M7) are wired up in later milestones.
         entries.Add(new MenuCommand(_text["Menu_AddToGroup"], () => { }, IsEnabled: false));
         entries.Add(new MenuCommand(_text["Menu_Edit"], () => { }, IsEnabled: false));
-        entries.Add(new MenuCommand(_text["Menu_Arrange"], () => { }, IsEnabled: false));
+        entries.Add(new MenuCommand(_text["Menu_Arrange"], _arrange.Enter, IsEnabled: !_arrange.IsArranging));
         entries.Add(MenuSeparator.Instance);
         entries.Add(new MenuCommand(_text["Menu_RemoveFromScreen"], () => _store.Update(c => c.RemovePlacement(placement.Id))));
         entries.Add(new MenuCommand(_text["Menu_DeleteLink"], () => ConfirmDelete(window, link), IsDanger: true));
