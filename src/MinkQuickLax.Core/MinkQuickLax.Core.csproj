@@ -6,6 +6,10 @@
   -->
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="MinkQuickLax.Core.Tests" />
   </ItemGroup>
 

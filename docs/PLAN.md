@@ -1,6 +1,6 @@
 # MinkQuickLax — แผนลงมือ (Plan)
 
-> **ความคืบหน้า:** M0, M1 เสร็จ · งานถัดไปคือ **M2 Core** (หัวข้อ 6)
+> **ความคืบหน้า:** M0, M1, M2 เสร็จ · งานถัดไปคือ **M3 ไอคอนบนจอและ tray** (หัวข้อ 6)
 > อัปเดตล่าสุด: 2026-09-15
 > **ข้อกำหนดอยู่ที่ [SPEC.md](SPEC.md)** เอกสารนี้บอกแค่ว่าทำอย่างไรและทำอะไรก่อน
 
@@ -63,7 +63,7 @@ MinkQuickLax/
 │  │  ├─ Config/                  ConfigStore, ConfigMigrator, BackupManager
 │  │  ├─ Layout/                  SnapEngine, CollisionResolver, PositionMapper, TidyLayout
 │  │  ├─ Launch/                  LinkKindDetector, LaunchRequest
-│  │  └─ Abstractions/            IMonitorProvider, IRegistry, IClock, IFileSystem
+│  │  └─ Abstractions/            IMonitorProvider, IRegistry (M7) · เวลาใช้ `TimeProvider` ของ .NET
 │  ├─ MinkQuickLax.Platform/      net10.0-windows · Win32 ทั้งหมดอยู่ที่นี่
 │  │  ├─ NativeMethods.txt        รายชื่อ API ให้ CsWin32 สร้าง
 │  │  ├─ Windowing/               WindowStyles, TopmostKeeper, DwmBackdrop
@@ -229,6 +229,7 @@ MinkQuickLax/
       "type": "link",                             // link | group (กลุ่มหนึ่งวางได้ 1 ที่)
       "refId": "0b9f3c1e8a2d4f6b9c7e5a3d1f2b4c6e",
       "monitor": "\\\\?\\DISPLAY#DELA1B2#…",       // monitorDevicePath
+      "monitorEdid": "DEL-A1B2-7XK3",             // EDID ผู้ผลิต-รุ่น-serial ใช้หาจอเมื่อสลับพอร์ต (ไม่มีก็ได้)
       "x": 0.92,                                  // จุดกลางไอคอน เป็นสัดส่วนของพื้นที่ทำงาน
       "y": 0.08
     }
@@ -261,7 +262,7 @@ MinkQuickLax/
 ```
 
 - **"เปิดพร้อม Windows" ไม่อยู่ในไฟล์:** อ่านจาก registry ทุกครั้ง
-- **อ่านไฟล์:** field ที่ไม่รู้จักให้เก็บไว้ ไม่ทิ้ง · ค่าที่ขาดใช้ค่าเริ่มต้น
+- **อ่านไฟล์:** field ที่ไม่รู้จักให้เก็บไว้ ไม่ทิ้ง · ค่าที่ขาดใช้ค่าเริ่มต้น · ค่า enum ที่อ่านไม่ออกใช้ค่าแรกของ enum (`kind` ที่ไม่รู้จักเป็น `unknown`) แทนการถือว่าไฟล์เสีย
 - **ตรวจความถูกต้องตอนโหลด**
   - `refId` ต้องมีจริง
   - `linkIds` ในกลุ่มต้องไม่ซ้ำ
@@ -318,13 +319,14 @@ MinkQuickLax/
 - **ผล (2026-09-15):** ผ่านทั้ง 9 ข้อเท่าที่ทดสอบได้บนเครื่องจอเดียว ไม่มีข้อไหนต้องเปลี่ยนสถาปัตยกรรมหลัก · รายละเอียดและส่วนที่ต้องทดสอบด้วยมืออยู่ในหัวข้อ 11
 
 ### M2 · Core: ข้อมูลและการคำนวณตำแหน่ง
-- [ ] Model + JSON source generation ตามหัวข้อ 4.2
-- [ ] `ConfigStore`: เขียนไฟล์ชั่วคราวแล้วแทนที่, หน่วงบันทึก, สำรอง 10 ชุด, กู้จากไฟล์สำรอง, ตรวจและซ่อมข้อมูล
-- [ ] `ConfigMigrator` (มีขั้น 0→1 ไว้เป็นตัวอย่าง)
-- [ ] `PositionMapper`: สัดส่วน ↔ pixel, จอหายแล้วใช้จอหลัก, ดึงกลับเข้าจอ, ไม่ทับ taskbar
-- [ ] `SnapEngine`, `CollisionResolver`, `TidyLayout`
-- [ ] `LinkKindDetector`: path/URL → `kind`
+- [x] Model + JSON source generation ตามหัวข้อ 4.2 · มี `ConfigEdits` (แก้ข้อมูลโดยให้ link, กลุ่ม, ของบนจอสอดคล้องกัน) เพิ่ม
+- [x] `ConfigStore`: เขียนไฟล์ชั่วคราวแล้วแทนที่, หน่วงบันทึก, สำรอง 10 ชุด, กู้จากไฟล์สำรอง, ตรวจและซ่อมข้อมูล
+- [x] `ConfigMigrator` (มีขั้น 0→1 ไว้เป็นตัวอย่าง)
+- [x] `PositionMapper`: สัดส่วน ↔ pixel, จอหายแล้วใช้จอหลัก, ดึงกลับเข้าจอ, ไม่ทับ taskbar
+- [x] `SnapEngine`, `CollisionResolver`, `TidyLayout`
+- [x] `LinkKindDetector`: path/URL → `kind`
 - **ตรวจ:** unit test ครอบคลุมทุกข้อข้างบน รวมกรณีไฟล์เสีย จอหาย DPI 100/150/200%
+- **ผลตรวจ (2026-09-15):** test ของ Core 115 ตัว (รวมทั้งหมด 120) ผ่าน · build 0 warning
 
 ### M3 · ไอคอนบนจอและ tray
 - [ ] Glass ResourceDictionary: สี ธีมสว่าง/มืด, brush, ค่าเวลา (SPEC 5.1–5.4) · สลับธีมตาม Windows ทันที
@@ -511,3 +513,7 @@ MinkQuickLax/
 | 2026-09-15 | การวาดหน้าต่างไอคอน | layered + วาดด้วย CPU รายหน้าต่าง · การเข้าใกล้ไล่ค่าเองที่ 30Hz | RAM 38MB แทน 80MB · CPU ตอนขยับเมาส์ 1.59% แทน 2.25% (S1, S3) |
 | 2026-09-15 | id ของจอ | `monitorDevicePath` → EDID (ผู้ผลิต+รุ่น+serial) → จอหลัก | ทดสอบรีบูต/ถอดเสียบไม่ได้บนเครื่องจอเดียว · path มีเลขพอร์ตอยู่ด้วย จึงต้องมี EDID เป็นตัวสำรองตอนสลับพอร์ต (S9) |
 | 2026-09-15 | ผลลัพธ์ spike | ไม่ commit `spikes/results/` | มีภาพหน้าจอและรายชื่อโปรแกรมในเครื่องผู้ใช้ ซึ่งไม่ควรอยู่ใน repo สาธารณะ · ตัวเลขสรุปอยู่ในหัวข้อ 11 |
+| 2026-09-15 | model เป็น record ที่มี setter | ใช้แบบ immutable ด้วย `with` แต่ property เป็น `set` | source generator ของ System.Text.Json เขียนทับค่าเริ่มต้นด้วย null/0 เมื่อ property แบบ `init` ไม่มีในไฟล์ (test จับได้) · `[JsonExtensionData]` ใช้กับ `init` ไม่ได้ |
+| 2026-09-15 | เวลาและไฟล์ใน Core | ใช้ `TimeProvider` ของ .NET แทน `IClock` · ไม่ทำ `IFileSystem` แต่ test กับโฟลเดอร์ชั่วคราวจริง | `TimeProvider` + `FakeTimeProvider` ทดสอบการหน่วงบันทึกได้ตรง · การแทนที่ไฟล์แบบ atomic ควรทดสอบกับระบบไฟล์จริง |
+| 2026-09-15 | เวลาที่สำรองค่าตั้ง | ตอนโหลดถ้าไฟล์ต่างจากชุดสำรองล่าสุด · ตอนบันทึกถ้าชุดล่าสุดเก่ากว่า 1 วัน · ก่อนกู้คืนและก่อนคืนค่าทั้งหมด · กด "สำรองตอนนี้" | สำรองทุกครั้งที่บันทึกจะทำให้ 10 ชุดหมดในการลากไม่กี่ครั้ง · ไฟล์ที่อ่านไม่ได้ย้ายไปเป็น `config.unreadable-*.json` ไม่ลบทิ้ง |
+| 2026-09-15 | การชิดแนว | จับคู่กลาง↔กลาง, ขอบเดียวกัน, และขอบชนขอบ ไม่จับกลาง↔ขอบ · ระยะชนกันวัดจากขนาดหน้าต่าง (ไอคอน + 12px รอบ) | กลาง↔ขอบทำให้ดูดแรงเกินไป · วัดจากหน้าต่างทำให้ไอคอนห่างกันอย่างน้อย 24px และไม่ทับกันตอนขยาย |
