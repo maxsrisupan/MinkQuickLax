@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Pure logic: data model, config, layout math.
+    Must not reference WPF or Win32; platform access goes through Abstractions/.
+  -->
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="MinkQuickLax.Core.Tests" />
+  </ItemGroup>
+
+</Project>

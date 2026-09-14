@@ -1,0 +1,29 @@
+<Project>
+
+  <!-- Shared build settings for every project in the repo. -->
+  <PropertyGroup>
+    <!-- Default target; Windows-only projects override with net10.0-windows. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <!-- Only ship satellite assemblies for the languages the app supports. -->
+    <SatelliteResourceLanguages>en;th</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <Product>MinkQuickLax</Product>
+    <Authors>maxsrisupan</Authors>
+    <Copyright>Copyright (c) 2026 maxsrisupan</Copyright>
+    <RepositoryUrl>https://github.com/maxsrisupan/MinkQuickLax</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+</Project>
