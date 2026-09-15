@@ -55,17 +55,19 @@ try {
     dotnet tool restore
     if ($LASTEXITCODE -ne 0) { throw 'dotnet tool restore failed' }
 
+    # An empty value would vanish from the command line and shift every argument after it.
+    $tokenArgs = if ($env:GITHUB_TOKEN) { @('--token', $env:GITHUB_TOKEN) } else { @() }
     if ($Upload) {
         # The previous release of this channel lets vpk build a small delta package.
-        $download = @('download', 'github', '--repoUrl', $repo, '--channel', $channel, '-o', $outputPath, '--token', $env:GITHUB_TOKEN)
-        if ($prerelease) { $download += @('--pre', 'true') }
-        dotnet vpk @download
+        $downloadArgs = @('download', 'github', '--repoUrl', $repo, '--channel', $channel, '-o', $outputPath) + $tokenArgs
+        if ($prerelease) { $downloadArgs += '--pre' }
+        dotnet vpk @downloadArgs
         if ($LASTEXITCODE -ne 0) { Write-Warning 'No earlier release to download; packing without a delta.' }
     }
 
     $notes = Join-Path $outputPath "release-notes-$Version.md"
     Write-ReleaseNotes -Path $notes
-    $pack = @(
+    $packArgs = @(
         'pack',
         '--packId', 'MinkQuickLax',
         '--packVersion', $Version,
@@ -80,22 +82,24 @@ try {
         '--releaseNotes', $notes,
         '-o', $outputPath
     )
-    Invoke-Vpk $pack
+    Invoke-Vpk $packArgs
 
     if ($Upload) {
-        $upload = @(
+        # Not $upload: PowerShell names are case-insensitive, so that would overwrite the -Upload switch.
+        $uploadArgs = @(
             'upload', 'github',
             '--repoUrl', $repo,
-            '--token', $env:GITHUB_TOKEN,
             '--channel', $channel,
             '--tag', "v$Version",
             '--releaseName', "MinkQuickLax $Version",
-            '--publish', 'true',
-            '--merge', 'true',
+            # Boolean options are bare flags in vpk 1.2 ("--publish true" is rejected).
+            '--publish',
+            '--merge',
             '-o', $outputPath
         )
-        if ($prerelease) { $upload += @('--pre', 'true') }
-        Invoke-Vpk $upload
+        $uploadArgs += $tokenArgs
+        if ($prerelease) { $uploadArgs += '--pre' }
+        Invoke-Vpk $uploadArgs
     }
 }
 finally {
