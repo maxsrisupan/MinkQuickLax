@@ -88,6 +88,7 @@ public sealed partial class AppShell
 
         _placements.Start();
         RegisterStartupOnFirstRun();
+        AdoptInstalledChannel();
         // SPEC 4.12 / PLAN 3.1 step 6: nothing to show yet, so help the user pick apps (not when started at sign-in).
         if (!launchedAtStartup && _store.Current.Links.Count == 0)
         {
@@ -151,6 +152,19 @@ public sealed partial class AppShell
         }
         _startup.Enable(AppInfo.ExePath);
         LogStartupRegistered(_logger, AppInfo.ExePath);
+    }
+
+    /// <summary>
+    /// Someone who installed a beta wants the next beta: on the first run, take the update channel from the installer
+    /// (SPEC 4.11). Later changes in the settings window win.
+    /// </summary>
+    private void AdoptInstalledChannel()
+    {
+        if (LoadResult is not { IsFirstRun: true } || Platform.Update.UpdateService.InstalledChannel is not { } channel || channel == _store.Current.Settings.UpdateChannel)
+        {
+            return;
+        }
+        _store.Update(config => config with { Settings = config.Settings with { UpdateChannel = channel } });
     }
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Registered to start with Windows: {Path}")]

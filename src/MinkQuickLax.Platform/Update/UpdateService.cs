@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using MinkQuickLax.Core.Model;
 using Velopack;
+using Velopack.Locators;
 using Velopack.Sources;
 
 namespace MinkQuickLax.Platform.Update;
@@ -33,6 +34,28 @@ public sealed partial class UpdateService(ILogger<UpdateService> logger) : IDisp
     private VelopackAsset? _ready;
 
     public static string ChannelName(UpdateChannel channel) => channel == UpdateChannel.Beta ? "beta" : "win";
+
+    /// <summary>The channel of the installer this copy came from, or null when it was not installed.</summary>
+    public static UpdateChannel? InstalledChannel
+    {
+        get
+        {
+            try
+            {
+                return VelopackLocator.Current.Channel switch
+                {
+                    null => null,
+                    "beta" => UpdateChannel.Beta,
+                    _ => UpdateChannel.Stable,
+                };
+            }
+            catch (InvalidOperationException)
+            {
+                // VelopackApp.Build().Run() has not run in this process.
+                return null;
+            }
+        }
+    }
 
     /// <summary>The version that is downloaded and waiting, if any.</summary>
     public string? ReadyVersion => _ready?.Version.ToString();
