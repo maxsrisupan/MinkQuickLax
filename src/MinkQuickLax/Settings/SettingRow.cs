@@ -83,14 +83,14 @@ public sealed class StylePreview : FrameworkElement
     public static readonly DependencyProperty StyleKindProperty = DependencyProperty.Register(
         nameof(StyleKind), typeof(Core.Model.StyleSetting), typeof(StylePreview), new FrameworkPropertyMetadata(Core.Model.StyleSetting.Glass, FrameworkPropertyMetadataOptions.AffectsRender));
 
-    public static readonly DependencyProperty InkProperty = DependencyProperty.Register(
-        nameof(Ink), typeof(System.Windows.Media.Brush), typeof(StylePreview), new FrameworkPropertyMetadata(System.Windows.Media.Brushes.White, FrameworkPropertyMetadataOptions.AffectsRender));
+    /// <summary>The dots' color: the choice's text color, so they stay visible when Dot Matrix inverts the selected choice.</summary>
+    public static readonly DependencyProperty InkProperty = System.Windows.Documents.TextElement.ForegroundProperty.AddOwner(
+        typeof(StylePreview), new FrameworkPropertyMetadata(System.Windows.Media.Brushes.White, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsRender));
 
     public StylePreview()
     {
         Width = 20;
         Height = 20;
-        SetResourceReference(InkProperty, "Skin.Ink");
     }
 
     public Core.Model.StyleSetting StyleKind

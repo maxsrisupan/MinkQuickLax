@@ -302,10 +302,10 @@ public sealed partial class ArrangeController : IDisposable
         TrackDropTarget(window, cursor);
 
         var style = _theme.Current.Style;
-        ShowGuide(_verticalGuide, snap.Guides.FirstOrDefault(g => g.Vertical), monitor.Scale, style);
-        ShowGuide(_horizontalGuide, snap.Guides.FirstOrDefault(g => !g.Vertical), monitor.Scale, style);
+        ShowGuide(_verticalGuide, snap.Guides.FirstOrDefault(g => g.Vertical), area, monitor.Scale, style);
+        ShowGuide(_horizontalGuide, snap.Guides.FirstOrDefault(g => !g.Vertical), area, monitor.Scale, style);
         var text = string.Format(CultureInfo.InvariantCulture, _text["Readout_Position"], snap.Center.X - area.Left, snap.Center.Y - area.Top);
-        _readout.ShowAt(text, cursor, monitor.Bounds, monitor.Scale, style);
+        _readout.ShowBeside(text, window.IconRect, area, monitor.Scale, style);
     }
 
     private void TrackDropTarget(IconWindow dragged, PixelPoint cursor)
@@ -424,7 +424,8 @@ public sealed partial class ArrangeController : IDisposable
             .Select(w => w.SquareRect)
             .ToList();
 
-    private static void ShowGuide(GuideWindow window, GuideLine? line, double scale, Core.Model.StyleSetting style)
+    /// <summary>The guide runs across the whole placement area, like the mockup, not just between the two items.</summary>
+    private static void ShowGuide(GuideWindow window, GuideLine? line, PixelRect area, double scale, Core.Model.StyleSetting style)
     {
         if (line is null)
         {
@@ -432,7 +433,7 @@ public sealed partial class ArrangeController : IDisposable
         }
         else
         {
-            window.ShowLine(line, scale, style);
+            window.ShowLine(line.Vertical ? line with { Start = area.Top, End = area.Bottom } : line with { Start = area.Left, End = area.Right }, scale, style);
         }
     }
 

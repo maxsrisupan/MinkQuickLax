@@ -29,8 +29,8 @@
     <value>Arranging icons</value>
   </data>
   <data name="Readout_Position" xml:space="preserve">
-    <value>{0}, {1}</value>
-    <comment>Coordinates shown while dragging: x, y in pixels from the top-left of the work area.</comment>
+    <value>X {0:0000}  Y {1:0000}</value>
+    <comment>Coordinates beside a dragged icon: the icon center in pixels from the top-left of the work area, four digits each.</comment>
   </data>
   <data name="Common_Cancel" xml:space="preserve">
     <value>Cancel</value>

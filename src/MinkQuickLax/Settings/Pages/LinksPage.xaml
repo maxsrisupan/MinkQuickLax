@@ -1,6 +1,7 @@
 <UserControl x:Class="MinkQuickLax.Settings.Pages.LinksPage"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:styles="clr-namespace:MinkQuickLax.Styles"
              xmlns:s="clr-namespace:MinkQuickLax.Services"
              xmlns:settings="clr-namespace:MinkQuickLax.Settings">
   <Grid Margin="28,0,20,20">
@@ -137,7 +138,7 @@
         <TextBlock Style="{StaticResource Settings.Label}" Text="{s:Text Link_Icon}" />
         <!-- Wraps so the longer English labels never push the image button out of view. -->
         <WrapPanel>
-          <Border Style="{StaticResource Skin.SegmentTrack}" Margin="0,0,8,6">
+          <styles:RoundedBorder Style="{StaticResource Skin.SegmentTrack}" Margin="0,0,8,6">
             <StackPanel Orientation="Horizontal">
               <RadioButton Style="{StaticResource Skin.Segment}" GroupName="icon" Content="{s:Text Icon_Auto}"
                            IsChecked="{Binding IconChoice, Converter={x:Static settings:EnumIsConverter.Instance}, ConverterParameter={x:Static settings:IconChoice.Auto}}" />
@@ -146,7 +147,7 @@
               <RadioButton Style="{StaticResource Skin.Segment}" GroupName="icon" Content="{s:Text Icon_Letter}"
                            IsChecked="{Binding IconChoice, Converter={x:Static settings:EnumIsConverter.Instance}, ConverterParameter={x:Static settings:IconChoice.Letter}}" />
             </StackPanel>
-          </Border>
+          </styles:RoundedBorder>
           <Button Style="{StaticResource Skin.OutlineButton}" Margin="0,0,0,6" Content="{s:Text Link_PickIcon}" Command="{Binding PickIconCommand}" />
         </WrapPanel>
         <TextBlock Style="{StaticResource Settings.Hint}" Margin="2,0,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Text="{Binding IconPath}" />

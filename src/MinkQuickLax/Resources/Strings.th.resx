@@ -28,7 +28,7 @@
     <value>กำลังจัดวางไอคอน</value>
   </data>
   <data name="Readout_Position" xml:space="preserve">
-    <value>{0}, {1}</value>
+    <value>X {0:0000}  Y {1:0000}</value>
   </data>
   <data name="Common_Cancel" xml:space="preserve">
     <value>ยกเลิก</value>

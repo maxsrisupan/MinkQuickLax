@@ -60,7 +60,7 @@ public sealed class IconWindow : Window
     private readonly Path _selection;
     private readonly Border _missingBadge;
     private readonly Grid _badgeHost;
-    private readonly Border _labelFrame;
+    private readonly RoundedBorder _labelFrame;
     private readonly TextBlock _label;
     private readonly DropShadowEffect _labelShadow = new() { Direction = 270, ShadowDepth = 1, BlurRadius = 3, Opacity = 0.75, Color = Colors.Black };
 
@@ -73,6 +73,8 @@ public sealed class IconWindow : Window
     private bool _showLabel;
     private string _labelText = "";
     private double _proximityOpacity = 1;
+    private double _proximityScale = 1;
+    private bool _lifted;
     private double _nearness;
     private double _restShadowOpacity;
     private bool _arranging;
@@ -127,7 +129,7 @@ public sealed class IconWindow : Window
             RenderTransform = new TransformGroup { Children = { _ringGrow, _ringSpin } },
         };
 
-        // Folder (SPEC 4.3, 5.2): a sheet with 2×2 previews, each 36% wide with 8% between them.
+        // Folder (SPEC 4.3, 5.2): a sheet with 2×2 previews, sized per style in ApplyStyleLayout.
         _folderGrid = new UniformGrid { Rows = 2, Columns = 2 };
         _folderSheet = new Border { BorderThickness = new Thickness(1), Child = _folderGrid, Visibility = Visibility.Collapsed };
 
@@ -172,7 +174,7 @@ public sealed class IconWindow : Window
             FontSize = IconDesign.LabelFontSize,
             Foreground = Brushes.White,
         };
-        _labelFrame = new Border
+        _labelFrame = new RoundedBorder
         {
             VerticalAlignment = VerticalAlignment.Top,
             HorizontalAlignment = HorizontalAlignment.Center,
@@ -367,9 +369,9 @@ public sealed class IconWindow : Window
     public void SetProximity(double opacity, double scale, double nearness)
     {
         _proximityOpacity = opacity;
+        _proximityScale = scale;
         _nearness = nearness;
-        _scale.ScaleX = scale;
-        _scale.ScaleY = scale;
+        ApplyMagnify();
         ApplyOpacity();
         ApplyNearness();
     }
@@ -385,6 +387,7 @@ public sealed class IconWindow : Window
         _labelFrame.Visibility = !arranging && _showLabel ? Visibility.Visible : Visibility.Collapsed;
         _jiggle.BeginAnimation(RotateTransform.AngleProperty, null);
         _jiggle.Angle = 0;
+        ApplyMagnify();
         ApplyNearness();
 
         if (_style == StyleSetting.Hud)
@@ -403,8 +406,9 @@ public sealed class IconWindow : Window
                 {
                     var blink = new DoubleAnimationUsingKeyFrames { Duration = IconStyleDesign.HudBlink, RepeatBehavior = RepeatBehavior.Forever };
                     Timeline.SetDesiredFrameRate(blink, IconStyleDesign.BlinkFrameRate);
+                    // On for half the period, off for the other half (mockup: steps(1), opacity 0 at 50%).
                     blink.KeyFrames.Add(new DiscreteDoubleKeyFrame(1, KeyTime.FromPercent(0)));
-                    blink.KeyFrames.Add(new DiscreteDoubleKeyFrame(0.15, KeyTime.FromPercent(0.5)));
+                    blink.KeyFrames.Add(new DiscreteDoubleKeyFrame(0, KeyTime.FromPercent(0.5)));
                     _brackets.BeginAnimation(OpacityProperty, blink);
                 }
             }
@@ -438,10 +442,12 @@ public sealed class IconWindow : Window
     public void SetSelected(bool selected) =>
         _selection.Visibility = selected ? Visibility.Visible : Visibility.Collapsed;
 
-    /// <summary>While dragging: 1.12× and a deeper shadow (SPEC 5.4).</summary>
+    /// <summary>While dragging: 1.12× and a deeper shadow (SPEC 5.4); HUD brackets stop blinking and stay on (mockup).</summary>
     public void SetLifted(bool lifted)
     {
         var scale = lifted ? Motion.DragScale : 1;
+        _lifted = lifted;
+        ApplyMagnify();
         _lift.BeginAnimation(ScaleTransform.ScaleXProperty, null);
         _lift.BeginAnimation(ScaleTransform.ScaleYProperty, null);
         _lift.ScaleX = scale;
@@ -449,6 +455,11 @@ public sealed class IconWindow : Window
         _shadow.Opacity = lifted ? Math.Min(1, _restShadowOpacity + 0.2) : _restShadowOpacity;
         _jiggle.BeginAnimation(RotateTransform.AngleProperty, null);
         _jiggle.Angle = 0;
+        if (lifted && _arranging && _style == StyleSetting.Hud)
+        {
+            _brackets.BeginAnimation(OpacityProperty, null);
+            _brackets.Opacity = 1;
+        }
     }
 
     public void PlayLaunch(bool reduceMotion)
@@ -614,29 +625,26 @@ public sealed class IconWindow : Window
             _picture.OpacityMask = null;
         }
 
-        // Folder sheet per style.
+        // Folder sheet per style. Previews are as large as the shape allows: 36% in the Glass tile (SPEC 5.2), smaller
+        // in the HUD plate so they clear the cut corners, and smaller again so they fit inside the Dot Matrix circle.
         var corner = _iconSize * IconDesign.CornerRatio;
         _folderSheet.Background = null;
         _folderSheet.BorderBrush = null;
         if (hud)
         {
             _folderSheet.CornerRadius = new CornerRadius(0);
-            _folderSheet.Padding = new Thickness(_iconSize * 0.2);
-        }
-        else if (dot)
-        {
-            _folderSheet.SetResourceReference(Border.BackgroundProperty, "Skin.Fill.Folder");
-            _folderSheet.SetResourceReference(Border.BorderBrushProperty, "Skin.Edge");
-            _folderSheet.CornerRadius = new CornerRadius(_iconSize / 2);
-            _folderSheet.Padding = new Thickness(_iconSize * 0.2);
         }
         else
         {
             _folderSheet.SetResourceReference(Border.BackgroundProperty, "Skin.Fill.Folder");
             _folderSheet.SetResourceReference(Border.BorderBrushProperty, "Skin.Edge");
-            _folderSheet.CornerRadius = new CornerRadius(corner);
-            _folderSheet.Padding = new Thickness(_iconSize * IconDesign.FolderPaddingRatio);
+            _folderSheet.CornerRadius = new CornerRadius(dot ? _iconSize / 2 : corner);
         }
+        var preview = hud ? IconStyleDesign.HudFolderPreviewRatio : dot ? IconStyleDesign.DotFolderPreviewRatio : IconDesign.FolderPreviewRatio;
+        var outer = (1 - 2 * preview - IconDesign.FolderGapRatio) / 2;
+        // Each cell adds half the gap around its preview, and the sheet's 1 px border takes room too.
+        var padding = _iconSize * (outer - IconDesign.FolderGapRatio / 2) - _folderSheet.BorderThickness.Left;
+        _folderSheet.Padding = new Thickness(Math.Max(0, padding));
         // SPEC 5.9: the previews inside a Dot Matrix folder are dotted too.
         _folderGrid.OpacityMask = dot ? _dotMask : null;
         foreach (var cell in _folderGrid.Children.OfType<FrameworkElement>())
@@ -694,7 +702,7 @@ public sealed class IconWindow : Window
                 _label.Width = double.NaN;
                 _labelFrame.MaxWidth = _iconSize + 30;
                 _labelFrame.SetResourceReference(Border.BackgroundProperty, "Skin.Fill.Tooltip");
-                _labelFrame.CornerRadius = new CornerRadius(8);
+                _labelFrame.CornerRadius = new CornerRadius(IconStyleDesign.Capsule);
                 _labelFrame.Padding = new Thickness(7, 0, 7, 1);
                 break;
             default:
@@ -825,6 +833,14 @@ public sealed class IconWindow : Window
         var brush = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0));
         brush.Freeze();
         return brush;
+    }
+
+    /// <summary>Magnify toward the mouse only in use; edit mode and dragging keep the icon's own size (mockup).</summary>
+    private void ApplyMagnify()
+    {
+        var scale = _arranging || _lifted ? 1 : _proximityScale;
+        _scale.ScaleX = scale;
+        _scale.ScaleY = scale;
     }
 
     private void ApplyOpacity() =>

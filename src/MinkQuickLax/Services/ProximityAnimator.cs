@@ -59,7 +59,9 @@ public sealed class ProximityAnimator : IDisposable
             var rect = window.IconRect;
             var scale = rect.Width / Math.Max(window.Width - 2 * IconDesign.WindowMargin, 1);
             var radius = RadiusDip * scale;
-            var t = Math.Clamp(1 - rect.Center.DistanceTo(cursor) / radius, 0, 1);
+            // Measured from the icon's edge, so t is 1 anywhere on the icon (SPEC 5.8) and 0 beyond the radius.
+            var fromEdge = Math.Max(0, rect.Center.DistanceTo(cursor) - rect.Width / 2.0);
+            var t = Math.Clamp(1 - fromEdge / radius, 0, 1);
             var opacity = IdleOpacity + (1 - IdleOpacity) * t;
             var size = Magnify ? 1 + (IconDesign.MaxMagnify - 1) * t * t : 1;
 

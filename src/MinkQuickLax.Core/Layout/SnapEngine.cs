@@ -66,7 +66,8 @@ public static class SnapEngine
 
     /// <summary>
     /// Finds the closest match along one axis within the threshold: center to center, start to start, end to end,
-    /// or edge to opposite edge (side by side). Centers come first so equal-size items show the guide in the middle.
+    /// or edge to opposite edge (side by side). On a tie the earlier kind wins, whichever item it belongs to, so icons
+    /// on the same grid show the guide through their centers rather than along a neighbour's edge.
     /// </summary>
     private static (PixelRect? Other, int Center, int Line) Align(
         int desiredCenter,
@@ -79,18 +80,21 @@ public static class SnapEngine
         var toEnd = length - length / 2;
         PixelRect? best = null;
         var bestDistance = threshold + 1;
+        var bestKind = int.MaxValue;
         var bestCenter = desiredCenter;
         var bestLine = 0;
         foreach (var other in others)
         {
             var (start, middle, end) = axis(other);
             ReadOnlySpan<(int Offset, int Line)> pairs = [(0, middle), (toStart, start), (toEnd, end), (toStart, end), (toEnd, start)];
-            foreach (var (offset, line) in pairs)
+            for (var kind = 0; kind < pairs.Length; kind++)
             {
+                var (offset, line) = pairs[kind];
                 var distance = Math.Abs(desiredCenter + offset - line);
-                if (distance < bestDistance)
+                if (distance < bestDistance || (distance == bestDistance && kind < bestKind))
                 {
                     bestDistance = distance;
+                    bestKind = kind;
                     best = other;
                     bestCenter = line - offset;
                     bestLine = line;

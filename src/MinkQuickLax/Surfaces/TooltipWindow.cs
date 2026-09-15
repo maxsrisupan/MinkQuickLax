@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using MinkQuickLax.Core.Layout;
@@ -36,6 +37,7 @@ public sealed class TooltipWindow : SurfaceWindow
     private readonly TextBlock _meta;
     private readonly TextBlock _metaSpace;
     private readonly Rectangle _connector;
+    private readonly TranslateTransform _slide = new();
     private readonly DispatcherTimer _typing = new();
     private string _metaText = "";
     private int _typed;
@@ -75,6 +77,7 @@ public sealed class TooltipWindow : SurfaceWindow
             IsHitTestVisible = false,
         };
         Root.Children.Add(_connector);
+        Root.RenderTransform = _slide;
         Body = _text;
         Shape = SurfaceShape.Tooltip;
         BodyPadding = new Thickness(10, 4, 10, 5);
@@ -124,18 +127,31 @@ public sealed class TooltipWindow : SurfaceWindow
         _meta.Text = typeOut ? "" : _metaText;
 
         _connector.Visibility = hud ? Visibility.Visible : Visibility.Collapsed;
-        PutConnector(onRight: true, hud);
+        var slide = !look.ReduceMotion;
+        PutConnector(onRight: true, hud, slide);
         var gap = (int)Math.Round((hud ? SideGap - ConnectorLength : SideGap) * scale);
+        var room = slide ? (int)Math.Round(Motion.TooltipRiseDistance * scale) : 0;
+        var placedRight = true;
         ShowPlaced(size =>
         {
             // Right of the icon, or left when there is no room (SPEC 5.8).
-            var onRight = iconRect.Right + gap + size.Width <= workArea.Right;
-            PutConnector(onRight, hud);
-            var x = onRight ? iconRect.Right + gap : iconRect.Left - gap - size.Width;
+            var onRight = iconRect.Right + gap + size.Width - room <= workArea.Right;
+            placedRight = onRight;
+            PutConnector(onRight, hud, slide);
+            var x = onRight ? iconRect.Right + gap - room : iconRect.Left - gap + room - size.Width;
             var y = iconRect.Center.Y - size.Height / 2;
             var rect = new PixelRect(x, y, x + size.Width, y + size.Height).MoveInside(workArea);
             return new PixelPoint(rect.Left, rect.Top);
         }, animate: false);
+
+        if (slide)
+        {
+            // Mockup: fades in and slides out from the icon by 6 px. These plates have no blur behind them, so moving
+            // the content leaves nothing empty (unlike the Glass name, which appears in place).
+            var from = placedRight ? -Motion.TooltipRiseDistance : Motion.TooltipRiseDistance;
+            _slide.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(from, 0, Motion.TooltipRise) { EasingFunction = Motion.Spring });
+            Root.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, Motion.TooltipFade));
+        }
 
         if (typeOut)
         {
@@ -151,6 +167,8 @@ public sealed class TooltipWindow : SurfaceWindow
         Body = _text;
         BodyPadding = new Thickness(10, 4, 10, 5);
         FrameMargin = new Thickness(0);
+        Root.Margin = new Thickness(0);
+        StopSlide();
         _connector.Visibility = Visibility.Collapsed;
         _text.Text = name;
         var gap = (int)Math.Round(IconDesign.TooltipGap * scale);
@@ -167,12 +185,26 @@ public sealed class TooltipWindow : SurfaceWindow
         }, animate: false);
     }
 
-    /// <summary>The HUD connector sits in the transparent margin on the icon side of the plate.</summary>
-    private void PutConnector(bool onRight, bool hud)
+    /// <summary>
+    /// The HUD connector sits in the transparent margin on the icon side of the plate. With <paramref name="slide"/>,
+    /// the window keeps room for the slide on that side, and 1 px on the other for the spring's overshoot.
+    /// </summary>
+    private void PutConnector(bool onRight, bool hud, bool slide)
     {
         var length = hud ? ConnectorLength : 0;
         FrameMargin = onRight ? new Thickness(length, 0, 0, 0) : new Thickness(0, 0, length, 0);
         _connector.HorizontalAlignment = onRight ? HorizontalAlignment.Left : HorizontalAlignment.Right;
+        StopSlide();
+        var (near, far) = slide ? (Motion.TooltipRiseDistance, 1.0) : (0.0, 0.0);
+        Root.Margin = onRight ? new Thickness(near, 0, far, 0) : new Thickness(far, 0, near, 0);
+    }
+
+    private void StopSlide()
+    {
+        _slide.BeginAnimation(TranslateTransform.XProperty, null);
+        _slide.X = 0;
+        Root.BeginAnimation(OpacityProperty, null);
+        Root.Opacity = 1;
     }
 
     private void TypeNext()

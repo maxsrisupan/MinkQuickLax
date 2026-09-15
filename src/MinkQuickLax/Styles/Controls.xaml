@@ -142,10 +142,10 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="RadioButton">
-          <Border x:Name="Pill" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Skin.Radius.Segment}" Background="Transparent"
+          <styles:RoundedBorder x:Name="Pill" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Skin.Radius.Segment}" Background="Transparent"
                   BorderThickness="1" BorderBrush="Transparent">
             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="False" />
-          </Border>
+          </styles:RoundedBorder>
           <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
               <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />
@@ -171,13 +171,13 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="RadioButton">
-          <Border x:Name="Pill" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Skin.Radius.Row}" Background="Transparent"
+          <styles:RoundedBorder x:Name="Pill" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Skin.Radius.Segment}" Background="Transparent"
                   BorderThickness="1" BorderBrush="Transparent">
             <StackPanel HorizontalAlignment="Center">
               <ContentControl Content="{TemplateBinding Tag}" Width="22" Height="22" HorizontalAlignment="Center" Focusable="False" />
               <ContentPresenter Margin="0,6,0,0" HorizontalAlignment="Center" RecognizesAccessKey="False" />
             </StackPanel>
-          </Border>
+          </styles:RoundedBorder>
           <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
               <Setter Property="Foreground" Value="{DynamicResource Skin.Ink}" />

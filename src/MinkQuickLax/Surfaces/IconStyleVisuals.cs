@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using MinkQuickLax.Core.Imaging;
 using MinkQuickLax.Services;
 using MinkQuickLax.Styles;
 
@@ -146,20 +147,22 @@ public static class IconStyleImages
     private static readonly ConditionalWeakTable<ImageSource, ImageSource> Holograms = [];
     private static readonly ConditionalWeakTable<ImageSource, ImageSource> Monochromes = [];
 
-    /// <summary>The icon as a cyan hologram: grey, tinted blue-green and slightly brighter (SPEC 5.8, at rest).</summary>
+    /// <summary>
+    /// The icon as a cyan hologram (SPEC 5.8, at rest): the mockup's CSS <c>grayscale(1) sepia(.9) hue-rotate(150deg)
+    /// saturate(2.6) brightness(1.15)</c>, applied one step at a time like the browser, which clamps after each step.
+    /// </summary>
     public static ImageSource Hologram(ImageSource source) =>
         Holograms.GetValue(source, s => Filter(s, (r, g, b, a) =>
         {
-            var l = Luminance(r, g, b);
-            return (Clamp(l * 0.50, a), Clamp(l * 1.02 + 0.03 * a, a), Clamp(l * 1.15 + 0.06 * a, a));
+            var (fr, fg, fb) = CssFilters.Hologram(r / a, g / a, b / a);
+            return (fr * a, fg * a, fb * a);
         }));
 
-    /// <summary>The icon in black and white with more contrast and light (SPEC 5.9, at rest).</summary>
+    /// <summary>The icon in black and white with more contrast and light (SPEC 5.9, at rest): CSS <c>grayscale(1) contrast(1.5) brightness(1.25)</c>.</summary>
     public static ImageSource Monochrome(ImageSource source) =>
         Monochromes.GetValue(source, s => Filter(s, (r, g, b, a) =>
         {
-            var l = a <= 0 ? 0 : Luminance(r, g, b) / a;
-            var v = Math.Clamp(((l - 0.5) * 1.5 + 0.5) * 1.25, 0, 1) * a;
+            var v = CssFilters.Monochrome(r / a, g / a, b / a) * a;
             return (v, v, v);
         }));
 
@@ -184,10 +187,6 @@ public static class IconStyleImages
         };
         return (brush, dot);
     }
-
-    private static double Luminance(double r, double g, double b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
-    private static double Clamp(double value, double alpha) => Math.Clamp(value, 0, alpha);
 
     /// <summary>Applies <paramref name="pixel"/> to premultiplied channels in 0..1 and returns a frozen 128 px bitmap.</summary>
     private static BitmapSource Filter(ImageSource source, Func<double, double, double, double, (double R, double G, double B)> pixel)
@@ -238,8 +237,22 @@ public static class IconStyleDesign
     public static readonly TimeSpan HudLock = TimeSpan.FromMilliseconds(300);
     public static readonly TimeSpan HudSweep = TimeSpan.FromMilliseconds(700);
     public static readonly TimeSpan HudBlink = TimeSpan.FromMilliseconds(1100);
+
+    /// <summary>The blinking marker in the edit toolbar: on half the period, off the other half (mockup).</summary>
+    public static readonly TimeSpan HudMarkerBlink = TimeSpan.FromMilliseconds(1000);
+    public static readonly TimeSpan DotMarkerBlink = TimeSpan.FromMilliseconds(1200);
     public const double HudGlowBase = 3;
     public const double HudGlowGrow = 9;
+
+    /// <summary>
+    /// Folder previews: 32% keeps the 2×2 block 14% from the HUD plate's sides, clear of its 22% corner cuts; 30% keeps
+    /// the block's corners inside the Dot Matrix circle.
+    /// </summary>
+    public const double HudFolderPreviewRatio = 0.32;
+    public const double DotFolderPreviewRatio = 0.30;
+
+    /// <summary>A corner radius larger than any label, which <see cref="RoundedBorder"/> turns into a capsule.</summary>
+    public const double Capsule = 99;
 
     public const double DotPitch = 4;
     public const double DotRadiusRest = 1.1;

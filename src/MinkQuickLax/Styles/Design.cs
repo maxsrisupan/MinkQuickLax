@@ -91,8 +91,8 @@ public static class IconDesign
     public const double MissingOpacity = 0.4;
     public const double MaxMagnify = 1.16;
 
-    // Folder previews: each 36% wide, 8% apart, so 10% padding on each side.
-    public const double FolderPaddingRatio = 0.10;
+    // Folder previews (Glass): each 36% wide, 8% apart, so 10% from each side.
+    public const double FolderPreviewRatio = 0.36;
     public const double FolderGapRatio = 0.08;
 
     /// <summary>How long a dragged icon rests on another before they would become a group (SPEC 4.4).</summary>
@@ -143,7 +143,8 @@ public static class Motion
     public static readonly TimeSpan ToolbarIn = TimeSpan.FromMilliseconds(450);
     public const double ToolbarTopGap = 14;
     public const double AlignThreshold = 8;
-    public const double ReadoutOffset = 18;
+    /// <summary>Space between a dragged icon and its coordinate label.</summary>
+    public const double ReadoutGap = 12;
     public const double GuideDash = 6;
     public const double GuideGap = 5;
     public static readonly TimeSpan Tidy = TimeSpan.FromMilliseconds(550);

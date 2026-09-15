@@ -89,6 +89,21 @@ public sealed class SnapEngineTests
     }
 
     [Fact]
+    public void GridAndAlign_OnATie_PrefersCentersOverANeighboursEdge()
+    {
+        // Icons on a 72 px pitch: the one to the left touches our left edge at the same distance as the one above
+        // lines up with our center. The guide should run through the centers.
+        var left = PixelRect.FromCenter(new PixelPoint(384, 204), Icon);
+        var above = PixelRect.FromCenter(new PixelPoint(456, 132), Icon);
+
+        var result = SnapEngine.Snap(new PixelPoint(458, 314), Icon, [left, above], Area, SnapMode.GridAndAlign, 24, 8);
+
+        Assert.Equal(456, result.Center.X);
+        var guide = Assert.Single(result.Guides, g => g.Vertical);
+        Assert.Equal(456, guide.Position);
+    }
+
+    [Fact]
     public void ClampedAtTheEdge_DropsThatGuide()
     {
         var other = PixelRect.FromCenter(new PixelPoint(1900, 500), PixelSize.Square(20));

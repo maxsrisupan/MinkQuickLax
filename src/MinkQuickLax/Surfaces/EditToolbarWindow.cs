@@ -90,10 +90,11 @@ public sealed class EditToolbarWindow : SurfaceWindow
         _marker.BeginAnimation(OpacityProperty, null);
         if (style != StyleSetting.Glass && !look.ReduceMotion)
         {
-            var blink = new DoubleAnimationUsingKeyFrames { Duration = IconStyleDesign.HudBlink, RepeatBehavior = RepeatBehavior.Forever };
+            var period = style == StyleSetting.Hud ? IconStyleDesign.HudMarkerBlink : IconStyleDesign.DotMarkerBlink;
+            var blink = new DoubleAnimationUsingKeyFrames { Duration = period, RepeatBehavior = RepeatBehavior.Forever };
             Timeline.SetDesiredFrameRate(blink, IconStyleDesign.BlinkFrameRate);
             blink.KeyFrames.Add(new DiscreteDoubleKeyFrame(1, KeyTime.FromPercent(0)));
-            blink.KeyFrames.Add(new DiscreteDoubleKeyFrame(0.2, KeyTime.FromPercent(0.5)));
+            blink.KeyFrames.Add(new DiscreteDoubleKeyFrame(0, KeyTime.FromPercent(0.5)));
             _marker.BeginAnimation(OpacityProperty, blink);
         }
 

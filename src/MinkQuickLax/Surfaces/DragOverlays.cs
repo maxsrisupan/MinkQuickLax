@@ -136,43 +136,44 @@ public sealed class GuideWindow : OverlayWindow
 }
 
 /// <summary>
-/// The coordinate label next to the pointer while dragging (SPEC 4.4, 5.2): rounded in Glass, square with cyan text in
-/// HUD, a capsule in Doto in Dot Matrix (SPEC 5.8, 5.9).
+/// The coordinate label beside the dragged icon (SPEC 4.4, 5.2): rounded in Glass, square with cyan text in HUD, a
+/// capsule in Doto in Dot Matrix (SPEC 5.8, 5.9). It sits right of the icon, or left when there is no room (mockup).
 /// </summary>
 public sealed class DragReadoutWindow : OverlayWindow
 {
     private readonly TextBlock _text;
-    private readonly Border _frame;
+    private readonly RoundedBorder _frame;
 
     public DragReadoutWindow()
     {
         SizeToContent = SizeToContent.WidthAndHeight;
         _text = new TextBlock { FontSize = 11 };
         _text.SetResourceReference(TextBlock.FontFamilyProperty, "Font.Readout");
-        _frame = new Border { BorderThickness = new Thickness(1), Padding = new Thickness(8, 3, 8, 3), Child = _text };
+        _frame = new RoundedBorder { BorderThickness = new Thickness(1), Padding = new Thickness(8, 3, 8, 3), Child = _text };
         _frame.SetResourceReference(Border.BackgroundProperty, "Skin.Fill.Readout");
         _frame.SetResourceReference(Border.BorderBrushProperty, "Skin.Edge");
         Content = _frame;
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
     }
 
-    public void ShowAt(string text, PixelPoint cursor, PixelRect area, double scale, StyleSetting style)
+    /// <param name="iconRect">The icon itself, without its window margins (physical pixels).</param>
+    public void ShowBeside(string text, PixelRect iconRect, PixelRect area, double scale, StyleSetting style)
     {
         _text.Text = text;
         _text.FontSize = style == StyleSetting.Dot ? 13 : 11;
         _text.FontWeight = style == StyleSetting.Dot ? FontWeights.ExtraBold : FontWeights.Normal;
         _text.SetResourceReference(TextBlock.ForegroundProperty, style == StyleSetting.Hud ? "Accent" : "Skin.Ink");
-        _frame.CornerRadius = new CornerRadius(style switch { StyleSetting.Hud => 0, StyleSetting.Dot => 99, _ => 8 });
+        _frame.CornerRadius = new CornerRadius(style switch { StyleSetting.Hud => 0, StyleSetting.Dot => IconStyleDesign.Capsule, _ => 8 });
         _frame.Padding = style == StyleSetting.Dot ? new Thickness(10, 1, 10, 2) : new Thickness(8, 3, 8, 3);
         if (!IsVisible)
         {
             Show();
         }
         UpdateLayout();
-        var offset = (int)Math.Round(Motion.ReadoutOffset * scale);
+        var gap = (int)Math.Round(Motion.ReadoutGap * scale);
         var bounds = WindowStyles.GetBounds(Handle);
-        var x = cursor.X + offset;
-        var y = cursor.Y + offset;
+        var x = iconRect.Right + gap + bounds.Width <= area.Right ? iconRect.Right + gap : iconRect.Left - gap - bounds.Width;
+        var y = iconRect.Center.Y - bounds.Height / 2;
         var rect = new PixelRect(x, y, x + bounds.Width, y + bounds.Height).MoveInside(area);
         WindowStyles.SetPosition(Handle, rect.Left, rect.Top);
     }

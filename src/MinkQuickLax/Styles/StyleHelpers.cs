@@ -9,8 +9,39 @@ using MinkQuickLax.Services;
 
 namespace MinkQuickLax.Styles;
 
+/// <summary>
+/// A border whose corner radius is limited to half its width and height, as in CSS, so a large radius such as 99 draws a
+/// capsule (SPEC 5.9). WPF's own <see cref="Border"/> fits the horizontal and vertical radii separately, which turns a wide
+/// capsule into an ellipse.
+/// </summary>
+public class RoundedBorder : Border
+{
+    static RoundedBorder()
+    {
+        CornerRadiusProperty.OverrideMetadata(typeof(RoundedBorder), new FrameworkPropertyMetadata(
+            new CornerRadius(), FrameworkPropertyMetadataOptions.AffectsRender, null, ClampRadius));
+    }
+
+    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+    {
+        base.OnRenderSizeChanged(sizeInfo);
+        CoerceValue(CornerRadiusProperty);
+    }
+
+    private static object ClampRadius(DependencyObject d, object value)
+    {
+        var border = (RoundedBorder)d;
+        var limit = Math.Min(border.ActualWidth, border.ActualHeight) / 2;
+        if (limit <= 0 || value is not CornerRadius radius)
+        {
+            return value;
+        }
+        return new CornerRadius(Math.Min(radius.TopLeft, limit), Math.Min(radius.TopRight, limit), Math.Min(radius.BottomRight, limit), Math.Min(radius.BottomLeft, limit));
+    }
+}
+
 /// <summary>A border whose background can have HUD cut corners (top-left and bottom-right) instead of rounded ones.</summary>
-public sealed class CutBorder : Border
+public sealed class CutBorder : RoundedBorder
 {
     public static readonly DependencyProperty CutProperty = DependencyProperty.Register(
         nameof(Cut), typeof(double), typeof(CutBorder), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender));
