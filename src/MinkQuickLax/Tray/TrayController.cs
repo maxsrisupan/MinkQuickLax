@@ -23,9 +23,11 @@ public sealed class TrayController : IDisposable
 
     private readonly Scanner.ScannerService _scanner;
     private readonly Settings.SettingsService _settings;
+    private readonly Manual.ManualService _manual;
 
-    public TrayController(ConfigStore store, PlacementController placements, ArrangeController arrange, Scanner.ScannerService scanner, Settings.SettingsService settings, SurfaceHost surfaces, Localizer text)
+    public TrayController(ConfigStore store, PlacementController placements, ArrangeController arrange, Scanner.ScannerService scanner, Settings.SettingsService settings, Manual.ManualService manual, SurfaceHost surfaces, Localizer text)
     {
+        _manual = manual;
         _settings = settings;
         _scanner = scanner;
         _store = store;
@@ -75,7 +77,7 @@ public sealed class TrayController : IDisposable
     {
         IReadOnlyList<MenuEntry> entries =
         [
-            // The manual (M9) and updates (M10) arrive later.
+            // Updates arrive in M11.
             new MenuCommand(_text["Tray_AddFromPc"], () => _scanner.Show()),
             new MenuCommand(_text["Tray_Arrange"], _arrange.Enter, IsEnabled: !_arrange.IsArranging),
             new MenuCommand(_text["Tray_Tidy"], _arrange.IsArranging ? _arrange.Tidy : _placements.Tidy),
@@ -83,7 +85,7 @@ public sealed class TrayController : IDisposable
             new MenuCommand(_placements.IsHidden ? _text["Tray_Show"] : _text["Tray_Hide"], _placements.ToggleHidden),
             MenuSeparator.Instance,
             new MenuCommand(_text["Tray_Settings"], () => _settings.Show()),
-            new MenuCommand(_text["Tray_Manual"], () => { }, IsEnabled: false),
+            new MenuCommand(_text["Tray_Manual"], () => _manual.Show(Manual.ManualTopics.GettingStarted)),
             new MenuCommand(_text["Tray_CheckUpdates"], () => { }, IsEnabled: false),
             MenuSeparator.Instance,
             new MenuCommand(_text["Tray_Exit"], () => ExitRequested?.Invoke()),

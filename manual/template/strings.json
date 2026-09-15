@@ -1,0 +1,22 @@
+{
+  "th": {
+    "title": "คู่มือ MinkQuickLax",
+    "contents": "สารบัญ",
+    "search": "ค้นหาในคู่มือ",
+    "searchPlaceholder": "ค้นหาในคู่มือ",
+    "noResults": "ไม่พบหัวข้อที่ตรงกัน",
+    "print": "พิมพ์",
+    "otherLanguage": "English",
+    "untranslated": "บทนี้ยังไม่ได้แปล"
+  },
+  "en": {
+    "title": "MinkQuickLax manual",
+    "contents": "Contents",
+    "search": "Search the manual",
+    "searchPlaceholder": "Search the manual",
+    "noResults": "No matching section",
+    "print": "Print",
+    "otherLanguage": "ไทย",
+    "untranslated": "This chapter has not been translated yet, so it is shown in Thai."
+  }
+}

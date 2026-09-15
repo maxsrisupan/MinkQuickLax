@@ -741,4 +741,13 @@
   <data name="Meta_Missing" xml:space="preserve">
     <value>ไม่พบปลายทาง</value>
   </data>
+  <data name="Manual_Title" xml:space="preserve">
+    <value>คู่มือ MinkQuickLax</value>
+  </data>
+  <data name="Manual_OpenInBrowser" xml:space="preserve">
+    <value>เปิดใน browser</value>
+  </data>
+  <data name="Manual_Print" xml:space="preserve">
+    <value>พิมพ์</value>
+  </data>
 </root>

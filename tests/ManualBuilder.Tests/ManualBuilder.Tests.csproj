@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- ManualBuilder checks and output (PLAN.md M10), plus a check of the real manual. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\tools\ManualBuilder\ManualBuilder.csproj" />
+  </ItemGroup>
+
+</Project>

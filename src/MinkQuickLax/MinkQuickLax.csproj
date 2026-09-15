@@ -25,6 +25,7 @@
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.Extensions.Hosting" />
     <PackageReference Include="Serilog.Sinks.File" />
+    <PackageReference Include="Microsoft.Web.WebView2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -32,5 +33,55 @@
     <Resource Include="Assets\Fonts\*.ttf;Assets\Fonts\*.CompositeFont" />
     <None Include="Assets\Fonts\OFL-*.txt" CopyToOutputDirectory="PreserveNewest" Link="Licenses\%(Filename)%(Extension)" />
   </ItemGroup>
+
+  <!--
+    The manual (PLAN.md M10): ManualBuilder turns manual/ into Manual\th.html and Manual\en.html next to the exe and fails the
+    build when ids are broken or an id in Manual\ManualTopics.cs is missing.
+  -->
+  <ItemGroup>
+    <!-- Same global properties as the solution build, so the builder is built once and not twice in parallel. -->
+    <ProjectReference Include="..\..\tools\ManualBuilder\ManualBuilder.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <ManualSourceDirectory>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)..\..\manual'))</ManualSourceDirectory>
+    <ManualTopicsFile>$(MSBuildThisFileDirectory)Manual\ManualTopics.cs</ManualTopicsFile>
+    <ManualFontsDirectory>$(MSBuildThisFileDirectory)Assets\Fonts</ManualFontsDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ManualSource Include="$(ManualSourceDirectory)**\*" />
+    <ManualSource Include="$(ManualTopicsFile)" />
+  </ItemGroup>
+
+  <!-- The markup-compile pass (*_wpftmp) builds a copy of this project; the manual only needs building once. -->
+  <Target Name="LocateManualBuilder" Condition="!$(MSBuildProjectName.EndsWith('_wpftmp'))">
+    <!-- Set here, where IntermediateOutputPath is known. Not "manual": WPF compiles Manual\*.xaml into that folder. -->
+    <PropertyGroup>
+      <ManualOutputDirectory>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'manual-html'))</ManualOutputDirectory>
+    </PropertyGroup>
+    <MSBuild Projects="..\..\tools\ManualBuilder\ManualBuilder.csproj" Targets="GetTargetPath">
+      <Output TaskParameter="TargetOutputs" PropertyName="ManualBuilderPath" />
+    </MSBuild>
+  </Target>
+
+  <Target Name="BuildManual" DependsOnTargets="LocateManualBuilder" Condition="!$(MSBuildProjectName.EndsWith('_wpftmp'))"
+          Inputs="@(ManualSource);$(ManualBuilderPath)" Outputs="$(ManualOutputDirectory)th.html;$(ManualOutputDirectory)en.html">
+    <PropertyGroup>
+      <ManualDotnet>$(DOTNET_HOST_PATH)</ManualDotnet>
+      <ManualDotnet Condition="'$(ManualDotnet)' == ''">dotnet</ManualDotnet>
+    </PropertyGroup>
+    <Exec Command="&quot;$(ManualDotnet)&quot; &quot;$(ManualBuilderPath)&quot; --manual &quot;$(ManualSourceDirectory.TrimEnd('\'))&quot; --out &quot;$(ManualOutputDirectory.TrimEnd('\'))&quot; --fonts &quot;$(ManualFontsDirectory)&quot; --topics &quot;$(ManualTopicsFile)&quot;" />
+    <!-- Keeps the outputs newer than every input even when the builder left an unchanged file alone. -->
+    <Touch Files="$(ManualOutputDirectory)th.html;$(ManualOutputDirectory)en.html" />
+  </Target>
+
+  <Target Name="IncludeManual" BeforeTargets="AssignTargetPaths" DependsOnTargets="BuildManual" Condition="!$(MSBuildProjectName.EndsWith('_wpftmp'))">
+    <ItemGroup>
+      <_ManualHtml Include="$(ManualOutputDirectory)*.html" />
+      <Content Include="@(_ManualHtml)" Link="Manual\%(_ManualHtml.Filename)%(_ManualHtml.Extension)"
+               CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
 
 </Project>

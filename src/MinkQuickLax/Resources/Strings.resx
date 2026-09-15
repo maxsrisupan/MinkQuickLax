@@ -760,4 +760,13 @@
   <data name="Meta_Missing" xml:space="preserve">
     <value>NOT FOUND</value>
   </data>
+  <data name="Manual_Title" xml:space="preserve">
+    <value>MinkQuickLax manual</value>
+  </data>
+  <data name="Manual_OpenInBrowser" xml:space="preserve">
+    <value>Open in browser</value>
+  </data>
+  <data name="Manual_Print" xml:space="preserve">
+    <value>Print</value>
+  </data>
 </root>

@@ -18,7 +18,7 @@ namespace MinkQuickLax.Settings;
 public sealed record Component(string Name, string License);
 
 /// <summary>The About page (SPEC 4.8): version, links, licenses and a bug-report summary.</summary>
-public sealed partial class AboutViewModel(IMonitorProvider monitors, ConfigStore store, StartupRegistration startup, Localizer text) : ObservableObject
+public sealed partial class AboutViewModel(IMonitorProvider monitors, ConfigStore store, StartupRegistration startup, Manual.ManualService manual, Localizer text) : ObservableObject
 {
     private const int LogLines = 200;
 
@@ -46,6 +46,9 @@ public sealed partial class AboutViewModel(IMonitorProvider monitors, ConfigStor
         Copied = false;
         OnPropertyChanged(nameof(VersionText));
     }
+
+    [RelayCommand]
+    private void OpenManual() => manual.Show(Manual.ManualTopics.SettingsAbout);
 
     [RelayCommand]
     private static void OpenGitHub() => Process.Start(new ProcessStartInfo { FileName = AppInfo.GitHubUrl, UseShellExecute = true })?.Dispose();

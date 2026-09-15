@@ -18,8 +18,7 @@
 
       <StackPanel Style="{StaticResource Settings.Group}">
         <settings:SettingRow HeaderText="{s:Text About_Manual}">
-          <!-- The user guide arrives in M10. -->
-          <Button Style="{StaticResource Skin.OutlineButton}" Content="{s:Text About_Manual}" IsEnabled="False" />
+          <Button Style="{StaticResource Skin.OutlineButton}" Content="{s:Text About_Manual}" Command="{Binding OpenManualCommand}" />
         </settings:SettingRow>
         <settings:SettingRow settings:SearchAnchor.Id="GitHub" HeaderText="{s:Text About_GitHub}">
           <Button Style="{StaticResource Skin.OutlineButton}" Content="{s:Text About_GitHub}" Command="{Binding OpenGitHubCommand}" />

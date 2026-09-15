@@ -1,6 +1,6 @@
 # MinkQuickLax — แผนลงมือ (Plan)
 
-> **ความคืบหน้า:** M0–M9 เสร็จ (M7 และ M8 มีข้อ "ยังต้องตรวจ" ที่ต้องทำบนเครื่องจริง) · ถัดไป **M10 คู่มือ** (หัวข้อ 6)
+> **ความคืบหน้า:** M0–M10 เสร็จ (M7, M8, M10 มีข้อ "ยังต้องตรวจ" ที่ต้องทำบนเครื่องจริง) · ถัดไป **M11 ติดตั้ง อัปเดต และออกรุ่นแรก** (หัวข้อ 6)
 > อัปเดตล่าสุด: 2026-09-15
 > **ข้อกำหนดอยู่ที่ [SPEC.md](SPEC.md)** เอกสารนี้บอกแค่ว่าทำอย่างไรและทำอะไรก่อน
 
@@ -82,7 +82,7 @@ MinkQuickLax/
 │     ├─ Surfaces/                IconWindow (รวมแบบโฟลเดอร์) + IconStyleVisuals (ชิ้นส่วน HUD/Dot Matrix), SurfaceWindow (Menu, Notice), TooltipWindow, GroupPanelWindow, SurfaceHost, EditToolbarWindow, DragOverlays
 │     ├─ Settings/                SettingsWindow + Pages + ViewModels
 │     ├─ Scanner/                 ScannerWindow + ViewModel
-│     ├─ Manual/                  ManualWindow (WebView2)
+│     ├─ Manual/                  ManualWindow (WebView2), ManualService, ManualTopics (id ที่ app เปิดตรง)
 │     ├─ Tray/                    TrayController
 │     ├─ Services/                PlacementController, LinkActions, ProximityAnimator, ThemeService, ArrangeController, GroupController, IconCache, Localizer
 │     ├─ Resources/Strings.resx   อังกฤษ (ค่าหลัก)
@@ -92,7 +92,7 @@ MinkQuickLax/
 ├─ manual/
 │  ├─ th/*.md · en/*.md           เนื้อหาคู่มือ 1 ไฟล์ต่อ 1 บท
 │  ├─ keywords.json               คำค้นเพิ่มของแต่ละหัวข้อ
-│  ├─ template/                   index.html, manual.css, search.js
+│  ├─ template/                   index.html, manual.css, search.js, strings.json (ข้อความของหน้าคู่มือ)
 │  └─ assets/                     รูปภาพ
 ├─ tools/
 │  └─ ManualBuilder/              แปลง manual/ → HTML ภาษาละไฟล์ + ตรวจ id
@@ -100,7 +100,7 @@ MinkQuickLax/
 │  ├─ Directory.Build.props       ค่าร่วมของโปรเจกต์ test (xunit.v3)
 │  ├─ MinkQuickLax.Core.Tests/    รวม RepositoryRules/ ที่ตรวจกฎของ repo (resx ครบสองภาษา, Core ไม่อ้าง WPF/Win32, manifest)
 │  ├─ MinkQuickLax.Platform.Tests/  test ที่ต้องรันบน Windows (สร้างเมื่อมี test แรก)
-│  └─ ManualBuilder.Tests/        (สร้างใน M10)
+│  └─ ManualBuilder.Tests/        ตรวจ id, ลิงก์, คำค้น, ไฟล์ HTML และคู่มือจริงใน repo
 ├─ build/
 │  ├─ publish.ps1                 dotnet publish self-contained win-x64
 │  └─ pack.ps1                    vpk pack (+ upload)
@@ -436,14 +436,22 @@ MinkQuickLax/
 - **ยังต้องตรวจ:** เมนูที่ tray (ต้องคลิกที่ taskbar ซึ่งเป็นหน้าต่างของ Explorer) · กล่องแจ้งเตือนเปิดครั้งแรกและกู้ไฟล์ค่าตั้ง · คู่มือ (M10)
 
 ### M10 · คู่มือ
-- [ ] `ManualBuilder`: อ่าน `manual/<lang>/*.md` + `keywords.json` → HTML ไฟล์เดียวต่อภาษา (ฝัง CSS, JS, ฟอนต์, รูปแบบ base64, ดัชนีค้นหา)
-- [ ] ตรวจตอน build: id หัวข้อไม่ซ้ำ, หัวข้อมีครบทั้งสองภาษา (ภาษาอังกฤษขาดให้เตือนใน F1), id ที่หน้าตั้งค่าอ้างถึงมีจริง
-- [ ] template: สไตล์ Glass, ธีมสว่าง/มืด, สารบัญ, ปุ่มสลับภาษา, พิมพ์ได้
-- [ ] `search.js`: substring + `Intl.Segmenter('th')` + คำค้นเพิ่ม, `/` และ `Ctrl+K`, ↑↓ Enter, ไฮไลต์
-- [ ] `ManualWindow` (WebView2) + เปิดใน browser เมื่อไม่มี runtime
-- [ ] เนื้อหาภาษาไทยของฟีเจอร์ F1 ทุกบทใน SPEC 4.9
-- [ ] ผูกการ build คู่มือเข้ากับ build ของ app (MSBuild target) แล้วคัดลอกผลลัพธ์ไปไว้ที่ `Manual/`
+- [x] `ManualBuilder`: อ่าน `manual/<lang>/*.md` + `keywords.json` → HTML ไฟล์เดียวต่อภาษา (ฝัง CSS, JS, ฟอนต์, รูปแบบ base64, ดัชนีค้นหา)
+- [x] ตรวจตอน build: id หัวข้อไม่ซ้ำ, หัวข้อมีครบทั้งสองภาษา (ภาษาอังกฤษขาดให้เตือนใน F1), id ที่หน้าตั้งค่าอ้างถึงมีจริง
+- [x] template: สไตล์ Glass, ธีมสว่าง/มืด, สารบัญ, ปุ่มสลับภาษา, พิมพ์ได้
+- [x] `search.js`: substring + `Intl.Segmenter('th')` + คำค้นเพิ่ม, `/` และ `Ctrl+K`, ↑↓ Enter, ไฮไลต์
+- [x] `ManualWindow` (WebView2) + เปิดใน browser เมื่อไม่มี runtime
+- [x] เนื้อหาภาษาไทยของฟีเจอร์ F1 ทุกบทใน SPEC 4.9
+- [x] ผูกการ build คู่มือเข้ากับ build ของ app (MSBuild target) แล้วคัดลอกผลลัพธ์ไปไว้ที่ `Manual/`
 - **ตรวจ:** ปิดเน็ตแล้วเปิดคู่มือได้ · ค้น "คีย์ลัด", "hotkey", "ซ่อน" เจอหัวข้อที่ถูก · คำไทยกลางประโยคก็เจอ
+- **ผลตรวจ (2026-09-15):**
+  - **เนื้อหา:** 10 บทตาม SPEC 4.9 (เริ่มต้นใช้งาน, เพิ่ม link, ไอคอนและกลุ่ม, จัดวาง, ซ่อน/แสดง, หน้าตั้งค่าทุกข้อ, แก้ปัญหา, ข้อมูล, ความเป็นส่วนตัว, คำถามที่พบบ่อย) เขียนจากพฤติกรรมของโค้ดจริง (ค่าเริ่มต้น ช่วงค่า เมนู ปุ่ม path) · ฟีเจอร์ F2 เขียนแค่ว่าจะมาในรุ่นถัดไป · `keywords.json` มีคำค้นไทย/อังกฤษทุกหัวข้อหลัก
+  - **build:** `dotnet build` สร้าง `Manual\th.html` และ `Manual\en.html` (ไฟล์ละ ~640KB รวมฟอนต์) ข้าง exe · ภาษาอังกฤษแสดงบทภาษาไทยพร้อมป้าย "ยังไม่ได้แปล" และพิมพ์ note ทีละบทโดยไม่ทำให้ build ล้ม · ไม่มี error ของ id/ลิงก์/คำค้น/หัวข้อที่ app เปิด
+  - **ไม่ใช้เน็ต:** ในไฟล์ไม่มีการอ้างทรัพยากรภายนอก (มีแค่ข้อความ `https://` ในเนื้อหา) และ CSP ของหน้าเป็น `default-src 'none'`
+  - **หน้าคู่มือ** (Edge headless): ธีมสว่าง/มืด, สารบัญไฮไลต์หัวข้อ, หน้าต่างแคบ 480px สารบัญพับเป็นปุ่มเมนู · ค้น "คีย์ลัด" → หัวข้อคีย์ลัด · "hotkey" → หัวข้อเดียวกันจากคำค้นเพิ่ม · "ซ่อน" → 7 หัวข้อ รวมคำกลางประโยค ("ให้ซ่อน", "ตอนซ่อนอยู่") พร้อมไฮไลต์ · "ไอคอนหาย" → "ไอคอนหายไปทั้งหมด" เป็นอันดับแรก
+  - **ในแอป:** หน้าตั้งค่า → เกี่ยวกับ → "เปิดคู่มือ" เปิดหน้าต่างคู่มือ (WebView2) ที่หัวข้อ `settings-about` ธีมมืดตาม app ปุ่มพิมพ์ในหน้าซ่อนเพราะมีปุ่มของหน้าต่างแทน
+  - test ทั้งหมด 241 ผ่าน (ข้าม 2 ที่ต้องใช้อินเทอร์เน็ต) · ManualBuilder.Tests 15 ข้อ
+- **ยังต้องตรวจ:** เปิดจากเมนูที่ tray และ F1 ในหน้าตั้งค่า (โค้ดผูกแล้ว แต่การทดสอบต้องคลิก tray หรือส่งปุ่มให้หน้าต่าง) · ปุ่ม "เปิดใน browser" และ "พิมพ์" (จะเปิด browser/หน้าพิมพ์บนเครื่องผู้ใช้) · เครื่องที่ไม่มี WebView2 Runtime · ปิดเน็ตจริง · เนื้อหาภาษาอังกฤษ (F2)
 
 ### M11 · ติดตั้ง อัปเดต และออกรุ่นแรก
 - [ ] `UpdateService` + แจ้งเตือนที่ tray + "รีสตาร์ทตอนนี้" + ช่องทาง beta/stable + ปิดการตรวจได้
@@ -606,3 +614,9 @@ MinkQuickLax/
 | 2026-09-15 | animation ที่วนไม่หยุด | วงจุดหมุน 20fps · กะพริบ (วงเล็บ HUD, จุดในแถบเครื่องมือ) 10fps · การสั่นของ Glass ยังเป็น 60fps | ไอคอนละหน้าต่างวาดด้วย CPU · ลด fps การสั่นแล้ววัด CPU ไม่ลด จึงไม่เปลี่ยน |
 | 2026-09-15 | ภาษาไทยในฟอนต์ mono | ฟอนต์ผสม `Assets/Fonts/MinkMono.CompositeFont`: ช่วง U+0E00–0E7F ใช้ IBM Plex Sans Thai ขยาย 115% ที่เหลือใช้ JetBrains Mono · baseline 1.15 และระยะบรรทัด 1.5 เผื่อสระบน/ล่าง · `ThemeService` แทน `Font.Mono` ด้วย `CompositeFonts.Mono` ตอนเริ่ม · Doto ไม่ทำเพราะใช้กับตัวเลข | ไม่ต้องไล่ปรับขนาดตัวอักษรทีละจุด · ต้องสร้าง `FontFamily` ด้วย base URI (`new FontFamily(folderUri, "./#Mink Mono")`) ถ้าใช้ string pack URI ตรง ๆ หรือ `FamilyMaps` ในโค้ด ฟอนต์ปลายทางจะหาไม่เจอ (วัดความกว้างข้อความไทยใน app แล้ว: 49.1 → 61.0) |
 | 2026-09-15 | ตรวจ key ของข้อความ | test อ่านไฟล์ .cs และ .xaml ของ app หา `{s:Text Key}` และ string ที่มีรูปแบบ `Prefix_Name` แล้วเทียบกับ `Strings.resx` · key ที่ประกอบจากชื่อ enum ตรวจแยก | test อยู่ใน Core.Tests ซึ่งอ้าง WPF ไม่ได้ · key พิมพ์ผิดจะแสดงชื่อ key บนจอแทนข้อความ |
+| 2026-09-15 | ไฟล์คู่มือ | `Manual\th.html` และ `Manual\en.html` ข้าง exe · id หัวข้อเขียนเองทุกหัวข้อด้วย `{#id}` (ไม่สร้างจากชื่อ) · 1 ไฟล์ Markdown = 1 บท เรียงตามชื่อไฟล์ · ภาษาอังกฤษจับคู่บทด้วยชื่อไฟล์ ถ้าไม่มีใช้บทภาษาไทยพร้อมป้าย | id ต้องเหมือนกันทุกภาษาเพื่อสลับภาษาแล้วอยู่หัวข้อเดิม (SPEC 4.9) · ถ้าสร้างจากชื่อ id จะเปลี่ยนเมื่อแก้ชื่อหัวข้อ |
+| 2026-09-15 | ข้อความของหน้าคู่มือ | ช่องค้นหา ปุ่มพิมพ์ ปุ่มสลับภาษา และป้ายยังไม่แปล อยู่ใน `manual/template/strings.json` ทั้งสองภาษา ไม่ใช่ `Strings.resx` | หน้าคู่มือเป็น HTML ที่สร้างตอน build โดย ManualBuilder ซึ่งไม่อ่าน resx ของ app |
+| 2026-09-15 | ผูกคู่มือกับ build | `MinkQuickLax.csproj` อ้าง ManualBuilder แบบ `ReferenceOutputAssembly="false"` แล้ว target `BuildManual` (incremental ตาม `manual/**` และ `ManualTopics.cs`) รัน builder ลง `obj\...\manual-html\` แล้วเพิ่มเป็น `Content` ที่ `Manual\` · ข้ามในโปรเจกต์ `*_wpftmp` | build ใน CI ตรวจคู่มือไปด้วย · ไม่ตั้ง `SetTargetFramework` เพราะจะได้ builder อีกชุดที่ build ขนานกับของ solution · โฟลเดอร์ชื่อ `manual` ชนกับที่ WPF compile `Manual\*.xaml` |
+| 2026-09-15 | id ที่ app เปิดตรง | `Manual/ManualTopics.cs` เก็บเป็น `const string` · ManualBuilder อ่านค่าเหล่านี้ด้วย regex แล้ว error ถ้าไม่มีในบทภาษาไทย · F1 ในหน้าตั้งค่าใช้ `ManualTopics.ForPage` | ตรวจได้ตอน build โดยไม่ต้องให้ builder อ้าง assembly ของ app |
+| 2026-09-15 | หน้าต่างคู่มือ | WebView2 ปิด DevTools, เมนูคลิกขวา, host object และ web message · เปิดได้เฉพาะไฟล์ในโฟลเดอร์ `Manual` ลิงก์ http/https เปิดใน browser หลัก · ส่ง `?theme=dark|light&embedded=1#id` · เปลี่ยนธีมระหว่างเปิดอยู่ใช้ script ตั้ง `data-theme` · สร้าง WebView2 ไม่ได้ให้ปิดหน้าต่างแล้วเปิดไฟล์ใน browser แทน | คู่มือเป็นไฟล์ในเครื่อง ไม่มีเหตุให้ไปหน้าเว็บอื่นในหน้าต่างของ app |
+| 2026-09-15 | ค้นหาในคู่มือ | substring บนข้อความที่ NFKC + ตัวพิมพ์เล็ก · คะแนน: ชื่อหัวข้อ > คำค้นเพิ่ม > เนื้อหา · `Intl.Segmenter` ใช้หาจุดเริ่มคำเพื่อเพิ่มคะแนนและตัดข้อความตัวอย่าง · หลายคำต้องเจอครบทุกคำ · `?q=` เปิดหน้าพร้อมผลค้นหา | ภาษาไทยไม่มีช่องว่างระหว่างคำ (SPEC 4.9) · `?q=` ใช้ทดสอบการค้นด้วย Edge headless ได้โดยไม่ต้องพิมพ์ |

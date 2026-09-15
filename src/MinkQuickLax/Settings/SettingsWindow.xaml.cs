@@ -23,13 +23,16 @@ public partial class SettingsWindow : StyledWindow, ISettingsDialogHost
     private readonly GroupsViewModel _groups;
     private readonly DataViewModel _data;
     private readonly AboutViewModel _about;
+    private readonly Manual.ManualService _manual;
     private readonly Dictionary<SettingsPage, FrameworkElement> _pages = [];
     private (SettingsPage Page, string? Item)? _pending;
+    private SettingsPage _page = SettingsPage.Links;
     private TaskCompletionSource<bool>? _dialog;
 
-    public SettingsWindow(IServiceProvider services, ThemeService theme, Localizer text)
+    public SettingsWindow(IServiceProvider services, ThemeService theme, Localizer text, Manual.ManualService manual)
     {
         _text = text;
+        _manual = manual;
         CaptionHeight = 48;
         UseTheme(theme);
         var dialogs = new SettingsDialogs(this);
@@ -106,6 +109,12 @@ public partial class SettingsWindow : StyledWindow, ISettingsDialogHost
             CloseDialog(false);
             e.Handled = true;
         }
+        else if (e.Key == Key.F1)
+        {
+            // SPEC 4.8: F1 opens the manual at the section about this page.
+            _manual.Show(Manual.ManualTopics.ForPage(_page));
+            e.Handled = true;
+        }
     }
 
     protected override void OnClosed(EventArgs e)
@@ -147,6 +156,7 @@ public partial class SettingsWindow : StyledWindow, ISettingsDialogHost
         {
             return;
         }
+        _page = page;
         PageHost.Content = Page(page);
         switch (page)
         {

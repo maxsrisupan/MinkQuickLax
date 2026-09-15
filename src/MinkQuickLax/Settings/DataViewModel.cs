@@ -108,9 +108,12 @@ public sealed partial class DataViewModel(
         try
         {
             store.DeleteAllData();
-            if (Directory.Exists(AppInfo.IconCacheDirectory))
+            foreach (var folder in new[] { AppInfo.IconCacheDirectory, Manual.ManualService.WebViewDataDirectory })
             {
-                Directory.Delete(AppInfo.IconCacheDirectory, recursive: true);
+                if (Directory.Exists(folder))
+                {
+                    Directory.Delete(folder, recursive: true);
+                }
             }
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

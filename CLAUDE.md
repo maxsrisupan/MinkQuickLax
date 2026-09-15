@@ -28,7 +28,7 @@ Quick launcher สำหรับ Windows: link แต่ละตัวเป�
 | test | `dotnet test --solution MinkQuickLax.slnx` |
 | test เฉพาะโปรเจกต์ | `dotnet test --project tests/MinkQuickLax.Core.Tests` |
 | รัน app | `dotnet run --project src/MinkQuickLax` (icon อยู่ที่ tray บน Windows 11 อาจอยู่ใต้ "แสดงไอคอนที่ซ่อน") |
-| สร้างคู่มือ | _(เติมใน M10)_ |
+| สร้างคู่มือ | สร้างเองตอน build app (`Manual\th.html`, `Manual\en.html` ข้าง exe) · แยกรัน: `dotnet run --project tools/ManualBuilder -- --manual manual --out <โฟลเดอร์> --fonts src/MinkQuickLax/Assets/Fonts --topics src/MinkQuickLax/Manual/ManualTopics.cs` |
 | สร้างตัวติดตั้ง | _(เติมใน M11)_ |
 
 - **test ใช้ Microsoft.Testing.Platform:** ต้องระบุ `--solution` หรือ `--project` · โปรเจกต์ test ที่ไม่มี test เลยจะล้ม (exit code 8) จึงสร้างโปรเจกต์ test พร้อม test แรกเท่านั้น

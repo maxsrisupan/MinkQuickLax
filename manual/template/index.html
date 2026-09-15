@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; font-src data:">
+<title>{{s:title}}</title>
+<style>
+{{fontFaces}}
+{{css}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <button id="menu" class="icon-button menu-button" type="button" aria-controls="toc" aria-expanded="false" aria-label="{{s:contents}}">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <a class="brand" href="#">{{s:title}}</a>
+  <div class="search" role="search">
+    <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+    <input id="search" type="search" placeholder="{{s:searchPlaceholder}}" aria-label="{{s:search}}" aria-controls="results" aria-autocomplete="list" autocomplete="off" spellcheck="false">
+    <kbd class="search-key">/</kbd>
+    <div id="results" class="results" role="listbox" aria-label="{{s:search}}" hidden></div>
+  </div>
+  <a id="language" class="button" href="{{otherLang}}.html" hreflang="{{otherLang}}">{{s:otherLanguage}}</a>
+  <button id="print" class="button" type="button">{{s:print}}</button>
+</header>
+<nav id="toc" class="toc" aria-label="{{s:contents}}">
+  <p class="toc-title">{{s:contents}}</p>
+  {{toc}}
+</nav>
+<main id="content" class="content">
+{{content}}
+</main>
+<script>
+const MANUAL_INDEX = {{index}};
+const MANUAL_TEXT = {{strings}};
+</script>
+<script>
+{{script}}
+</script>
+</body>
+</html>

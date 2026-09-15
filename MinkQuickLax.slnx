@@ -7,6 +7,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/MinkQuickLax.Core.Tests/MinkQuickLax.Core.Tests.csproj" />
     <Project Path="tests/MinkQuickLax.Platform.Tests/MinkQuickLax.Platform.Tests.csproj" />
+    <Project Path="tests/ManualBuilder.Tests/ManualBuilder.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/ManualBuilder/ManualBuilder.csproj" />

@@ -1,0 +1,43 @@
+<styles:StyledWindow x:Class="MinkQuickLax.Manual.ManualWindow"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:s="clr-namespace:MinkQuickLax.Services"
+                     xmlns:styles="clr-namespace:MinkQuickLax.Styles"
+                     xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+                     Title="{s:Text Manual_Title}"
+                     Width="1120" Height="780" MinWidth="520" MinHeight="420"
+                     WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
+                     Icon="pack://application:,,,/Assets/AppIcon.ico">
+
+  <!-- SPEC 4.9: the manual in the app's own window, with "open in browser" and "print". -->
+  <styles:SurfaceFrame Fill="{DynamicResource Skin.Fill.Scanner}">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="52" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <Grid Margin="16,0,10,0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Image Source="pack://application:,,,/Assets/AppIcon.ico" Width="22" Height="22" RenderOptions.BitmapScalingMode="HighQuality" />
+          <TextBlock Style="{StaticResource Skin.Text}" FontFamily="{DynamicResource Font.Heading}" FontSize="16" FontWeight="SemiBold"
+                     Margin="10,0,0,0" VerticalAlignment="Center" Text="{s:Text Manual_Title}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <Button Style="{StaticResource Skin.OutlineButton}" Margin="0,0,6,0" Content="{s:Text Manual_OpenInBrowser}" Click="OnOpenInBrowser"
+                  WindowChrome.IsHitTestVisibleInChrome="True" />
+          <Button x:Name="PrintButton" Style="{StaticResource Skin.OutlineButton}" Margin="0,0,12,0" Content="{s:Text Manual_Print}" Click="OnPrint"
+                  WindowChrome.IsHitTestVisibleInChrome="True" IsEnabled="False" />
+          <Button Style="{StaticResource Skin.IconButton}" Margin="0,0,6,0" Content="–" Click="OnMinimize"
+                  WindowChrome.IsHitTestVisibleInChrome="True" AutomationProperties.Name="{s:Text Settings_Minimize}" />
+          <Button Style="{StaticResource Skin.IconButton}" Content="✕" Click="OnCloseClicked"
+                  WindowChrome.IsHitTestVisibleInChrome="True" AutomationProperties.Name="{s:Text Common_Close}" />
+        </StackPanel>
+      </Grid>
+
+      <Border Grid.Row="1" Margin="10,0,10,10" CornerRadius="{DynamicResource Skin.Radius.Field}" ClipToBounds="True">
+        <wv2:WebView2 x:Name="Web" AutomationProperties.Name="{s:Text Manual_Title}" />
+      </Border>
+    </Grid>
+  </styles:SurfaceFrame>
+</styles:StyledWindow>

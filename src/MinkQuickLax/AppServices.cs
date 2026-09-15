@@ -49,6 +49,7 @@ public static class AppServices
         builder.Services.AddSingleton<Scanner.ScannerService>();
         builder.Services.AddSingleton(StartupRegistration.ForCurrentUser());
         builder.Services.AddSingleton<Settings.SettingsService>();
+        builder.Services.AddSingleton<Manual.ManualService>();
         builder.Services.AddSingleton<TrayController>();
         builder.Services.AddSingleton<AppShell>();
         return builder.Build();
