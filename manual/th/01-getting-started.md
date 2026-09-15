@@ -9,7 +9,7 @@ MinkQuickLax คือ quick launcher สำหรับ Windows ที่ทำ
 
 ## ติดตั้ง {#install}
 
-1. ดาวน์โหลดไฟล์ `MinkQuickLax-win-Setup.exe` จากหน้า Releases ของ MinkQuickLax บน GitHub
+1. ดาวน์โหลดไฟล์ `MinkQuickLax-win-Setup.exe` จากหน้า Releases ของ MinkQuickLax บน GitHub (รุ่นทดลองชื่อ `MinkQuickLax-beta-Setup.exe`)
 2. ดับเบิลคลิกไฟล์ที่ดาวน์โหลดมา
 3. ติดตั้งเสร็จแล้ว MinkQuickLax เปิดขึ้นมาเองทันที
 
@@ -20,7 +20,7 @@ MinkQuickLax คือ quick launcher สำหรับ Windows ที่ทำ
 ตอนเปิดตัวติดตั้งครั้งแรก Windows อาจขึ้นหน้าสีน้ำเงิน "Windows protected your PC" เพราะ MinkQuickLax ยังเป็นโปรแกรมใหม่ที่มีคนดาวน์โหลดไม่มาก ไม่ได้แปลว่าไฟล์มีไวรัส
 
 1. กด **More info** (ข้อมูลเพิ่มเติม)
-2. ตรวจว่าชื่อโปรแกรมเป็น `MinkQuickLax-win-Setup.exe`
+2. ตรวจว่าชื่อโปรแกรมเป็น `MinkQuickLax-win-Setup.exe` หรือ `MinkQuickLax-beta-Setup.exe`
 3. กด **Run anyway** (เรียกใช้ต่อไป)
 
 > ดาวน์โหลดตัวติดตั้งจากหน้า Releases ของ MinkQuickLax บน GitHub เท่านั้น ไม่ควรกดข้ามหน้าเตือนนี้กับไฟล์ที่ได้มาจากที่อื่น
