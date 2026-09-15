@@ -24,10 +24,12 @@ public sealed class TrayController : IDisposable
     private readonly Scanner.ScannerService _scanner;
     private readonly Settings.SettingsService _settings;
     private readonly Manual.ManualService _manual;
+    private readonly UpdateController _updates;
 
-    public TrayController(ConfigStore store, PlacementController placements, ArrangeController arrange, Scanner.ScannerService scanner, Settings.SettingsService settings, Manual.ManualService manual, SurfaceHost surfaces, Localizer text)
+    public TrayController(ConfigStore store, PlacementController placements, ArrangeController arrange, Scanner.ScannerService scanner, Settings.SettingsService settings, Manual.ManualService manual, UpdateController updates, SurfaceHost surfaces, Localizer text)
     {
         _manual = manual;
+        _updates = updates;
         _settings = settings;
         _scanner = scanner;
         _store = store;
@@ -77,7 +79,6 @@ public sealed class TrayController : IDisposable
     {
         IReadOnlyList<MenuEntry> entries =
         [
-            // Updates arrive in M11.
             new MenuCommand(_text["Tray_AddFromPc"], () => _scanner.Show()),
             new MenuCommand(_text["Tray_Arrange"], _arrange.Enter, IsEnabled: !_arrange.IsArranging),
             new MenuCommand(_text["Tray_Tidy"], _arrange.IsArranging ? _arrange.Tidy : _placements.Tidy),
@@ -86,7 +87,9 @@ public sealed class TrayController : IDisposable
             MenuSeparator.Instance,
             new MenuCommand(_text["Tray_Settings"], () => _settings.Show()),
             new MenuCommand(_text["Tray_Manual"], () => _manual.Show(Manual.ManualTopics.GettingStarted)),
-            new MenuCommand(_text["Tray_CheckUpdates"], () => { }, IsEnabled: false),
+            _updates.ReadyVersion is { } ready
+                ? new MenuCommand(_text.Format("Tray_RestartToUpdate", ready), _updates.RestartNow)
+                : new MenuCommand(_text["Tray_CheckUpdates"], _updates.CheckNow),
             MenuSeparator.Instance,
             new MenuCommand(_text["Tray_Exit"], () => ExitRequested?.Invoke()),
         ];

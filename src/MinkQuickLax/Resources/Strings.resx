@@ -769,4 +769,27 @@
   <data name="Manual_Print" xml:space="preserve">
     <value>Print</value>
   </data>
+  <data name="Update_Ready" xml:space="preserve">
+    <value>Version {0} is ready. It will be installed when MinkQuickLax closes.</value>
+    <comment>{0} is a version number such as 0.2.0</comment>
+  </data>
+  <data name="Update_RestartNow" xml:space="preserve">
+    <value>Restart now</value>
+  </data>
+  <data name="Update_Later" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="Update_UpToDate" xml:space="preserve">
+    <value>MinkQuickLax is up to date (version {0}).</value>
+  </data>
+  <data name="Update_NotInstalled" xml:space="preserve">
+    <value>Only copies installed with the installer can update themselves.</value>
+  </data>
+  <data name="Update_Failed" xml:space="preserve">
+    <value>Could not check for updates. Try again later.</value>
+  </data>
+  <data name="Tray_RestartToUpdate" xml:space="preserve">
+    <value>Restart to install {0}</value>
+    <comment>{0} is a version number</comment>
+  </data>
 </root>

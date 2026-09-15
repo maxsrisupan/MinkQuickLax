@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Velopack;
 using MinkQuickLax.Core.Config;
 using MinkQuickLax.Platform.Interop;
 using MinkQuickLax.Platform.SystemIntegration;
@@ -13,7 +14,12 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
-        // Velopack's hooks go first here once the installer lands (M10).
+        // PLAN 3.1 step 1: Velopack runs its install/update/uninstall hooks and exits in those cases. Uninstalling
+        // removes the start-with-Windows entry (SPEC 4.11); settings stay so a reinstall gets them back.
+        VelopackApp.Build()
+            .OnBeforeUninstallFastCallback(_ => StartupRegistration.ForCurrentUser().Disable())
+            .Run();
+
         using var instance = SingleInstance.Acquire(InstanceName);
         if (!instance.IsFirst)
         {

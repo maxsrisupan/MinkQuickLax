@@ -8,14 +8,22 @@ A quick launcher for Windows. Each link is a small icon that floats above other 
 
 - Put single icons and groups (folders) anywhere on any monitor, and mix them freely
 - Never steals focus from the app you are typing in, and stays out of the taskbar and Alt+Tab
-- Scan installed apps, or add files, folders and URLs
-- Glass look that follows the Windows light/dark theme
-- Thai and English
+- Scan installed apps, or add files, folders and web addresses, each web link with the browser of your choice
+- Three styles: Glass, HUD and Dot Matrix, in light or dark
+- Thai and English, with a built-in manual that works offline (Thai for now)
+- Starts with Windows and updates itself
 - Free and open source (MIT)
 
 ## Status
 
-Early development. Nothing is ready to install yet. The project skeleton is in place; the next step is a set of technical spikes to prove the risky parts before building features.
+Feature-complete for the first beta. Releases will be published on the [Releases](https://github.com/maxsrisupan/MinkQuickLax/releases) page; until the first one is out there is nothing to download yet.
+
+## Install
+
+1. Download `MinkQuickLax-win-Setup.exe` (or `MinkQuickLax-beta-Setup.exe` for a beta) from [Releases](https://github.com/maxsrisupan/MinkQuickLax/releases) and run it. It installs for your user only and needs no administrator rights.
+2. The app is not code-signed yet, so Windows may show "Windows protected your PC". Choose **More info**, then **Run anyway**.
+
+Uninstall from Windows Settings → Apps → Installed apps. Your links and settings stay in `%AppData%\MinkQuickLax`; use Settings → Data → "Delete all data and exit" first if you want them gone.
 
 ## Requirements
 
@@ -31,7 +39,9 @@ dotnet test --solution MinkQuickLax.slnx
 dotnet run --project src/MinkQuickLax
 ```
 
-The app shows an icon in the notification area. On Windows 11 it may be under "Show hidden icons".
+The build also writes the manual (`Manual\th.html`, `Manual\en.html`) next to the app. The app shows an icon in the notification area; on Windows 11 it may be under "Show hidden icons".
+
+To make an installer locally: `build/publish.ps1 -Version 0.1.0` then `build/pack.ps1 -Version 0.1.0` (output in `artifacts/releases`). Pushing a tag such as `v0.1.0` or `v0.1.0-beta.1` does the same on GitHub Actions and publishes the release.
 
 ## Documentation
 
@@ -39,6 +49,8 @@ The specification and plan are written in Thai:
 
 - [docs/SPEC.md](docs/SPEC.md): requirements
 - [docs/PLAN.md](docs/PLAN.md): architecture, milestones and progress
+- [manual/th](manual/th): the user manual
+- [CHANGELOG.md](CHANGELOG.md): changes in each version
 
 ## License
 

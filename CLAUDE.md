@@ -29,7 +29,7 @@ Quick launcher สำหรับ Windows: link แต่ละตัวเป�
 | test เฉพาะโปรเจกต์ | `dotnet test --project tests/MinkQuickLax.Core.Tests` |
 | รัน app | `dotnet run --project src/MinkQuickLax` (icon อยู่ที่ tray บน Windows 11 อาจอยู่ใต้ "แสดงไอคอนที่ซ่อน") |
 | สร้างคู่มือ | สร้างเองตอน build app (`Manual\th.html`, `Manual\en.html` ข้าง exe) · แยกรัน: `dotnet run --project tools/ManualBuilder -- --manual manual --out <โฟลเดอร์> --fonts src/MinkQuickLax/Assets/Fonts --topics src/MinkQuickLax/Manual/ManualTopics.cs` |
-| สร้างตัวติดตั้ง | _(เติมใน M11)_ |
+| สร้างตัวติดตั้ง | `build/publish.ps1 -Version 0.1.0` แล้ว `build/pack.ps1 -Version 0.1.0` (ได้ไฟล์ใน `artifacts/releases`) · ออกรุ่นจริง: เพิ่มหัวข้อใน `CHANGELOG.md` แล้ว push tag `v0.1.0` หรือ `v0.1.0-beta.1` (**ถามผู้ใช้ก่อน** เพราะหน้า Release เป็นสาธารณะ) |
 
 - **test ใช้ Microsoft.Testing.Platform:** ต้องระบุ `--solution` หรือ `--project` · โปรเจกต์ test ที่ไม่มี test เลยจะล้ม (exit code 8) จึงสร้างโปรเจกต์ test พร้อม test แรกเท่านั้น
 - **ปิด app ก่อน build ซ้ำ:** ถ้า app ยังรันอยู่ build จะล้มเพราะไฟล์ exe ถูกล็อก

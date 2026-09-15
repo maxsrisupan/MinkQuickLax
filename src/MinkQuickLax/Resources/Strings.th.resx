@@ -750,4 +750,25 @@
   <data name="Manual_Print" xml:space="preserve">
     <value>พิมพ์</value>
   </data>
+  <data name="Update_Ready" xml:space="preserve">
+    <value>เวอร์ชัน {0} พร้อมแล้ว จะติดตั้งตอนปิด MinkQuickLax</value>
+  </data>
+  <data name="Update_RestartNow" xml:space="preserve">
+    <value>รีสตาร์ทตอนนี้</value>
+  </data>
+  <data name="Update_Later" xml:space="preserve">
+    <value>ภายหลัง</value>
+  </data>
+  <data name="Update_UpToDate" xml:space="preserve">
+    <value>MinkQuickLax เป็นเวอร์ชันล่าสุดแล้ว (เวอร์ชัน {0})</value>
+  </data>
+  <data name="Update_NotInstalled" xml:space="preserve">
+    <value>อัปเดตได้เฉพาะ MinkQuickLax ที่ติดตั้งจากตัวติดตั้ง</value>
+  </data>
+  <data name="Update_Failed" xml:space="preserve">
+    <value>ตรวจหาอัปเดตไม่สำเร็จ ลองอีกครั้งภายหลัง</value>
+  </data>
+  <data name="Tray_RestartToUpdate" xml:space="preserve">
+    <value>รีสตาร์ทเพื่อติดตั้ง {0}</value>
+  </data>
 </root>

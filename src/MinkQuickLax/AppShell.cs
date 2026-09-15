@@ -28,6 +28,7 @@ public sealed partial class AppShell
     private readonly SingleInstance _instance;
     private readonly Settings.SettingsService _settings;
     private readonly StartupRegistration _startup;
+    private readonly UpdateController _updates;
     private readonly ILogger<AppShell> _logger;
 
     public AppShell(
@@ -44,6 +45,7 @@ public sealed partial class AppShell
         SingleInstance instance,
         Settings.SettingsService settings,
         StartupRegistration startup,
+        UpdateController updates,
         ILogger<AppShell> logger)
     {
         _application = application;
@@ -60,6 +62,7 @@ public sealed partial class AppShell
         _instance = instance;
         _settings = settings;
         _startup = startup;
+        _updates = updates;
         _logger = logger;
     }
 
@@ -99,6 +102,8 @@ public sealed partial class AppShell
                 : _text["Notice_ConfigReset"]);
         }
 
+        // PLAN 3.1 step 7: look for updates in the background.
+        _updates.Start();
         GC.KeepAlive(_actions);
     }
 
@@ -110,6 +115,9 @@ public sealed partial class AppShell
         _tray.Dispose();
         _placements.Dispose();
         _store.Flush();
+        // SPEC 4.11: a downloaded version installs once this process has ended.
+        _updates.InstallOnExit();
+        _updates.Dispose();
     }
 
     private void ApplySettings(AppSettings settings)

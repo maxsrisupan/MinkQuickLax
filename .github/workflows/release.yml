@@ -1,0 +1,55 @@
+name: Release
+
+# Pushing a tag like v0.1.0 or v0.1.0-beta.1 builds, tests, packs and publishes a GitHub Release (PLAN.md 9).
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - name: Version from tag
+        id: version
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          if ($version -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$') { throw "Tag $version is not a version" }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore MinkQuickLax.slnx
+
+      - name: Build
+        run: dotnet build MinkQuickLax.slnx -c Release --no-restore
+
+      - name: Test
+        run: dotnet test --solution MinkQuickLax.slnx -c Release --no-build
+
+      - name: Publish
+        shell: pwsh
+        run: ./build/publish.ps1 -Version ${{ steps.version.outputs.version }}
+
+      - name: Pack and upload
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./build/pack.ps1 -Version ${{ steps.version.outputs.version }} -Upload
