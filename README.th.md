@@ -16,7 +16,7 @@ Quick launcher สำหรับ Windows · link แต่ละตัวเป
 
 ## สถานะ
 
-รุ่นทดลอง · ออก [0.1.0-beta.1](https://github.com/maxsrisupan/MinkQuickLax/releases/tag/v0.1.0-beta.1) แล้ว รุ่นปกติ 0.1.0 จะตามมาหลังลองใช้ไประยะหนึ่ง
+ออกรุ่นแรก [0.1.0](https://github.com/maxsrisupan/MinkQuickLax/releases/tag/v0.1.0) แล้ว
 
 ## ติดตั้ง
 

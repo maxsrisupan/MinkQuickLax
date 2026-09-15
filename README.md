@@ -16,7 +16,7 @@ A quick launcher for Windows. Each link is a small icon that floats above other 
 
 ## Status
 
-Beta. The first test release, [0.1.0-beta.1](https://github.com/maxsrisupan/MinkQuickLax/releases/tag/v0.1.0-beta.1), is out; a stable 0.1.0 follows after it has been used for a while.
+The first release, [0.1.0](https://github.com/maxsrisupan/MinkQuickLax/releases/tag/v0.1.0), is out.
 
 ## Install
 
