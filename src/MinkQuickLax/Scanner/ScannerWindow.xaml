@@ -61,49 +61,12 @@
         </Border>
       </Grid>
 
-      <!-- Add by hand: file, folder, web address -->
-      <Grid Grid.Row="3" Margin="0,0,0,8">
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="Auto" />
-          <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+      <!-- Add by hand: file, folder, or a website in its own window (SPEC 4.1) -->
+      <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,8">
         <Button Style="{StaticResource Skin.Button}" MinWidth="0" Content="{s:Text Scanner_PickFile}" Click="OnPickFile" />
-        <Button Grid.Column="1" Style="{StaticResource Skin.Button}" MinWidth="0" Margin="4,0,8,0" Content="{s:Text Scanner_PickFolder}" Click="OnPickFolder" />
-        <StackPanel Grid.Column="2">
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*" />
-              <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <TextBox x:Name="UrlBox" Style="{StaticResource Skin.TextBox}" Tag="{s:Text Scanner_UrlHint}"
-                     Text="{Binding Url, UpdateSourceTrigger=PropertyChanged}" KeyDown="OnUrlKeyDown" AutomationProperties.Name="{s:Text Scanner_UrlHint}" />
-            <!-- SPEC 4.1: which browser opens the web address. -->
-            <ComboBox Grid.Column="1" Style="{StaticResource Skin.ComboBox}" Margin="6,0,0,0" MinWidth="130" MaxWidth="170"
-                      ItemsSource="{Binding Browsers}" SelectedItem="{Binding Browser}" AutomationProperties.Name="{s:Text Link_Browser}">
-              <ComboBox.ItemTemplate>
-                <DataTemplate DataType="s:BrowserChoice">
-                  <StackPanel Orientation="Horizontal">
-                    <Image Width="16" Height="16" Margin="0,0,6,0" Source="{Binding Icon}" RenderOptions.BitmapScalingMode="HighQuality" />
-                    <TextBlock Style="{StaticResource Skin.Text}" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                  </StackPanel>
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-          </Grid>
-          <TextBlock Foreground="{DynamicResource Danger}" FontSize="12" Margin="2,2,0,0" Text="{Binding UrlError}">
-            <TextBlock.Style>
-              <Style TargetType="TextBlock" BasedOn="{StaticResource Skin.Text}">
-                <Style.Triggers>
-                  <Trigger Property="Text" Value="">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                  </Trigger>
-                </Style.Triggers>
-              </Style>
-            </TextBlock.Style>
-          </TextBlock>
-        </StackPanel>
-      </Grid>
+        <Button Style="{StaticResource Skin.Button}" MinWidth="0" Margin="4,0,0,0" Content="{s:Text Scanner_PickFolder}" Click="OnPickFolder" />
+        <Button Style="{StaticResource Skin.Button}" MinWidth="0" Margin="4,0,0,0" Content="{s:Text Scanner_PickWeb}" Click="OnPickWeb" />
+      </StackPanel>
 
       <!-- Results -->
       <Grid Grid.Row="4">

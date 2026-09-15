@@ -22,16 +22,18 @@ public sealed class TrayController : IDisposable
     private readonly ArrangeController _arrange;
 
     private readonly Scanner.ScannerService _scanner;
+    private readonly AddWeb.AddWebService _addWeb;
     private readonly Settings.SettingsService _settings;
     private readonly Manual.ManualService _manual;
     private readonly UpdateController _updates;
 
-    public TrayController(ConfigStore store, PlacementController placements, ArrangeController arrange, Scanner.ScannerService scanner, Settings.SettingsService settings, Manual.ManualService manual, UpdateController updates, SurfaceHost surfaces, Localizer text)
+    public TrayController(ConfigStore store, PlacementController placements, ArrangeController arrange, Scanner.ScannerService scanner, AddWeb.AddWebService addWeb, Settings.SettingsService settings, Manual.ManualService manual, UpdateController updates, SurfaceHost surfaces, Localizer text)
     {
         _manual = manual;
         _updates = updates;
         _settings = settings;
         _scanner = scanner;
+        _addWeb = addWeb;
         _store = store;
         _placements = placements;
         _arrange = arrange;
@@ -80,6 +82,7 @@ public sealed class TrayController : IDisposable
         IReadOnlyList<MenuEntry> entries =
         [
             new MenuCommand(_text["Tray_AddFromPc"], () => _scanner.Show()),
+            new MenuCommand(_text["Tray_AddWeb"], _addWeb.Show),
             new MenuCommand(_text["Tray_Arrange"], _arrange.Enter, IsEnabled: !_arrange.IsArranging),
             new MenuCommand(_text["Tray_Tidy"], _arrange.IsArranging ? _arrange.Tidy : _placements.Tidy),
             MenuSeparator.Instance,

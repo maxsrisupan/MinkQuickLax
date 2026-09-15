@@ -32,9 +32,6 @@ public enum ItemSource
 /// <summary>One row in the scanner: what will become a link, with a name the user can change first.</summary>
 public sealed partial class ScanItem : ObservableObject
 {
-    /// <summary>For web addresses: the browser chosen when it was added, or null for the default.</summary>
-    public string? Browser { get; set; }
-
     public ScanItem(ItemSource source, LinkKind kind, string target, string arguments, string name, string? iconParsingName, bool alreadyAdded)
     {
         Source = source;
@@ -121,23 +118,8 @@ public sealed partial class ScannerViewModel : ObservableObject, IDisposable
     [NotifyCanExecuteChangedFor(nameof(AddCommand))]
     private int _selectedCount;
 
-    [ObservableProperty]
-    private string _url = "";
-
-    [ObservableProperty]
-    private string _urlError = "";
-
-    /// <summary>Browsers a web address can open with; the first is the Windows default (SPEC 4.1).</summary>
-    public IReadOnlyList<BrowserChoice> Browsers { get; private set; } = [];
-
-    [ObservableProperty]
-    private BrowserChoice? _browser;
-
     public async Task ScanAsync()
     {
-        Browsers = BrowserChoice.Load(_text);
-        OnPropertyChanged(nameof(Browsers));
-        Browser = Browsers[0];
         var apps = await Task.Run(() => AppScanner.Scan(_cancel.Token));
         foreach (var app in apps)
         {
@@ -172,7 +154,6 @@ public sealed partial class ScannerViewModel : ObservableObject, IDisposable
                 Target = item.Target,
                 Arguments = item.Arguments,
                 Icon = new IconSpec { Source = item.Kind == LinkKind.Url ? IconSourceKind.Favicon : IconSourceKind.Auto },
-                Browser = item.Kind == LinkKind.Url ? item.Browser : null,
             },
             item.IconParsingName is null ? null : IconExtractor.ForParsingName(item.IconParsingName))).ToList());
         _adder.Add(newLinks);
@@ -184,8 +165,8 @@ public sealed partial class ScannerViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void Close() => CloseRequested?.Invoke();
 
-    /// <summary>Adds a file, folder or web address typed or picked by the user, already ticked.</summary>
-    public void AddManual(string input, string? browser = null)
+    /// <summary>Adds a file or folder picked by the user, already ticked. Web addresses have their own window (AddWeb).</summary>
+    public void AddManual(string input)
     {
         var detected = LinkKindDetector.Detect(input, SystemPathProbe.Instance);
         if (detected is null)
@@ -196,25 +177,10 @@ public sealed partial class ScannerViewModel : ObservableObject, IDisposable
         var key = ScanItem.KeyOf(detected.Kind, detected.Target, "");
         var item = new ScanItem(ItemSource.Manual, detected.Kind, detected.Target, "", detected.SuggestedName, iconName, _existing.Contains(key));
         item.IsChecked = !item.AlreadyAdded;
-        item.Browser = browser;
         AddItem(item, atTop: true);
         Query = "";
         Filter = ScanFilter.All;
         _ = LoadIconsAsync([item]);
-    }
-
-    [RelayCommand]
-    private void AddUrl()
-    {
-        var detected = LinkKindDetector.Detect(Url, SystemPathProbe.Instance);
-        if (detected is null || detected.Kind is not (LinkKind.Url or LinkKind.MsSettings))
-        {
-            UrlError = _text["Scanner_UrlInvalid"];
-            return;
-        }
-        UrlError = "";
-        AddManual(Url, Browser?.Id);
-        Url = "";
     }
 
     private void AddItem(ScanItem item, bool atTop)

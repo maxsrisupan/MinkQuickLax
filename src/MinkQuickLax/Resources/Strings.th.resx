@@ -114,6 +114,21 @@
   <data name="Notice_Unsupported" xml:space="preserve">
     <value>เวอร์ชันนี้ยังเปิด link ประเภทนี้ไม่ได้</value>
   </data>
+  <data name="AddWeb_Title" xml:space="preserve">
+    <value>เพิ่มเว็บ</value>
+  </data>
+  <data name="AddWeb_Address" xml:space="preserve">
+    <value>ที่อยู่เว็บ</value>
+  </data>
+  <data name="AddWeb_AddressHint" xml:space="preserve">
+    <value>เช่น youtube.com</value>
+  </data>
+  <data name="AddWeb_Invalid" xml:space="preserve">
+    <value>ที่อยู่นี้ไม่ใช่ URL ที่ใช้ได้</value>
+  </data>
+  <data name="AddWeb_AlreadyAdded" xml:space="preserve">
+    <value>มี link ของเว็บนี้อยู่แล้ว</value>
+  </data>
   <data name="Scanner_Add" xml:space="preserve">
     <value>เพิ่มลงจอ</value>
   </data>
@@ -147,6 +162,9 @@
   <data name="Scanner_PickFolder" xml:space="preserve">
     <value>โฟลเดอร์…</value>
   </data>
+  <data name="Scanner_PickWeb" xml:space="preserve">
+    <value>เว็บ…</value>
+  </data>
   <data name="Scanner_Rename" xml:space="preserve">
     <value>ชื่อ</value>
   </data>
@@ -174,14 +192,11 @@
   <data name="Scanner_Title" xml:space="preserve">
     <value>เพิ่มจากเครื่องนี้</value>
   </data>
-  <data name="Scanner_UrlHint" xml:space="preserve">
-    <value>วางที่อยู่เว็บแล้วกด Enter</value>
-  </data>
-  <data name="Scanner_UrlInvalid" xml:space="preserve">
-    <value>ที่อยู่นี้ไม่ใช่ URL ที่ใช้ได้</value>
-  </data>
   <data name="Tray_AddFromPc" xml:space="preserve">
     <value>เพิ่มจากเครื่องนี้…</value>
+  </data>
+  <data name="Tray_AddWeb" xml:space="preserve">
+    <value>เพิ่มเว็บ…</value>
   </data>
   <data name="Tray_Arrange" xml:space="preserve">
     <value>จัดวางไอคอน</value>

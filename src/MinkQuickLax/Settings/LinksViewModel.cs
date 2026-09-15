@@ -48,16 +48,18 @@ public sealed partial class LinksViewModel : ObservableObject, IDisposable
     private readonly IconCache _icons;
     private readonly LinkAdder _adder;
     private readonly Scanner.ScannerService _scanner;
+    private readonly AddWeb.AddWebService _addWeb;
     private readonly SettingsDialogs _dialogs;
     private readonly Localizer _text;
     private readonly ObservableCollection<LinkRow> _rows = [];
 
-    public LinksViewModel(ConfigStore store, IconCache icons, LinkAdder adder, Scanner.ScannerService scanner, SettingsDialogs dialogs, Localizer text)
+    public LinksViewModel(ConfigStore store, IconCache icons, LinkAdder adder, Scanner.ScannerService scanner, AddWeb.AddWebService addWeb, SettingsDialogs dialogs, Localizer text)
     {
         _store = store;
         _icons = icons;
         _adder = adder;
         _scanner = scanner;
+        _addWeb = addWeb;
         _dialogs = dialogs;
         _text = text;
         Rows = CollectionViewSource.GetDefaultView(_rows);
@@ -115,6 +117,9 @@ public sealed partial class LinksViewModel : ObservableObject, IDisposable
 
     [RelayCommand]
     private void AddFromPc() => _scanner.Show();
+
+    [RelayCommand]
+    private void AddWebsite() => _addWeb.Show();
 
     private bool Matches(LinkRow row)
     {

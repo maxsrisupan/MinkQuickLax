@@ -46,6 +46,7 @@ public static class AppServices
         builder.Services.AddSingleton<GroupController>();
         builder.Services.AddSingleton<LinkActions>();
         builder.Services.AddSingleton<LinkAdder>();
+        builder.Services.AddSingleton<AddWeb.AddWebService>();
         builder.Services.AddSingleton<Scanner.ScannerService>();
         builder.Services.AddSingleton(StartupRegistration.ForCurrentUser());
         builder.Services.AddSingleton<Settings.SettingsService>();

@@ -12,10 +12,12 @@ namespace MinkQuickLax.Scanner;
 public partial class ScannerWindow : StyledWindow
 {
     private readonly ScannerViewModel _model;
+    private readonly AddWeb.AddWebService _addWeb;
 
-    public ScannerWindow(ScannerViewModel model, ThemeService theme)
+    public ScannerWindow(ScannerViewModel model, ThemeService theme, AddWeb.AddWebService addWeb)
     {
         _model = model;
+        _addWeb = addWeb;
         CaptionHeight = 64;
         UseTheme(theme);
         InitializeComponent();
@@ -62,14 +64,7 @@ public partial class ScannerWindow : StyledWindow
         }
     }
 
-    private void OnUrlKeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter)
-        {
-            _model.AddUrlCommand.Execute(null);
-            e.Handled = true;
-        }
-    }
+    private void OnPickWeb(object sender, RoutedEventArgs e) => _addWeb.Show();
 }
 
 /// <summary>Binds a <see cref="ScanFilter"/> to one radio button of the segmented filter.</summary>

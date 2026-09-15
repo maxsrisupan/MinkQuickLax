@@ -122,6 +122,21 @@
   <data name="Notice_Unsupported" xml:space="preserve">
     <value>This version cannot open this kind of link.</value>
   </data>
+  <data name="AddWeb_Title" xml:space="preserve">
+    <value>Add website</value>
+  </data>
+  <data name="AddWeb_Address" xml:space="preserve">
+    <value>Web address</value>
+  </data>
+  <data name="AddWeb_AddressHint" xml:space="preserve">
+    <value>e.g. youtube.com</value>
+  </data>
+  <data name="AddWeb_Invalid" xml:space="preserve">
+    <value>That does not look like a web address.</value>
+  </data>
+  <data name="AddWeb_AlreadyAdded" xml:space="preserve">
+    <value>You already have a link to this address.</value>
+  </data>
   <data name="Scanner_Add" xml:space="preserve">
     <value>Add to screen</value>
   </data>
@@ -155,6 +170,9 @@
   <data name="Scanner_PickFolder" xml:space="preserve">
     <value>Folder…</value>
   </data>
+  <data name="Scanner_PickWeb" xml:space="preserve">
+    <value>Website…</value>
+  </data>
   <data name="Scanner_Rename" xml:space="preserve">
     <value>Name</value>
   </data>
@@ -182,14 +200,11 @@
   <data name="Scanner_Title" xml:space="preserve">
     <value>Add from this PC</value>
   </data>
-  <data name="Scanner_UrlHint" xml:space="preserve">
-    <value>Paste a link and press Enter</value>
-  </data>
-  <data name="Scanner_UrlInvalid" xml:space="preserve">
-    <value>That does not look like a web address.</value>
-  </data>
   <data name="Tray_AddFromPc" xml:space="preserve">
     <value>Add from this PC…</value>
+  </data>
+  <data name="Tray_AddWeb" xml:space="preserve">
+    <value>Add website…</value>
   </data>
   <data name="Tray_Arrange" xml:space="preserve">
     <value>Arrange icons</value>
