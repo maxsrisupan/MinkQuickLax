@@ -490,7 +490,7 @@
     <value>เบลอข้างหลัง</value>
   </data>
   <data name="Settings_GlassBlurHint" xml:space="preserve">
-    <value>Windows จะไม่เบลอเมื่อปิด Transparency effects หรือเปิดโหมดประหยัดแบต</value>
+    <value>ถ้าปิด Transparency effects ของ Windows กระจกจะเป็นฝ้าที่เห็นสีภาพพื้นหลัง desktop แทน · โหมดประหยัดแบตทำให้เป็นสีทึบ</value>
   </data>
   <data name="Settings_TrayClick" xml:space="preserve">
     <value>คลิก icon ที่ tray เพื่อซ่อน/แสดง</value>

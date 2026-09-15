@@ -2,6 +2,22 @@
 
 รายการสิ่งที่เปลี่ยนในแต่ละเวอร์ชัน · What changed in each version
 
+## 0.1.1
+
+### ไทย
+
+- **สไตล์ Glass สวยขึ้น:** ขอบกระจกรับแสงที่มุมบนซ้ายและล่างขวา มีแสงเรืองนุ่ม ๆ ที่มุม และเส้นขอบนอกบาง ๆ ให้แผ่นคม · แถวที่ชี้ ปุ่มหลัก และโฟลเดอร์เป็นกระจกมันวาว · ไอคอนตัวอักษรได้ขอบแสงแบบเดียวกัน
+- **ปิด Transparency effects ของ Windows อยู่ก็ยังเป็นกระจก:** แผ่นกระจกเป็นกระจกฝ้าที่เห็นสีของภาพพื้นหลัง desktop แทนสีทึบ (เปิด Transparency effects เพื่อให้เบลอสิ่งที่อยู่ข้างหลังจริง)
+- **หน้าต่าง "เพิ่มเว็บ":** เปิดได้จากเมนูที่ tray, หน้าสแกน และหน้าตั้งค่าหมวด Link · พิมพ์แค่ชื่อเว็บก็ได้ ชื่อและ icon เติมให้ · เลือก browser ได้
+- แทนช่อง URL ในหน้าสแกน ซึ่งทำให้ URL ที่วางไว้หายไปเงียบ ๆ ถ้ากด "เพิ่มลงจอ" โดยไม่กด Enter
+
+### English
+
+- **Prettier Glass:** glass edges catch the light at the top-left and bottom-right, with soft glows in the corners and a thin outer line that keeps plates crisp. Hovered rows, the main button and folders look like glossy glass, and letter icons get the same lit edge.
+- **Still glass with Transparency effects off:** plates show your desktop picture, frosted, instead of a solid color. Turn Transparency effects on in Windows to blur what is really behind them.
+- **"Add website" window:** open it from the tray menu, the scanner or Settings → Links. Type just the site name; the name and icon fill in, and you can pick the browser.
+- It replaces the web address box in the scanner, which dropped a pasted address if you pressed "Add to screen" without Enter.
+
 ## 0.1.0
 
 ### ไทย

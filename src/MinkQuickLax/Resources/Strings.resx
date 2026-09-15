@@ -503,7 +503,7 @@
     <value>Blur behind</value>
   </data>
   <data name="Settings_GlassBlurHint" xml:space="preserve">
-    <value>Windows turns blur off when Transparency effects is off or battery saver is on.</value>
+    <value>With Transparency effects off in Windows, glass shows your desktop picture frosted instead. Battery saver makes it solid.</value>
   </data>
   <data name="Settings_TrayClick" xml:space="preserve">
     <value>Click the tray icon to hide or show icons</value>
