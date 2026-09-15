@@ -813,14 +813,15 @@ public sealed class IconWindow : Window
         _ringSpin.BeginAnimation(RotateTransform.AngleProperty, spin);
     }
 
-    /// <summary>A bright line sweeps up across the HUD plate (SPEC 5.8).</summary>
+    /// <summary>A bright line sweeps down across the HUD plate, like the mockup (SPEC 5.8).</summary>
     private void PlaySweep(TimeSpan delay)
     {
         if (_reduceMotion)
         {
             return;
         }
-        var move = new DoubleAnimation(0, -2 * _iconSize, IconStyleDesign.HudSweep) { BeginTime = delay, EasingFunction = Motion.Out, FillBehavior = FillBehavior.Stop };
+        // The line sits halfway down a strip three icons tall: -2 icons puts it above the plate, 0 below.
+        var move = new DoubleAnimation(-2 * _iconSize, 0, IconStyleDesign.HudSweep) { BeginTime = delay, EasingFunction = Motion.Out, FillBehavior = FillBehavior.Stop };
         var show = new DoubleAnimationUsingKeyFrames { BeginTime = delay, Duration = IconStyleDesign.HudSweep, FillBehavior = FillBehavior.Stop };
         show.KeyFrames.Add(new DiscreteDoubleKeyFrame(1, KeyTime.FromPercent(0)));
         show.KeyFrames.Add(new DiscreteDoubleKeyFrame(1, KeyTime.FromPercent(1)));

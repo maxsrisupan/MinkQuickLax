@@ -6,13 +6,13 @@
 
 ### ไทย
 
-- สไตล์ HUD และ Dot Matrix ตรงกับแบบมากขึ้น: สีโฮโลแกรมสว่างขึ้น, ชี้ตรงไหนบนไอคอนก็ชัดเต็มที่, ไอคอนย่อในโฟลเดอร์ใหญ่ขึ้น, ป้ายด้านข้างค่อย ๆ เลื่อนออกมา, ปุ่มและป้ายแบบแคปซูลโค้งถูกต้อง
+- สไตล์ HUD และ Dot Matrix ตรงกับแบบมากขึ้น: สีโฮโลแกรมสว่างขึ้น, ชี้ตรงไหนบนไอคอนก็ชัดเต็มที่, ไอคอนย่อในโฟลเดอร์ใหญ่ขึ้น, ป้ายด้านข้างค่อย ๆ เลื่อนออกมา, ปุ่มและป้ายแบบแคปซูลโค้งถูกต้อง · เส้นแสงของ HUD กวาดจากบนลงล่าง
 - โหมดจัดวาง: เส้นช่วยจัดแนวยึดแนวกลางไอคอนก่อนและลากยาวตลอดจอ · ป้ายพิกัดอยู่ข้างไอคอน · ไอคอนไม่ขยายตามเมาส์ระหว่างจัดวาง
 - icon ของโปรแกรมที่มีแต่ภาพขนาดเล็ก (เช่น Java, PostgreSQL) ไม่เป็นภาพจิ๋วในกรอบใหญ่อีกบน Windows 11 รุ่นใหม่ · link ที่เพิ่มไว้แล้วจะได้ภาพใหม่เอง
 
 ### English
 
-- HUD and Dot Matrix look closer to the design: a brighter hologram tint, the icon turns fully clear anywhere under the pointer, larger previews in folders, side labels that slide out, and properly rounded pill buttons and labels.
+- HUD and Dot Matrix look closer to the design: a brighter hologram tint, the icon turns fully clear anywhere under the pointer, larger previews in folders, side labels that slide out, properly rounded pill buttons and labels, and a HUD light sweep that runs from top to bottom.
 - Edit mode: alignment guides prefer icon centres and run across the whole screen, the position readout sits beside the icon, and icons no longer grow under the pointer while you arrange them.
 - Apps that only ship small icons (such as Java or PostgreSQL) no longer show a tiny picture in a large frame on recent Windows 11 builds; links you already added pick up the new picture by themselves.
 
