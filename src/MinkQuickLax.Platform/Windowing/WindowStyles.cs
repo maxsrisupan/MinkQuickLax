@@ -81,11 +81,11 @@ public static unsafe class DwmBackdrop
 
     // DWMWA_COLOR_NONE: no system border line around the window.
     private const uint ColorNone = 0xFFFFFFFE;
-    private const uint ColorDefault = 0xFFFFFFFF;
 
     /// <summary>
-    /// Windows 11 frame: rounded 8 px corners with the system border, or square corners with no border so the content
-    /// can draw its own shape (HUD cut corners, Dot Matrix plates). No effect on Windows 10.
+    /// Windows 11 frame: rounded 8 px corners (Glass) or square corners so the content can draw its own shape (HUD cut
+    /// corners, Dot Matrix plates). Either way without the system border line: every style draws its own edge, and the
+    /// system's grey line would cover the Glass rim light (SPEC 5.5). No effect on Windows 10.
     /// </summary>
     public static void SetRoundedCorners(nint hwnd, bool rounded = true)
     {
@@ -95,7 +95,7 @@ public static unsafe class DwmBackdrop
         }
         var preference = (int)(rounded ? DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_ROUND : DWM_WINDOW_CORNER_PREFERENCE.DWMWCP_DONOTROUND);
         PInvoke.DwmSetWindowAttribute((HWND)hwnd, DWMWINDOWATTRIBUTE.DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(int));
-        var border = rounded ? ColorDefault : ColorNone;
+        var border = ColorNone;
         PInvoke.DwmSetWindowAttribute((HWND)hwnd, DWMWINDOWATTRIBUTE.DWMWA_BORDER_COLOR, &border, sizeof(uint));
     }
 

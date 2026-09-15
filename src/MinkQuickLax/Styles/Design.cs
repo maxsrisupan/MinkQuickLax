@@ -18,6 +18,15 @@ public static class GlassAlpha
     public const double GradientStartBoost = 0.12;
     public const double GradientMiddleOffset = 0.55;
     public const double GradientEndBoost = 0.05;
+
+    /// <summary>Hovered row: white from this at the top to this at the bottom.</summary>
+    public const double HoverTop = 0.32;
+    public const double HoverBottom = 0.18;
+
+    /// <summary>Accent button: white gloss fading down from the top, and a rim lit from above.</summary>
+    public const double AccentGloss = 0.30;
+    public const double AccentGlossEnd = 0.6;
+    public const double AccentRim = 0.55;
 }
 
 /// <summary>Corner radii of each style (SPEC 5.2, 5.8, 5.9, 5.10).</summary>

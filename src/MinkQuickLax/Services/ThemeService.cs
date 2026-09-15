@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Media;
+using MinkQuickLax.Core.Layout;
 using MinkQuickLax.Core.Model;
 using MinkQuickLax.Platform.SystemIntegration;
 using MinkQuickLax.Platform.Windowing;
@@ -10,7 +11,8 @@ namespace MinkQuickLax.Services;
 /// <summary>The resolved look after combining app settings with Windows settings.</summary>
 /// <param name="Dark">The chosen or Windows theme. HUD surfaces are dark regardless (see <see cref="SurfacesDark"/>).</param>
 /// <param name="Blur">Blurred surfaces may use acrylic; otherwise they use a solid fill. Only Glass blurs.</param>
-public sealed record Look(bool Dark, bool HighContrast, bool Blur, bool ReduceMotion, StyleSetting Style)
+/// <param name="Frost">Glass wants blur but Windows will not blur: plates show the blurred desktop picture instead (<see cref="GlassFrost"/>).</param>
+public sealed record Look(bool Dark, bool HighContrast, bool Blur, bool ReduceMotion, StyleSetting Style, bool Frost = false)
 {
     /// <summary>Whether surfaces are drawn light-on-dark: HUD always is (SPEC 5.1).</summary>
     public bool SurfacesDark => Dark || Style == StyleSetting.Hud;
@@ -29,6 +31,7 @@ public sealed class ThemeService
         ["Skin.Fill.Tooltip", "Skin.Fill.Menu", "Skin.Fill.Notice", "Skin.Fill.Panel", "Skin.Fill.Scanner", "Skin.Fill.Folder", "Skin.Fill.Readout", "Skin.Fill.Popup"];
 
     private readonly ResourceDictionary _resources;
+    private readonly GlassFrost _frost = new();
     private ResourceDictionary? _themeDictionary;
 
     public ThemeService(Application application)
@@ -40,7 +43,13 @@ public sealed class ThemeService
 
     public event Action<Look>? Changed;
 
+    /// <summary>The desktop picture or monitors changed while the look stayed the same: frosted plates must update.</summary>
+    public event Action? FrostChanged;
+
     public Look Current { get; private set; }
+
+    /// <summary>What a Glass plate at <paramref name="window"/> (physical pixels) shows behind its tint, or null for none.</summary>
+    public Brush? FrostBrush(PixelRect window) => Current.Frost ? _frost.BrushFor(window) : null;
 
     public void Apply(AppSettings settings, SystemLook system)
     {
@@ -57,9 +66,11 @@ public sealed class ThemeService
             _ => !system.AnimationsEnabled,
         };
         var style = Enum.IsDefined(settings.Style) ? settings.Style : StyleSetting.Glass;
-        var blur = style == StyleSetting.Glass && DwmBackdrop.IsBlurSupported && settings.Glass.Blur
-            && system.TransparencyEnabled && !system.BatterySaver && !system.HighContrast;
-        var look = new Look(dark, system.HighContrast, blur, reduceMotion, style);
+        var wantsBlur = style == StyleSetting.Glass && settings.Glass.Blur && !system.BatterySaver && !system.HighContrast;
+        var blur = wantsBlur && DwmBackdrop.IsBlurSupported && system.TransparencyEnabled;
+        // SPEC 5.5: Windows will not blur (Transparency effects off, or too old), so frost with the desktop picture.
+        var frost = wantsBlur && !blur;
+        var look = new Look(dark, system.HighContrast, blur, reduceMotion, style, frost);
 
         SwapTheme(look.SurfacesDark);
         ApplyShape(style);
@@ -78,16 +89,21 @@ public sealed class ThemeService
                     ApplyDot(dark);
                     break;
                 default:
-                    ApplyGlass(settings.Glass, blur);
+                    ApplyGlass(settings.Glass, translucent: blur || frost);
                     break;
             }
         }
 
+        var frostChanged = frost && _frost.Refresh();
         var changed = look != Current;
         Current = look;
         if (changed)
         {
             Changed?.Invoke(look);
+        }
+        else if (frostChanged)
+        {
+            FrostChanged?.Invoke();
         }
     }
 
@@ -136,7 +152,8 @@ public sealed class ThemeService
         _resources["Font.Readout"] = _resources[style == StyleSetting.Dot ? "Font.Dot" : "Font.Mono"];
     }
 
-    private void ApplyGlass(GlassSettings glass, bool blur)
+    /// <param name="translucent">Something shows behind the plates (acrylic or frost), so they use their own tint; otherwise the solid fill.</param>
+    private void ApplyGlass(GlassSettings glass, bool translucent)
     {
         var rgb = glass.Tint switch
         {
@@ -146,16 +163,24 @@ public sealed class ThemeService
             _ => Resolve("Skin.Rgb"),
         };
         var ink = Resolve("Skin.InkColor");
+        var edge = Resolve("Skin.EdgeColor");
+        var rim = Resolve("Skin.RimColor");
         SetBrush("Skin.Ink", ink);
         SetBrush("Skin.Ink2", Resolve("Skin.Ink2Color"));
-        SetBrush("Skin.Edge", Resolve("Skin.EdgeColor"));
+        SetBrush("Skin.Edge", edge);
         SetBrush("Skin.Highlight", Resolve("Skin.HighlightColor"));
-        SetBrush("Skin.HoverFill", Color.FromArgb(0x42, 0xFF, 0xFF, 0xFF));
-        SetBrush("Skin.RowHoverEdge", Resolve("Skin.EdgeColor"));
+        _resources["Skin.Rim"] = GlassLight.Rim(rim, edge);
+        SetBrush("Skin.Sheen", Resolve("Skin.SheenColor"));
+        SetBrush("Skin.Hairline", Resolve("Skin.HairlineColor"));
+        // Hovered rows and chosen segments are small panes of glass lit from above (SPEC 5.2).
+        _resources["Skin.HoverFill"] = GlassLight.TopLit(WithAlpha(Colors.White, GlassAlpha.HoverTop), WithAlpha(Colors.White, GlassAlpha.HoverBottom));
+        _resources["Skin.RowHoverEdge"] = GlassLight.TopLit(GlassLight.Scale(rim, 0.7), GlassLight.Scale(edge, 0.4));
+        _resources["Skin.AccentGloss"] = GlassLight.Gloss(WithAlpha(Colors.White, GlassAlpha.AccentGloss), GlassAlpha.AccentGlossEnd);
+        _resources["Skin.AccentRim"] = GlassLight.TopLit(WithAlpha(Colors.White, GlassAlpha.AccentRim), Colors.Transparent);
         SetBrush("Skin.RowSelectedFill", WithAlpha(Resolve("AccentColor"), 0.18));
         SetBrush("Skin.FieldFill", Color.FromArgb(0x1F, 0xFF, 0xFF, 0xFF));
         SetBrush("Skin.SelectedFill", WithAlpha(rgb, 0.75));
-        SetBrush("Skin.SelectedEdge", Resolve("Skin.EdgeColor"));
+        _resources["Skin.SelectedEdge"] = GlassLight.TopLit(GlassLight.Scale(rim, 0.8), GlassLight.Scale(edge, 0.5));
         SetBrush("Skin.SelectedInk", ink);
         SetBrush("Skin.Track", WithAlpha(ink, 0.24));
         SetBrush("Skin.Amber", Resolve("GuideColor"));
@@ -165,11 +190,11 @@ public sealed class ThemeService
         SetBrush("Danger", Resolve("DangerColor"));
         SetBrush("Guide", Resolve("GuideColor"));
 
-        _resources["Skin.Fill.Tooltip"] = GlassFill(rgb, blur ? GlassAlpha.Tooltip : GlassAlpha.Solid);
-        _resources["Skin.Fill.Menu"] = GlassFill(rgb, blur ? GlassAlpha.Menu : GlassAlpha.Solid);
-        _resources["Skin.Fill.Notice"] = GlassFill(rgb, blur ? GlassAlpha.Menu : GlassAlpha.Solid);
-        _resources["Skin.Fill.Panel"] = GlassFill(rgb, blur ? glass.TintStrength : GlassAlpha.Solid);
-        _resources["Skin.Fill.Scanner"] = GlassFill(rgb, blur ? GlassAlpha.Scanner : GlassAlpha.Solid);
+        _resources["Skin.Fill.Tooltip"] = GlassFill(rgb, translucent ? GlassAlpha.Tooltip : GlassAlpha.Solid);
+        _resources["Skin.Fill.Menu"] = GlassFill(rgb, translucent ? GlassAlpha.Menu : GlassAlpha.Solid);
+        _resources["Skin.Fill.Notice"] = GlassFill(rgb, translucent ? GlassAlpha.Menu : GlassAlpha.Solid);
+        _resources["Skin.Fill.Panel"] = GlassFill(rgb, translucent ? glass.TintStrength : GlassAlpha.Solid);
+        _resources["Skin.Fill.Scanner"] = GlassFill(rgb, translucent ? GlassAlpha.Scanner : GlassAlpha.Solid);
         _resources["Skin.Fill.Folder"] = GlassFill(rgb, GlassAlpha.Folder);
         _resources["Skin.Fill.Readout"] = GlassFill(rgb, GlassAlpha.DragReadout);
         _resources["Skin.Fill.Popup"] = GlassFill(rgb, GlassAlpha.Solid);
@@ -182,6 +207,7 @@ public sealed class ThemeService
         SetBrush("Skin.Ink2", HudDesign.Ink2);
         SetBrush("Skin.Edge", WithAlpha(HudDesign.Cyan, HudDesign.EdgeAlpha));
         SetBrush("Skin.Highlight", Colors.Transparent);
+        ClearGlassLight(WithAlpha(HudDesign.Cyan, HudDesign.EdgeAlpha));
         SetBrush("Skin.HoverFill", WithAlpha(HudDesign.Cyan, HudDesign.HoverAlpha));
         SetBrush("Skin.RowHoverEdge", WithAlpha(HudDesign.Cyan, 0.30));
         SetBrush("Skin.RowSelectedFill", WithAlpha(HudDesign.Cyan, HudDesign.SelectedAlpha));
@@ -218,6 +244,7 @@ public sealed class ThemeService
         SetBrush("Skin.Ink2", dark ? DotDesign.DarkInk2 : DotDesign.LightInk2);
         SetBrush("Skin.Edge", line);
         SetBrush("Skin.Highlight", Colors.Transparent);
+        ClearGlassLight(line);
         SetBrush("Skin.HoverFill", WithAlpha(ink, DotDesign.HoverAlpha));
         SetBrush("Skin.RowHoverEdge", Colors.Transparent);
         SetBrush("Skin.RowSelectedFill", WithAlpha(ink, DotDesign.HoverAlpha));
@@ -244,6 +271,11 @@ public sealed class ThemeService
         _resources["Skin.Ink2"] = SystemColors.GrayTextBrush;
         _resources["Skin.Edge"] = SystemColors.WindowFrameBrush;
         _resources["Skin.Highlight"] = Brushes.Transparent;
+        _resources["Skin.Rim"] = SystemColors.WindowFrameBrush;
+        _resources["Skin.Sheen"] = Brushes.Transparent;
+        _resources["Skin.Hairline"] = Brushes.Transparent;
+        _resources["Skin.AccentGloss"] = Brushes.Transparent;
+        _resources["Skin.AccentRim"] = Brushes.Transparent;
         _resources["Skin.HoverFill"] = SystemColors.HighlightBrush;
         _resources["Skin.RowHoverEdge"] = SystemColors.HighlightBrush;
         _resources["Skin.RowSelectedFill"] = SystemColors.HighlightBrush;
@@ -262,6 +294,16 @@ public sealed class ThemeService
         {
             _resources[key] = SystemColors.WindowBrush;
         }
+    }
+
+    /// <summary>HUD and Dot Matrix plates have no glass light: the rim is the plain edge.</summary>
+    private void ClearGlassLight(Color edge)
+    {
+        SetBrush("Skin.Rim", edge);
+        SetBrush("Skin.Sheen", Colors.Transparent);
+        SetBrush("Skin.Hairline", Colors.Transparent);
+        SetBrush("Skin.AccentGloss", Colors.Transparent);
+        SetBrush("Skin.AccentRim", Colors.Transparent);
     }
 
     private void SetBrush(string key, Color color)

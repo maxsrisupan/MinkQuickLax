@@ -30,8 +30,8 @@ public enum SurfaceShape
 }
 
 /// <summary>
-/// Draws a surface's plate in the current style (SPEC 5.2, 5.8, 5.9): Glass is a rounded tinted sheet with an edge and
-/// a top highlight; HUD is a dark plate with cut corners, cyan corner marks and scan lines; Dot Matrix is a solid rounded
+/// Draws a surface's plate in the current style (SPEC 5.2, 5.8, 5.9): Glass is a rounded tinted sheet lit from the top-left
+/// (<see cref="GlassLight"/>); HUD is a dark plate with cut corners, cyan corner marks and scan lines; Dot Matrix is a solid rounded
 /// plate. Everything outside the shape stays transparent. Layout (padding, child) is the usual <see cref="Border"/>.
 /// </summary>
 public sealed class SurfaceFrame : Border
@@ -43,6 +43,10 @@ public sealed class SurfaceFrame : Border
     public static readonly DependencyProperty FillProperty = Register<Brush?>(nameof(Fill), null);
     public static readonly DependencyProperty EdgeProperty = Register<Brush?>(nameof(Edge), null);
     public static readonly DependencyProperty HighlightProperty = Register<Brush?>(nameof(Highlight), null);
+    public static readonly DependencyProperty HairlineProperty = Register<Brush?>(nameof(Hairline), null);
+    public static readonly DependencyProperty RimProperty = Register<Brush?>(nameof(Rim), null);
+    public static readonly DependencyProperty SheenProperty = Register<Brush?>(nameof(Sheen), null);
+    public static readonly DependencyProperty BackdropProperty = Register<Brush?>(nameof(Backdrop), null);
     public static readonly DependencyProperty MarkProperty = Register<Brush?>(nameof(Mark), null);
     public static readonly DependencyProperty ScanLinesProperty = Register<Brush?>(nameof(ScanLines), null);
 
@@ -54,6 +58,9 @@ public sealed class SurfaceFrame : Border
         SnapsToDevicePixels = true;
         SetResourceReference(EdgeProperty, "Skin.Edge");
         SetResourceReference(HighlightProperty, "Skin.Highlight");
+        SetResourceReference(HairlineProperty, "Skin.Hairline");
+        SetResourceReference(RimProperty, "Skin.Rim");
+        SetResourceReference(SheenProperty, "Skin.Sheen");
         SetResourceReference(MarkProperty, "Accent");
         SetResourceReference(ScanLinesProperty, "Skin.ScanLines");
     }
@@ -86,6 +93,34 @@ public sealed class SurfaceFrame : Border
     {
         get => (Brush?)GetValue(HighlightProperty);
         set => SetValue(HighlightProperty, value);
+    }
+
+    /// <summary>Glass: dark line around the outside.</summary>
+    public Brush? Hairline
+    {
+        get => (Brush?)GetValue(HairlineProperty);
+        set => SetValue(HairlineProperty, value);
+    }
+
+    /// <summary>Glass: the inner edge that catches the light.</summary>
+    public Brush? Rim
+    {
+        get => (Brush?)GetValue(RimProperty);
+        set => SetValue(RimProperty, value);
+    }
+
+    /// <summary>Glass: color of the corner glows.</summary>
+    public Brush? Sheen
+    {
+        get => (Brush?)GetValue(SheenProperty);
+        set => SetValue(SheenProperty, value);
+    }
+
+    /// <summary>Glass without Windows blur: the frosted desktop picture under the tint (<see cref="Services.GlassFrost"/>).</summary>
+    public Brush? Backdrop
+    {
+        get => (Brush?)GetValue(BackdropProperty);
+        set => SetValue(BackdropProperty, value);
     }
 
     /// <summary>HUD corner marks (cyan).</summary>
@@ -134,6 +169,10 @@ public sealed class SurfaceFrame : Border
             return;
         }
         var outline = Outline(size);
+        if (Kind == StyleSetting.Glass && Backdrop is { } backdrop)
+        {
+            dc.DrawGeometry(backdrop, null, outline);
+        }
         dc.DrawGeometry(Fill, null, outline);
 
         if (Kind == StyleSetting.Hud)
@@ -142,17 +181,19 @@ public sealed class SurfaceFrame : Border
             return;
         }
 
-        // 1 px inner edge; Glass adds a 1 px highlight along the top (SPEC 5.2).
+        if (Kind == StyleSetting.Glass)
+        {
+            var radius = Shape == SurfaceShape.Tooltip ? StyleRadii.Glass.Tooltip : StyleRadii.Glass.Surface;
+            GlassLight.Draw(dc, size, radius, Hairline, Rim ?? Edge, Highlight, Sheen);
+            return;
+        }
+
+        // 1 px inner edge (SPEC 5.9).
         if (Edge is { } edge)
         {
             var inset = Outline(new Size(Math.Max(0, size.Width - 1), Math.Max(0, size.Height - 1))).Clone();
             inset.Transform = new TranslateTransform(0.5, 0.5);
             dc.DrawGeometry(null, new Pen(edge, 1), inset);
-        }
-        if (Kind == StyleSetting.Glass && Highlight is { } highlight)
-        {
-            var radius = Shape == SurfaceShape.Tooltip ? StyleRadii.Glass.Tooltip : StyleRadii.Glass.Surface;
-            dc.DrawRectangle(highlight, null, new Rect(radius, 0, Math.Max(0, size.Width - 2 * radius), 1));
         }
     }
 

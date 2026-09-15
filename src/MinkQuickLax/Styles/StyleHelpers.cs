@@ -95,7 +95,7 @@ public sealed class LabelText : TextBlock
     }
 }
 
-/// <summary>A 1 px divider in the edge color; a row of 2 px dots in Dot Matrix (SPEC 5.9).</summary>
+/// <summary>A 1 px divider in the edge color, fading at both ends in Glass; a row of 2 px dots in Dot Matrix (SPEC 5.2, 5.9).</summary>
 public sealed class StyledSeparator : FrameworkElement
 {
     public static readonly DependencyProperty KindProperty = Skin.KindProperty.AddOwner(
@@ -106,6 +106,7 @@ public sealed class StyledSeparator : FrameworkElement
 
     private const double DotSize = 2;
     private const double DotPitch = 5;
+    private const double FadeLength = 0.2;
 
     public StyledSeparator()
     {
@@ -127,8 +128,19 @@ public sealed class StyledSeparator : FrameworkElement
             return;
         }
         var width = RenderSize.Width;
-        if ((StyleSetting)GetValue(KindProperty) != StyleSetting.Dot)
+        var kind = (StyleSetting)GetValue(KindProperty);
+        if (kind != StyleSetting.Dot)
         {
+            // Glass: the line fades out toward both ends, like an etch in the glass (SPEC 5.2).
+            if (kind == StyleSetting.Glass && brush is SolidColorBrush { Color: var color })
+            {
+                var clear = Color.FromArgb(0, color.R, color.G, color.B);
+                var fade = new LinearGradientBrush(
+                    [new GradientStop(clear, 0), new GradientStop(color, FadeLength), new GradientStop(color, 1 - FadeLength), new GradientStop(clear, 1)],
+                    new Point(0, 0), new Point(1, 0));
+                fade.Freeze();
+                brush = fade;
+            }
             drawingContext.DrawRectangle(brush, null, new Rect(0, Math.Floor((RenderSize.Height - 1) / 2), width, 1));
             return;
         }
@@ -174,7 +186,14 @@ public class StyledWindow : Window
         });
         Skin.SetKind(this, theme.Current.Style);
         theme.Changed += OnLookChanged;
-        Closed += (_, _) => theme.Changed -= OnLookChanged;
+        theme.FrostChanged += UpdateFrost;
+        Closed += (_, _) =>
+        {
+            theme.Changed -= OnLookChanged;
+            theme.FrostChanged -= UpdateFrost;
+        };
+        LocationChanged += (_, _) => UpdateFrost();
+        SizeChanged += (_, _) => UpdateFrost();
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -204,5 +223,16 @@ public class StyledWindow : Window
         DwmBackdrop.SetDarkFrame(handle, look.SurfacesDark);
         DwmBackdrop.SetRoundedCorners(handle, rounded: look.Style == StyleSetting.Glass);
         DwmBackdrop.SetSystemAcrylic(handle, look.Blur);
+        UpdateFrost();
+    }
+
+    /// <summary>Glass without Windows blur: the plate filling the window shows the frosted desktop picture (SPEC 5.5).</summary>
+    private void UpdateFrost()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+        if (_theme is not null && handle != 0 && Content is SurfaceFrame frame)
+        {
+            frame.Backdrop = _theme.FrostBrush(WindowStyles.GetBounds(handle));
+        }
     }
 }

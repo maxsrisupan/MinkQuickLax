@@ -49,7 +49,14 @@ public abstract class SurfaceWindow : Window
         TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
 
         _theme.Changed += OnLookChanged;
-        Closed += (_, _) => _theme.Changed -= OnLookChanged;
+        _theme.FrostChanged += UpdateFrost;
+        Closed += (_, _) =>
+        {
+            _theme.Changed -= OnLookChanged;
+            _theme.FrostChanged -= UpdateFrost;
+        };
+        LocationChanged += (_, _) => UpdateFrost();
+        SizeChanged += (_, _) => UpdateFrost();
     }
 
     public nint Handle { get; private set; }
@@ -99,6 +106,7 @@ public abstract class SurfaceWindow : Window
         var bounds = WindowStyles.GetBounds(Handle);
         var topLeft = place(bounds.Size);
         WindowStyles.SetBounds(Handle, new PixelRect(topLeft.X, topLeft.Y, topLeft.X + bounds.Width, topLeft.Y + bounds.Height));
+        UpdateFrost();
         if (animate && !_theme.Current.ReduceMotion)
         {
             AnimateIn();
@@ -145,6 +153,16 @@ public abstract class SurfaceWindow : Window
         if (!look.Blur || !DwmBackdrop.SetAcrylic(Handle, true))
         {
             DwmBackdrop.SetAcrylic(Handle, false);
+        }
+        UpdateFrost();
+    }
+
+    /// <summary>Glass without Windows blur: show the part of the frosted desktop picture behind the window (SPEC 5.5).</summary>
+    private void UpdateFrost()
+    {
+        if (Handle != 0)
+        {
+            _frame.Backdrop = _theme.FrostBrush(WindowStyles.GetBounds(Handle));
         }
     }
 

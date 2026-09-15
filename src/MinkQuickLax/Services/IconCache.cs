@@ -70,7 +70,8 @@ public sealed partial class IconCache : IDisposable
 
         // 150°: from the top-left toward the bottom-right, a little steeper than a diagonal.
         var fill = new LinearGradientBrush(from, to, new Point(0.21, 0), new Point(0.79, 1));
-        var gloss = new LinearGradientBrush(Color.FromArgb(77, 255, 255, 255), Color.FromArgb(0, 255, 255, 255), new Point(0, 0), new Point(0, 1));
+        // Fades out by the middle, so there is no hard line where the top half ends.
+        var gloss = new LinearGradientBrush(Color.FromArgb(77, 255, 255, 255), Color.FromArgb(0, 255, 255, 255), new Point(0, 0), new Point(0, 0.5));
         var text = new FormattedText(icon.Text, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
             new Typeface((FontFamily)Application.Current.Resources["Font.Display"], FontStyles.Normal, FontWeights.Bold, FontStretches.Normal),
             Size * IconDesign.LetterSizeRatio, Brushes.White, 1.0);
@@ -82,8 +83,13 @@ public sealed partial class IconCache : IDisposable
             dc.PushClip(new RectangleGeometry(new Rect(0, 0, Size, Size / 2)));
             dc.DrawRoundedRectangle(gloss, null, bounds, radius, radius);
             dc.Pop();
-            dc.DrawRoundedRectangle(null, new Pen(new SolidColorBrush(Color.FromArgb(36, 255, 255, 255)), 2), new Rect(1, 1, Size - 2, Size - 2), radius - 1, radius - 1);
-            dc.DrawLine(new Pen(new SolidColorBrush(Color.FromArgb(128, 255, 255, 255)), 1.5), new Point(radius, 1), new Point(Size - radius, 1));
+            // Glass edge (SPEC 5.3): a rim bright at the top-left and bottom-right, and a top line fading to the right.
+            var rim = GlassLight.Rim(Color.FromArgb(140, 255, 255, 255), Color.FromArgb(28, 255, 255, 255));
+            dc.DrawRoundedRectangle(null, new Pen(rim, 2), new Rect(1, 1, Size - 2, Size - 2), radius - 1, radius - 1);
+            var top = new LinearGradientBrush(
+                [new GradientStop(Color.FromArgb(128, 255, 255, 255), 0), new GradientStop(Color.FromArgb(0, 255, 255, 255), GlassLight.HighlightFadeEnd)],
+                new Point(0, 0), new Point(1, 0));
+            dc.DrawRectangle(top, null, new Rect(radius, 0.25, Size - 2 * radius, 1.5));
             dc.DrawText(text, new Point((Size - text.Width) / 2, (Size - text.Height) / 2));
         }
         var image = new DrawingImage(group);

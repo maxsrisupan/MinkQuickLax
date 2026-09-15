@@ -29,6 +29,11 @@
   <SolidColorBrush x:Key="Skin.Ink2" Color="#A8F1FAF8" />
   <SolidColorBrush x:Key="Skin.Edge" Color="#33FFFFFF" />
   <SolidColorBrush x:Key="Skin.Highlight" Color="#52FFFFFF" />
+  <SolidColorBrush x:Key="Skin.Rim" Color="#33FFFFFF" />
+  <SolidColorBrush x:Key="Skin.Sheen" Color="#3DFFFFFF" />
+  <SolidColorBrush x:Key="Skin.Hairline" Color="#59000000" />
+  <SolidColorBrush x:Key="Skin.AccentGloss" Color="#00FFFFFF" />
+  <SolidColorBrush x:Key="Skin.AccentRim" Color="#00FFFFFF" />
   <SolidColorBrush x:Key="Skin.HoverFill" Color="#42FFFFFF" />
   <SolidColorBrush x:Key="Skin.RowHoverEdge" Color="#33FFFFFF" />
   <SolidColorBrush x:Key="Skin.RowSelectedFill" Color="#2E5EE6FF" />
@@ -157,7 +162,7 @@
     </Setter>
   </Style>
 
-  <!-- Primary action: Accent fill; pill in Dot Matrix, cut corners in HUD (SPEC 5.8, 5.9). -->
+  <!-- Primary action: Accent fill with a gloss in Glass (SPEC 5.2); pill in Dot Matrix, cut corners in HUD (SPEC 5.8, 5.9). -->
   <Style x:Key="Skin.AccentButton" TargetType="Button" BasedOn="{StaticResource Skin.Button}">
     <Setter Property="Foreground" Value="{DynamicResource AccentInk}" />
     <Setter Property="FontWeight" Value="SemiBold" />
@@ -165,9 +170,14 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="Button">
-          <styles:CutBorder x:Name="Bg" Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource Skin.Radius.Button}"
+          <styles:CutBorder x:Name="Bg" CornerRadius="{DynamicResource Skin.Radius.Button}"
                             Cut="{DynamicResource Skin.Cut.Button}" Background="{DynamicResource Accent}">
-            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="False" />
+            <Grid>
+              <!-- Transparent outside Glass. -->
+              <styles:RoundedBorder CornerRadius="{DynamicResource Skin.Radius.Button}" Background="{DynamicResource Skin.AccentGloss}"
+                                    BorderBrush="{DynamicResource Skin.AccentRim}" BorderThickness="1" IsHitTestVisible="False" />
+              <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="False" />
+            </Grid>
           </styles:CutBorder>
           <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">

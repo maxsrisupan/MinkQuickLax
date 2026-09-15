@@ -6,6 +6,10 @@
   <Color x:Key="Skin.Ink2Color">#A30D1B1A</Color>
   <Color x:Key="Skin.EdgeColor">#8CFFFFFF</Color>
   <Color x:Key="Skin.HighlightColor">#CCFFFFFF</Color>
+  <!-- SPEC 5.2 light: the rim at its brightest corner, the corner glow, and the dark line around the outside -->
+  <Color x:Key="Skin.RimColor">#FFFFFFFF</Color>
+  <Color x:Key="Skin.SheenColor">#99FFFFFF</Color>
+  <Color x:Key="Skin.HairlineColor">#290D1B1A</Color>
   <Color x:Key="Skin.ShadowColor">#73082828</Color>
   <Color x:Key="Tile.ShadowColor">#081E1E</Color>
   <Color x:Key="AccentColor">#00789A</Color>

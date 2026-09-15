@@ -52,6 +52,7 @@ public sealed class IconWindow : Window
     private readonly ScaleTransform _ringGrow = new(1, 1);
 
     private readonly Border _folderSheet;
+    private readonly GlassLightLayer _folderLight;
     private readonly UniformGrid _folderGrid;
     private readonly List<(Image Original, Image Styled)> _folderCells = [];
 
@@ -129,9 +130,11 @@ public sealed class IconWindow : Window
             RenderTransform = new TransformGroup { Children = { _ringGrow, _ringSpin } },
         };
 
-        // Folder (SPEC 4.3, 5.2): a sheet with 2×2 previews, sized per style in ApplyStyleLayout.
+        // Folder (SPEC 4.3, 5.2): a sheet with 2×2 previews, sized per style in ApplyStyleLayout. In Glass the light sits
+        // on the sheet, under the previews.
         _folderGrid = new UniformGrid { Rows = 2, Columns = 2 };
-        _folderSheet = new Border { BorderThickness = new Thickness(1), Child = _folderGrid, Visibility = Visibility.Collapsed };
+        _folderLight = new GlassLightLayer();
+        _folderSheet = new Border { BorderThickness = new Thickness(1), Child = new Grid { Children = { _folderLight, _folderGrid } }, Visibility = Visibility.Collapsed };
 
         _ripple = new Path { Stroke = Brushes.White, StrokeThickness = 2, Stretch = Stretch.Fill, Opacity = 0, RenderTransform = _rippleScale, RenderTransformOrigin = new Point(0.5, 0.5), IsHitTestVisible = false };
         _selection = new Path { StrokeThickness = 2, Stretch = Stretch.Fill, Margin = new Thickness(-5), Visibility = Visibility.Collapsed, IsHitTestVisible = false };
@@ -628,8 +631,13 @@ public sealed class IconWindow : Window
         // Folder sheet per style. Previews are as large as the shape allows: 36% in the Glass tile (SPEC 5.2), smaller
         // in the HUD plate so they clear the cut corners, and smaller again so they fit inside the Dot Matrix circle.
         var corner = _iconSize * IconDesign.CornerRatio;
+        var glass = !hud && !dot;
         _folderSheet.Background = null;
         _folderSheet.BorderBrush = null;
+        // Glass draws its edges with the light layer, so the sheet itself has no border.
+        _folderSheet.BorderThickness = new Thickness(glass ? 0 : 1);
+        _folderLight.Visibility = glass ? Visibility.Visible : Visibility.Collapsed;
+        _folderLight.Radius = corner;
         if (hud)
         {
             _folderSheet.CornerRadius = new CornerRadius(0);
@@ -637,14 +645,17 @@ public sealed class IconWindow : Window
         else
         {
             _folderSheet.SetResourceReference(Border.BackgroundProperty, "Skin.Fill.Folder");
-            _folderSheet.SetResourceReference(Border.BorderBrushProperty, "Skin.Edge");
+            if (dot)
+            {
+                _folderSheet.SetResourceReference(Border.BorderBrushProperty, "Skin.Edge");
+            }
             _folderSheet.CornerRadius = new CornerRadius(dot ? _iconSize / 2 : corner);
         }
         var preview = hud ? IconStyleDesign.HudFolderPreviewRatio : dot ? IconStyleDesign.DotFolderPreviewRatio : IconDesign.FolderPreviewRatio;
         var outer = (1 - 2 * preview - IconDesign.FolderGapRatio) / 2;
         // Each cell adds half the gap around its preview, and the sheet's 1 px border takes room too.
         var padding = _iconSize * (outer - IconDesign.FolderGapRatio / 2) - _folderSheet.BorderThickness.Left;
-        _folderSheet.Padding = new Thickness(Math.Max(0, padding));
+        _folderGrid.Margin = new Thickness(Math.Max(0, padding));
         // SPEC 5.9: the previews inside a Dot Matrix folder are dotted too.
         _folderGrid.OpacityMask = dot ? _dotMask : null;
         foreach (var cell in _folderGrid.Children.OfType<FrameworkElement>())

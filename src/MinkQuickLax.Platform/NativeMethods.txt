@@ -103,3 +103,9 @@ KNOWN_FOLDER_FLAG
 DWM_SYSTEMBACKDROP_TYPE
 SHLoadIndirectString
 AllowSetForegroundWindow
+
+// Desktop wallpaper (Glass frost when Windows does not blur)
+IDesktopWallpaper
+DesktopWallpaper
+DESKTOP_WALLPAPER_POSITION
+CoTaskMemFree
