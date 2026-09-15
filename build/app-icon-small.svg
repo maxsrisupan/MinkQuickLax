@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- MinkQuickLax app icon for 16-24 px (the tray): app-icon.svg with a full-bleed tile, a thicker ring and tail,
+       and no dotted orbit, so the shape stays crisp at a few pixels. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2=".35" y2="1">
+      <stop offset="0" stop-color="#0F2331"/>
+      <stop offset="1" stop-color="#04080C"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".5"/>
+      <stop offset=".4" stop-color="#FFFFFF" stop-opacity=".06"/>
+      <stop offset=".7" stop-color="#FFFFFF" stop-opacity=".06"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity=".26"/>
+    </linearGradient>
+    <linearGradient id="ring" gradientUnits="userSpaceOnUse" x1="50" y1="182" x2="182" y2="50">
+      <stop offset="0" stop-color="#2FD9BE"/>
+      <stop offset=".46" stop-color="#A6F6E8"/>
+      <stop offset=".56" stop-color="#FFE3A6"/>
+      <stop offset="1" stop-color="#FFC15A"/>
+    </linearGradient>
+    <linearGradient id="tail" gradientUnits="userSpaceOnUse" x1="149.2" y1="149.2" x2="204" y2="204">
+      <stop offset="0" stop-color="#FF7250" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#FF7250"/>
+      <stop offset="1" stop-color="#FFE9D6"/>
+    </linearGradient>
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#2FD9BE" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#2FD9BE" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+    <clipPath id="clip">
+      <rect width="256" height="256" rx="64"/>
+    </clipPath>
+  </defs>
+  <rect width="256" height="256" rx="64" fill="url(#tile)"/>
+  <g clip-path="url(#clip)">
+    <circle cx="116" cy="116" r="112" fill="url(#halo)"/>
+    <g filter="url(#glow)" opacity=".7">
+      <path d="M127.5 181A66 66 0 1 1 181 127.5" fill="none" stroke="url(#ring)" stroke-width="40" stroke-linecap="round"/>
+      <circle cx="204" cy="204" r="36" fill="#FF7250"/>
+    </g>
+    <path d="M127.5 181A66 66 0 1 1 181 127.5" fill="none" stroke="url(#ring)" stroke-width="34" stroke-linecap="round"/>
+    <path d="M149.2 149.2L204 204" stroke="url(#tail)" stroke-width="28" stroke-linecap="round"/>
+    <circle cx="204" cy="204" r="18" fill="#FFF6EC"/>
+  </g>
+  <rect x="4" y="4" width="248" height="248" rx="60" fill="none" stroke="url(#rim)" stroke-width="8"/>
+</svg>

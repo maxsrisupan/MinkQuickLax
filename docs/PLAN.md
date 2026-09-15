@@ -1,6 +1,6 @@
 # MinkQuickLax — แผนลงมือ (Plan)
 
-> **ความคืบหน้า:** M0–M10 เสร็จ · **M11** ออก [`v0.1.0`](https://github.com/maxsrisupan/MinkQuickLax/releases/tag/v0.1.0) แล้ว (2026-09-15) · ถัดไป: ผู้ใช้ตรวจรายการในหัวข้อ 8.2 ที่ยังไม่ติ๊ก (ต้องใช้มือหรือฮาร์ดแวร์จริง) แล้วแก้สิ่งที่เจอเป็น 0.1.x (`v0.1.1` 2026-09-16: Glass ใหม่ กระจกฝ้า และหน้าต่างเพิ่มเว็บ ดู M11 "แก้หลังออก 0.1.0") · จากนั้นเริ่มเฟส 2 (หัวข้อ 7)
+> **ความคืบหน้า:** M0–M10 เสร็จ · **M11** ออก [`v0.1.0`](https://github.com/maxsrisupan/MinkQuickLax/releases/tag/v0.1.0) แล้ว (2026-09-15) · ถัดไป: ผู้ใช้ตรวจรายการในหัวข้อ 8.2 ที่ยังไม่ติ๊ก (ต้องใช้มือหรือฮาร์ดแวร์จริง) แล้วแก้สิ่งที่เจอเป็น 0.1.x (`v0.1.1` 2026-09-16: Glass ใหม่ กระจกฝ้า และหน้าต่างเพิ่มเว็บ ดู M11 "แก้หลังออก 0.1.0" · หลังจากนั้นเปลี่ยน icon ของ app แล้ว ยังไม่ออกรุ่น ดู M11 "แก้หลังออก 0.1.1") · จากนั้นเริ่มเฟส 2 (หัวข้อ 7)
 > อัปเดตล่าสุด: 2026-09-16
 > **ข้อกำหนดอยู่ที่ [SPEC.md](SPEC.md)** เอกสารนี้บอกแค่ว่าทำอย่างไรและทำอะไรก่อน
 
@@ -104,7 +104,9 @@ MinkQuickLax/
 │  └─ ManualBuilder.Tests/        ตรวจ id, ลิงก์, คำค้น, ไฟล์ HTML และคู่มือจริงใน repo
 ├─ build/
 │  ├─ publish.ps1                 dotnet publish self-contained win-x64
-│  └─ pack.ps1                    vpk pack (+ upload)
+│  ├─ pack.ps1                    vpk pack (+ upload)
+│  ├─ make-app-icon.ps1           สร้าง src/MinkQuickLax/Assets/AppIcon.ico ใหม่จาก SVG (ใช้ Edge)
+│  └─ app-icon.svg, app-icon-small.svg   ต้นฉบับ icon ของ app (32px ขึ้นไป / 16–24px)
 └─ .github/workflows/
    ├─ ci.yml                      build + test ทุก push/PR
    └─ release.yml                 tag v* → pack → GitHub Release
@@ -343,7 +345,7 @@ MinkQuickLax/
 - [x] `GlassMenuWindow` + เมนูคลิกขวาที่ไอคอน (SPEC 4.2) · รายการที่เป็นของ M4–M7 แสดงแต่กดไม่ได้จนกว่าจะทำ
 - [x] `PlacementController`: สร้างหน้าต่างตามข้อมูล, ซ่อน/แสดงทั้งชุด · มี "จัดเรียงใหม่" และ "วางเพิ่มบนจอ" แล้ว
 - [x] `TopmostKeeper`, `DisplayChangeWatcher` (อยู่ใน `SystemEvents`), `SingleInstance`
-- [x] tray: คลิกซ้ายซ่อน/แสดง, เมนูคลิกขวา (SPEC 4.7), icon ของ app (.ico 16–256px ทำจากลูกแก้วสี `#2FD9BE/#FFC15A/#FF7250` ใน mockup) · สร้างซ้ำได้ด้วย `build/make-app-icon.ps1`
+- [x] tray: คลิกซ้ายซ่อน/แสดง, เมนูคลิกขวา (SPEC 4.7), icon ของ app (.ico 16–256px เดิมทำจากลูกแก้วสี `#2FD9BE/#FFC15A/#FF7250` ใน mockup · เปลี่ยนเป็นวงโคจรหลังออก 0.1.1 ดู M11) · สร้างซ้ำได้ด้วย `build/make-app-icon.ps1`
 - [x] ค่าตั้งจาก `SystemSettingsWatcher` (`SystemSettings.Read` + `SystemEvents.SettingsChanged`): Transparency effects, Animation effects, High contrast, ประหยัดแบต
 - **ตรวจ:** ใส่ link ใน config.json เอง แล้ว app แสดงไอคอน กดเปิดได้ · focus ไม่หลุด · ไม่อยู่ใน Alt+Tab · เปลี่ยนความละเอียด/ถอดจอแล้วตำแหน่งถูก
 - **ผลตรวจ (2026-09-15):** config ทดสอบ 6 link (app, shellApp, folder, url, ไฟล์ที่หาย, ms-settings ชื่อไทย) แสดงครบ · icon จริงของ Notepad/Calculator/Windows, ตัวอักษร "G" และ "ที่" (ไม่หลุดวรรณยุกต์) · ไฟล์ที่หายจางและมี ! กดแล้วขึ้นกล่องแจ้ง · กด Calculator แล้วเปิดและขึ้นหน้าสุด · ชี้ค้างแล้วชื่อขึ้น · เมาส์เข้าใกล้แล้วชัดขึ้น (ความสว่าง 158→209) · เมนูคลิกขวาภาษาไทยขึ้นตรงเคอร์เซอร์และปิดเมื่อคลิกนอก · foreground ไม่เปลี่ยนตอน hover/เมนู · ทุกหน้าต่างเป็น TOOLWINDOW+NOACTIVATE ไม่มี APPWINDOW · คลิก tray แล้วซ่อนหมด tooltip เป็น "(ซ่อนอยู่)" · เปิดซ้ำแล้วตัวที่สองออกใน 189ms และตัวแรกแสดงไอคอนกลับ · จำลอง `WM_DISPLAYCHANGE` แล้วจัดตำแหน่งใหม่ไม่มี error · ไฟล์ค่าตั้งเสียจริง (backslash หาย) ถูกย้ายไปเก็บและเริ่มจากค่าเริ่มต้น · **30 ไอคอน: RAM 36MB, CPU ตอนนิ่ง 0.004%** · test ทั้งหมด 153 ผ่าน
@@ -507,6 +509,12 @@ MinkQuickLax/
     - **ทำแล้ว:** `AddWeb/` (`AddWebService` เปิดทีละหน้าต่าง ถ้าหน้าต่างของ app ที่ active อยู่เป็นหน้าสแกนหรือหน้าตั้งค่าก็ใช้เป็น owner · `AddWebViewModel` ชื่อตามที่อยู่จนผู้ใช้พิมพ์เอง ดึง favicon ผ่าน `IconCache` หลังหยุดพิมพ์ 0.6 วินาที ใช้ key เดียวกับ link ที่จะเพิ่ม icon บนจอเลยขึ้นทันที) · `Core/Launch/WebAddress` เติม `https://` (หรือ `http://` สำหรับ localhost/IP) พร้อม test · หน้าสแกนเหลือปุ่ม ไฟล์…/โฟลเดอร์…/เว็บ… (เอา `Url`, `Browser`, `AddUrl` และ `ScanItem.Browser` ออก) · เมนู tray "เพิ่มเว็บ…" · ปุ่ม "เพิ่มเว็บ…" ในหน้าตั้งค่าหมวด Link · ข้อความ `AddWeb_*`, `Scanner_PickWeb`, `Tray_AddWeb` (ลบ `Scanner_UrlHint`, `Scanner_UrlInvalid`) · คู่มือบท 2
     - **ตรวจแล้ว:** dev build + ข้อมูลทดสอบ ผ่านโปรแกรมเล็กที่เปิดหน้าต่างจริงของ app โดยไม่ผ่าน single instance (app ที่ติดตั้งยังรันอยู่) และ UI Automation · ช่องว่างกดเพิ่มไม่ได้ · `hello` ขึ้นข้อความเตือน ไม่ปิด ไม่เพิ่ม · `github.com/` ขึ้นว่ามีอยู่แล้ว ชื่อ `github.com` · `youtube.com` ได้ชื่อและ favicon · พิมพ์ชื่อเอง "YouTube" แล้วเปลี่ยนที่อยู่ ชื่อไม่ถูกทับ · เลือก Google Chrome แล้วกด Enter หน้าต่างปิด ได้ link `https://www.youtube.com/` browser `Google Chrome` icon `favicon` · ปุ่ม "เว็บ…" ในหน้าสแกนเปิดหน้าต่างกลางหน้าสแกน กดยกเลิกแล้วหน้าสแกนยังอยู่ · ปุ่มในหน้าตั้งค่าเปิดได้ · ภาพ Glass ไทย, HUD อังกฤษ
     - **ยังต้องตรวจ:** ผู้ใช้ลองเพิ่มเว็บจริงจากเมนู tray · Dot Matrix และธีมสว่าง
+- **แก้หลังออก 0.1.1 (ยังไม่ออกรุ่น · ตอนออกรุ่นต้องเขียนลง `CHANGELOG.md`):**
+  - [x] **icon ของ app ใหม่ (2026-09-16):**
+    - **ที่มา:** ผู้ใช้อยากได้ icon ที่ล้ำขึ้น · ร่าง 5 แบบเป็นหน้าเทียบ (ขนาดเต็ม, 64–16px, แถว tray จำลองบน taskbar มืด/สว่าง) ผู้ใช้เลือกแบบวงโคจร (SPEC 4.7, หัวข้อ 8)
+    - **ทำแล้ว:** `build/app-icon.svg` (32px ขึ้นไป) และ `build/app-icon-small.svg` (16–24px แผ่นเต็มกรอบ วงหนาขึ้น ไม่มีวงประ) · `build/make-app-icon.ps1` ให้ Edge headless วาดทุกขนาดในภาพเดียวบนพื้นโปร่งใส แล้วตัดแต่ละขนาดมาทำ `AppIcon.ico` (16, 20, 24, 32, 40, 48, 64 เป็น BMP · 256 เป็น PNG เหมือนเดิม)
+    - **ตรวจแล้ว:** เทียบแบบเล็กกับแบบใหญ่ที่ 16–64px บนสีของ taskbar มืด/สว่าง แบบเล็กชัดกว่าถึง 24px จึงแบ่งที่ 24 · สคริปต์ตรวจว่าพื้นหลังโปร่งใสจริง · WPF อ่าน `.ico` ได้ครบ 8 ขนาด ภาพถูกทุกขนาด · `dotnet build` ผ่าน ไม่มี warning
+    - **ยังต้องตรวจ:** icon ที่ tray, หน้าตั้งค่า, หน้าเกี่ยวกับ และตัวติดตั้งของจริง (app ที่ติดตั้งยังรันอยู่ dev build เลยเปิดไม่ได้) · Explorer อาจยังแสดง icon เดิมจาก cache จนกว่าจะอัปเดตรุ่นใหม่
 
 ---
 
@@ -621,7 +629,8 @@ MinkQuickLax/
 | 2026-09-15 | ใครถือ tray | `Program.Main` สร้าง `TrayController` ด้วย `using` แล้วค่อย `app.Run()` | ให้ Program คุมลำดับตอนเปิด/ปิดตามหัวข้อ 3.1 · analyzer CA1001 ไม่ยอมให้ `App` ถือ object ที่ต้อง dispose |
 | 2026-09-15 | เมนูที่ tray ใน M0 | ใช้ `ContextMenu` ของ WPF ชั่วคราว · เปลี่ยนเป็น `GlassMenuWindow` ใน M3 หลังผ่าน S7 | M0 ต้องการแค่เมนู "ออก" |
 | 2026-09-15 | Efficiency mode ของ H.NotifyIcon | ปิด (`ForceCreate(enablesEfficiencyMode: false)`) | โหมดนี้ลดลำดับความสำคัญของ process ซึ่งจะทำให้ไอคอนตอบสนองเมาส์ช้า |
-| 2026-09-15 | icon ของ app | `Assets/AppIcon.ico` ตอนนี้เป็นตัวชั่วคราว (ลูกแก้ว 3 สีวาดด้วยโค้ด ขนาด 16–256px) | ตัวจริงออกแบบใน M3 ตามรายการในหัวข้อ 6 |
+| 2026-09-15 | icon ของ app | `Assets/AppIcon.ico` ตอนนี้เป็นตัวชั่วคราว (ลูกแก้ว 3 สีวาดด้วยโค้ด ขนาด 16–256px) | ตัวจริงออกแบบใน M3 ตามรายการในหัวข้อ 6 · แทนด้วยวงโคจรเมื่อ 2026-09-16 (แถวด้านล่าง) |
+| 2026-09-16 | วิธีสร้าง `AppIcon.ico` | ต้นฉบับเป็น SVG 2 ไฟล์ใน `build/` · `make-app-icon.ps1` ให้ Microsoft Edge แบบ headless วาดเป็นภาพทีละขนาด แล้วรวมเป็น `.ico` · commit ไฟล์ `.ico` ไว้ ไม่ได้สร้างตอน build | icon ใหม่มีแสงเรือง ไล่สี และตัดขอบ ซึ่ง System.Drawing แบบเดิมวาดได้ไม่ดี · Edge มีในทุกเครื่อง Windows 11 และวาดตรงกับหน้าเทียบที่ผู้ใช้ใช้เลือก จึงไม่ต้องเพิ่ม package · CI ไม่ต้องมี Edge |
 | 2026-09-15 | เบลอบนเมนู/แผง/ชื่อไอคอน | accent acrylic (`SetWindowCompositionAttribute`) แทน `DWMWA_SYSTEMBACKDROP_TYPE` | Acrylic ของระบบเป็นพื้นทึบบนหน้าต่างที่ไม่เคย active (S4) · API นี้ไม่มีเอกสาร จึงห่อไว้ใน `DwmBackdrop` ที่เดียวและมีพื้นทึบเป็นทางสำรอง |
 | 2026-09-15 | การวาดหน้าต่างไอคอน | layered + วาดด้วย CPU รายหน้าต่าง · การเข้าใกล้ไล่ค่าเองที่ 30Hz | RAM 38MB แทน 80MB · CPU ตอนขยับเมาส์ 1.59% แทน 2.25% (S1, S3) |
 | 2026-09-15 | id ของจอ | `monitorDevicePath` → EDID (ผู้ผลิต+รุ่น+serial) → จอหลัก | ทดสอบรีบูต/ถอดเสียบไม่ได้บนเครื่องจอเดียว · path มีเลขพอร์ตอยู่ด้วย จึงต้องมี EDID เป็นตัวสำรองตอนสลับพอร์ต (S9) |

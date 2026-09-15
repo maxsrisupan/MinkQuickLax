@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- MinkQuickLax app icon for 32 px and up: an open light ring (the Q of Quick) whose tail launches out as a comet.
+       Rendered into AppIcon.ico by build/make-app-icon.ps1; app-icon-small.svg is the same drawing for 16-24 px. -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2=".35" y2="1">
+      <stop offset="0" stop-color="#0F2331"/>
+      <stop offset="1" stop-color="#04080C"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".5"/>
+      <stop offset=".4" stop-color="#FFFFFF" stop-opacity=".06"/>
+      <stop offset=".7" stop-color="#FFFFFF" stop-opacity=".06"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity=".26"/>
+    </linearGradient>
+    <linearGradient id="ring" gradientUnits="userSpaceOnUse" x1="58" y1="182" x2="182" y2="58">
+      <stop offset="0" stop-color="#2FD9BE"/>
+      <stop offset=".46" stop-color="#A6F6E8"/>
+      <stop offset=".56" stop-color="#FFE3A6"/>
+      <stop offset="1" stop-color="#FFC15A"/>
+    </linearGradient>
+    <linearGradient id="tail" gradientUnits="userSpaceOnUse" x1="153.2" y1="153.2" x2="206" y2="206">
+      <stop offset="0" stop-color="#FF7250" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#FF7250"/>
+      <stop offset="1" stop-color="#FFE9D6"/>
+    </linearGradient>
+    <radialGradient id="halo">
+      <stop offset="0" stop-color="#2FD9BE" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#2FD9BE" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+    <clipPath id="clip">
+      <rect x="12" y="12" width="232" height="232" rx="62"/>
+    </clipPath>
+  </defs>
+  <rect x="12" y="12" width="232" height="232" rx="62" fill="url(#tile)"/>
+  <g clip-path="url(#clip)">
+    <circle cx="120" cy="120" r="112" fill="url(#halo)"/>
+    <circle cx="120" cy="120" r="92" fill="none" stroke="#6FF3FF" stroke-opacity=".3" stroke-width="2.5" stroke-dasharray="1.5 9" stroke-linecap="round"/>
+    <g filter="url(#glow)" opacity=".7">
+      <path d="M132.9 180.6A62 62 0 1 1 180.6 132.9" fill="none" stroke="url(#ring)" stroke-width="32" stroke-linecap="round"/>
+      <circle cx="206" cy="206" r="26" fill="#FF7250"/>
+    </g>
+    <path d="M132.9 180.6A62 62 0 1 1 180.6 132.9" fill="none" stroke="url(#ring)" stroke-width="26" stroke-linecap="round"/>
+    <path d="M153.2 153.2L206 206" stroke="url(#tail)" stroke-width="20" stroke-linecap="round"/>
+    <circle cx="206" cy="206" r="13" fill="#FFF6EC"/>
+  </g>
+  <rect x="13.5" y="13.5" width="229" height="229" rx="60.5" fill="none" stroke="url(#rim)" stroke-width="3"/>
+</svg>

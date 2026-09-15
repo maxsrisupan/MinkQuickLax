@@ -1,51 +1,25 @@
-# Renders src/MinkQuickLax/Assets/AppIcon.ico: three glass orbs (#2FD9BE, #FFC15A, #FF7250) at 16-256 px.
-# Usage: powershell -File build/make-app-icon.ps1 -OutPath src/MinkQuickLax/Assets/AppIcon.ico
-param([string]$OutPath)
+# Renders src/MinkQuickLax/Assets/AppIcon.ico at 16-256 px from build/app-icon-small.svg (16-24 px, the tray)
+# and build/app-icon.svg (32 px and up). Headless Microsoft Edge rasterizes the SVGs at each exact size, so the
+# gradients, glow and clipping match what a browser shows for the same files.
+# Usage: powershell -File build/make-app-icon.ps1 [-OutPath src/MinkQuickLax/Assets/AppIcon.ico]
+param([string]$OutPath = (Join-Path $PSScriptRoot '..\src\MinkQuickLax\Assets\AppIcon.ico'))
 
 Add-Type -AssemblyName System.Drawing
 $ErrorActionPreference = 'Stop'
 
-function New-Color([string]$hex, [int]$alpha = 255) {
-    $c = [System.Drawing.ColorTranslator]::FromHtml($hex)
-    return [System.Drawing.Color]::FromArgb($alpha, $c.R, $c.G, $c.B)
-}
+$sizes = 16, 20, 24, 32, 40, 48, 64, 256
+$smallUpTo = 24
+$gap = 8
 
-function Draw-Orb($g, [double]$s, [double]$cx, [double]$cy, [double]$r, [string]$light, [string]$dark) {
-    $x = ($cx - $r) * $s; $y = ($cy - $r) * $s; $d = 2 * $r * $s
-    $path = New-Object System.Drawing.Drawing2D.GraphicsPath
-    $path.AddEllipse([single]$x, [single]$y, [single]$d, [single]$d)
-    $brush = New-Object System.Drawing.Drawing2D.PathGradientBrush($path)
-    $brush.CenterPoint = New-Object System.Drawing.PointF([single](($cx - $r * 0.35) * $s), [single](($cy - $r * 0.35) * $s))
-    $brush.CenterColor = New-Color $light
-    $brush.SurroundColors = [System.Drawing.Color[]]@(New-Color $dark)
-    $g.FillEllipse($brush, [single]$x, [single]$y, [single]$d, [single]$d)
-    # Top-left specular highlight
-    $hw = $d * 0.42; $hh = $d * 0.26
-    $hx = $x + $d * 0.2; $hy = $y + $d * 0.12
-    $hl = New-Object System.Drawing.Drawing2D.LinearGradientBrush(
-        (New-Object System.Drawing.RectangleF([single]$hx, [single]$hy, [single]$hw, [single]$hh)),
-        (New-Color '#FFFFFF' 150), (New-Color '#FFFFFF' 0), [single]90)
-    $g.FillEllipse($hl, [single]$hx, [single]$hy, [single]$hw, [single]$hh)
-    # Thin inner edge
-    if ($s -ge 32) {
-        $pen = New-Object System.Drawing.Pen((New-Color '#FFFFFF' 60), [single]([Math]::Max(1, $s / 64)))
-        $g.DrawEllipse($pen, [single]($x + 0.5), [single]($y + 0.5), [single]($d - 1), [single]($d - 1))
-        $pen.Dispose()
-    }
-    $hl.Dispose(); $brush.Dispose(); $path.Dispose()
-}
+$edge = @(
+    "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe",
+    "$env:ProgramFiles\Microsoft\Edge\Application\msedge.exe"
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $edge) { throw 'Microsoft Edge is needed to rasterize the SVGs.' }
 
-function Render([int]$size) {
-    $bmp = New-Object System.Drawing.Bitmap($size, $size, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
-    $g = [System.Drawing.Graphics]::FromImage($bmp)
-    $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
-    $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
-    $g.Clear([System.Drawing.Color]::Transparent)
-    Draw-Orb $g $size 0.68 0.34 0.24 '#FFD98C' '#E08A1E'
-    Draw-Orb $g $size 0.64 0.68 0.26 '#FF9C80' '#C73E2A'
-    Draw-Orb $g $size 0.37 0.47 0.32 '#8FF0DF' '#1E8F9E'
-    $g.Dispose()
-    return $bmp
+function Get-SvgDataUri([string]$name) {
+    $bytes = [System.IO.File]::ReadAllBytes((Join-Path $PSScriptRoot $name))
+    return 'data:image/svg+xml;base64,' + [Convert]::ToBase64String($bytes)
 }
 
 function Get-Bgra($bmp) {
@@ -57,28 +31,62 @@ function Get-Bgra($bmp) {
     return ,$bytes
 }
 
-$sizes = 16, 20, 24, 32, 40, 48, 64, 256
-$images = @()
+# Every size side by side in one row at 1 CSS px = 1 pixel, captured with a single screenshot
+$largeUri = Get-SvgDataUri 'app-icon.svg'
+$smallUri = Get-SvgDataUri 'app-icon-small.svg'
+$tags = ''
+$offsets = @{}
+$x = 0
 foreach ($size in $sizes) {
-    $bmp = Render $size
-    $ms = New-Object System.IO.MemoryStream
-    if ($size -eq 256) {
-        $bmp.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png)
-    } else {
-        # Classic DIB entry: BITMAPINFOHEADER + bottom-up BGRA + empty AND mask
-        $w = New-Object System.IO.BinaryWriter($ms)
-        $maskRow = [int][Math]::Floor(($size + 31) / 32) * 4
-        $w.Write([int]40); $w.Write([int]$size); $w.Write([int]($size * 2))
-        $w.Write([int16]1); $w.Write([int16]32); $w.Write([int]0)
-        $w.Write([int]($size * $size * 4 + $maskRow * $size))
-        $w.Write([int]0); $w.Write([int]0); $w.Write([int]0); $w.Write([int]0)
-        $px = Get-Bgra $bmp
-        for ($row = $size - 1; $row -ge 0; $row--) { $w.Write($px, $row * $size * 4, $size * 4) }
-        $w.Write((New-Object byte[] ($maskRow * $size)))
-        $w.Flush()
+    $uri = if ($size -le $smallUpTo) { $smallUri } else { $largeUri }
+    $tags += "<img src=`"$uri`" style=`"position:absolute;left:${x}px;top:0;width:${size}px;height:${size}px`">"
+    $offsets[$size] = $x
+    $x += $size + $gap
+}
+$sheetWidth = $x
+$sheetHeight = ($sizes | Measure-Object -Maximum).Maximum
+
+$work = Join-Path ([System.IO.Path]::GetTempPath()) ('minkquicklax-icon-' + [Guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $work | Out-Null
+$sheet = $null
+try {
+    $page = Join-Path $work 'sheet.html'
+    $shot = Join-Path $work 'sheet.png'
+    [System.IO.File]::WriteAllText($page, "<!doctype html><html><body style=`"margin:0;background:transparent`">$tags</body></html>")
+    & $edge --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 `
+        --default-background-color=00000000 "--user-data-dir=$(Join-Path $work 'profile')" --virtual-time-budget=2000 `
+        "--window-size=$sheetWidth,$sheetHeight" "--screenshot=$shot" ([Uri]$page).AbsoluteUri | Out-Null
+    if (-not (Test-Path $shot)) { throw 'Edge did not write the screenshot.' }
+
+    $sheet = [System.Drawing.Bitmap]::FromFile($shot)
+    if ($sheet.GetPixel(0, 0).A -ne 0) { throw 'The screenshot background is not transparent.' }
+
+    $images = @()
+    foreach ($size in $sizes) {
+        $rect = New-Object System.Drawing.Rectangle($offsets[$size], 0, $size, $size)
+        $bmp = $sheet.Clone($rect, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+        $ms = New-Object System.IO.MemoryStream
+        if ($size -eq 256) {
+            $bmp.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png)
+        } else {
+            # Classic DIB entry: BITMAPINFOHEADER + bottom-up BGRA + empty AND mask
+            $w = New-Object System.IO.BinaryWriter($ms)
+            $maskRow = [int][Math]::Floor(($size + 31) / 32) * 4
+            $w.Write([int]40); $w.Write([int]$size); $w.Write([int]($size * 2))
+            $w.Write([int16]1); $w.Write([int16]32); $w.Write([int]0)
+            $w.Write([int]($size * $size * 4 + $maskRow * $size))
+            $w.Write([int]0); $w.Write([int]0); $w.Write([int]0); $w.Write([int]0)
+            $px = Get-Bgra $bmp
+            for ($row = $size - 1; $row -ge 0; $row--) { $w.Write($px, $row * $size * 4, $size * 4) }
+            $w.Write((New-Object byte[] ($maskRow * $size)))
+            $w.Flush()
+        }
+        $images += ,@($size, $ms.ToArray())
+        $bmp.Dispose()
     }
-    $images += ,@($size, $ms.ToArray())
-    $bmp.Dispose()
+} finally {
+    if ($sheet) { $sheet.Dispose() }
+    Remove-Item -Recurse -Force $work -ErrorAction SilentlyContinue
 }
 
 $out = New-Object System.IO.MemoryStream
@@ -94,6 +102,7 @@ foreach ($img in $images) {
 }
 foreach ($img in $images) { $bw.Write($img[1]) }
 $bw.Flush()
+$OutPath = [System.IO.Path]::GetFullPath($OutPath)
 [System.IO.File]::WriteAllBytes($OutPath, $out.ToArray())
 
 "wrote $OutPath ($((Get-Item $OutPath).Length) bytes)"
