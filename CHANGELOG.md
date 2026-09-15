@@ -2,6 +2,18 @@
 
 รายการสิ่งที่เปลี่ยนในแต่ละเวอร์ชัน · What changed in each version
 
+## 0.1.2
+
+### ไทย
+
+- **icon ใหม่:** วงแหวนแสงรูปตัว Q ที่มีหางพุ่งออกไปเป็นดาวหาง แทนลูกแก้ว 3 สี ใช้ทั้งที่ tray หน้าตั้งค่า คู่มือ และตัวติดตั้ง · ขนาดเล็กที่ tray วาดแยกให้ยังชัด
+- Explorer และ Start Menu อาจยังแสดง icon เดิมไปสักพัก จนกว่า Windows จะล้างแคช icon
+
+### English
+
+- **New icon:** a light ring shaped like a Q, with a tail that shoots off like a comet, replaces the three glass orbs in the tray, Settings, the manual and the installer. The small tray sizes are drawn separately so they stay sharp.
+- Explorer and the Start menu may show the old icon for a while, until Windows refreshes its icon cache.
+
 ## 0.1.1
 
 ### ไทย
