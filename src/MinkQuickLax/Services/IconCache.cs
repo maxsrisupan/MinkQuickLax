@@ -200,7 +200,10 @@ public sealed partial class IconCache : IDisposable
 
     private static string KeyFor(Link link)
     {
-        var identity = $"{link.Kind}|{link.Target}|{link.Icon.Source}|{link.Icon.Path}";
+        // Shell icons get a new key when their extraction changes, so pictures cached by an older version are taken
+        // again (2: small icons in the faint frame of build 26200). Favicons keep theirs rather than download again.
+        var version = link.Kind == LinkKind.Url ? "" : "2|";
+        var identity = $"{version}{link.Kind}|{link.Target}|{link.Icon.Source}|{link.Icon.Path}";
         return Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(identity)))[..32];
     }
 
