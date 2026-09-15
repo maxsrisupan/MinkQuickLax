@@ -91,8 +91,9 @@ public static unsafe class IconExtractor
     }
 
     /// <summary>
-    /// The shell's frame for small icons: an opaque border along the edges with a transparent gap inside,
-    /// while real large icons are transparent at the very edge.
+    /// The shell's frame for small icons: a thin border along every edge with a transparent gap inside, while real
+    /// large icons are transparent at the very edge. The border is opaque on older Windows 11 builds but only faintly
+    /// visible (alpha 26–77 over 5 px) on build 26200, so any alpha in the outer pixels counts.
     /// </summary>
     internal static bool LooksFramed(IconBitmap bitmap)
     {
@@ -100,17 +101,33 @@ public static unsafe class IconExtractor
         {
             return false;
         }
+        const int Rim = 4;
+        const int RimAlpha = 16;
         int Alpha(int x, int y) => bitmap.Pixels[(y * bitmap.Width + x) * 4 + 3];
         var w = bitmap.Width;
         var h = bitmap.Height;
-        var edgeOpaque = 0;
+        int MaxAlpha(int x, int y, int dx, int dy)
+        {
+            var max = 0;
+            for (var d = 0; d < Rim; d++)
+            {
+                max = Math.Max(max, Alpha(x + dx * d, y + dy * d));
+            }
+            return max;
+        }
+        var edge = 0;
         var samples = 0;
         for (var i = 8; i < w - 8; i += 8)
         {
             samples += 2;
-            edgeOpaque += (Alpha(i, 0) > 200 ? 1 : 0) + (Alpha(i, h - 1) > 200 ? 1 : 0);
+            edge += (MaxAlpha(i, 0, 0, 1) >= RimAlpha ? 1 : 0) + (MaxAlpha(i, h - 1, 0, -1) >= RimAlpha ? 1 : 0);
         }
-        if (edgeOpaque < samples * 0.9)
+        for (var i = 8; i < h - 8; i += 8)
+        {
+            samples += 2;
+            edge += (MaxAlpha(0, i, 1, 0) >= RimAlpha ? 1 : 0) + (MaxAlpha(w - 1, i, -1, 0) >= RimAlpha ? 1 : 0);
+        }
+        if (edge < samples * 0.9)
         {
             return false;
         }

@@ -82,20 +82,24 @@ public sealed class IconExtractorTests
         Assert.Null(IconExtractor.ForLink(new Link { Kind = LinkKind.Url, Target = "https://example.com" }));
     }
 
-    [Fact]
-    public void Framed_SmallIcon_IsRecognized()
+    [Theory]
+    // An opaque 2 px border (older Windows 11 builds).
+    [InlineData(new byte[] { 255, 255 })]
+    // The faint border of build 26200, measured from javacpl.exe: dark at alpha 38, then white fading out.
+    [InlineData(new byte[] { 38, 38, 77, 51, 26 })]
+    public void Framed_SmallIcon_IsRecognized(byte[] border)
     {
         const int Size = 256;
         var pixels = new byte[Size * Size * 4];
         void Set(int x, int y, byte a) => pixels[(y * Size + x) * 4 + 3] = a;
         for (var i = 0; i < Size; i++)
         {
-            for (var t = 0; t < 2; t++)
+            for (var t = 0; t < border.Length; t++)
             {
-                Set(i, t, 255);
-                Set(i, Size - 1 - t, 255);
-                Set(t, i, 255);
-                Set(Size - 1 - t, i, 255);
+                Set(i, t, border[t]);
+                Set(i, Size - 1 - t, border[t]);
+                Set(t, i, border[t]);
+                Set(Size - 1 - t, i, border[t]);
             }
         }
         for (var y = 112; y < 144; y++)
