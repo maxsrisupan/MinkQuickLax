@@ -50,7 +50,13 @@ public sealed partial class UpdateService(ILogger<UpdateService> logger) : IDisp
             var info = await manager.CheckForUpdatesAsync().ConfigureAwait(false);
             if (info is null)
             {
-                return _ready is { } waiting ? new UpdateResult(UpdateOutcome.Ready, waiting.Version.ToString()) : new UpdateResult(UpdateOutcome.UpToDate, manager.CurrentVersion?.ToString());
+                if (_ready is { } waiting)
+                {
+                    return new UpdateResult(UpdateOutcome.Ready, waiting.Version.ToString());
+                }
+                var current = manager.CurrentVersion?.ToString();
+                LogUpToDate(logger, current);
+                return new UpdateResult(UpdateOutcome.UpToDate, current);
             }
             var version = info.TargetFullRelease.Version.ToString();
             if (_ready?.Version.ToString() != version)
@@ -111,6 +117,9 @@ public sealed partial class UpdateService(ILogger<UpdateService> logger) : IDisp
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Update {Version} downloaded from channel {Channel}")]
     private static partial void LogDownloaded(ILogger logger, string version, string channel);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Update check: {Version} is the newest version")]
+    private static partial void LogUpToDate(ILogger logger, string? version);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Update check failed")]
     private static partial void LogCheckFailed(ILogger logger, Exception exception);
